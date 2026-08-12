@@ -498,6 +498,14 @@
       .right{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
       .right h2:first-child{margin-top:0}
     }
+
+    @media(min-width:761px) and (max-width:1120px) and (orientation:portrait){
+      .left{
+        max-height:calc(100vh - 330px);
+        max-height:calc(100dvh - 330px);
+      }
+    }
+
     @media(max-width:760px){
       .app{grid-template-columns:1fr;padding:10px;gap:12px}
       .left,.right{grid-column:auto}
