@@ -1,0 +1,4573 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#eef2ff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#11131b" media="(prefers-color-scheme: dark)" />
+
+  <link rel="manifest" href="/collage-studio/site.webmanifest" />
+  <meta name="apple-mobile-web-app-title" content="Collage Studio" />
+
+  <link rel="icon" type="image/png" href="/collage-studio/assets/images/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/collage-studio/assets/images/favicon.svg" />
+  <link rel="shortcut icon" href="/collage-studio/assets/images/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/collage-studio/assets/images/apple-touch-icon.png" />
+
+  <title>Collage Studio – modern kollázs készítő</title>
+  <style>
+    :root{
+      color-scheme:light;
+      --bg:#eef2ff;
+      --bg2:#f8fafc;
+      --panel:rgba(255,255,255,.82);
+      --panel-solid:#ffffff;
+      --text:#172033;
+      --muted:#687386;
+      --line:rgba(148,163,184,.28);
+      --accent:#6757e8;
+      --accent-2:#8b5cf6;
+      --accent-soft:#ede9fe;
+      --danger:#c23b4a;
+      --radius:22px;
+      --shadow:0 18px 55px rgba(35,45,75,.10);
+      --scroll-thumb:rgba(103,87,232,.24);
+      --scroll-thumb-hover:rgba(103,87,232,.42);
+      --scroll-track:transparent;
+    }
+    *{box-sizing:border-box}
+    html{background:var(--bg2)}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:
+        radial-gradient(circle at 15% 0%,rgba(139,92,246,.15),transparent 32rem),
+        radial-gradient(circle at 100% 18%,rgba(59,130,246,.10),transparent 28rem),
+        linear-gradient(145deg,var(--bg),var(--bg2) 48%,#f7f8fc);
+      color:var(--text);
+      overscroll-behavior:none;
+      overflow-x:hidden;
+    }
+    button,input,select{font:inherit}
+    button{cursor:pointer}
+    button:disabled{cursor:not-allowed;opacity:.45}
+    [hidden]{display:none!important}
+
+    .app{
+      min-height:100vh;
+      display:grid;
+      grid-template-columns:300px minmax(0,1fr) 300px;
+      gap:20px;
+      padding:20px;
+    }
+    .panel,.topbar{
+      background:var(--panel);
+      border:1px solid rgba(255,255,255,.9);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+    }
+    .panel{
+      border-radius:var(--radius);
+      padding:18px;
+      align-self:start;
+    }
+    .brand{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+    .brand-mark{
+      flex:0 0 42px;
+      width:42px;height:42px;
+      display:block;
+      filter:drop-shadow(0 10px 12px rgba(103,87,232,.24));
+    }
+    .brand-mark svg{width:100%;height:100%;display:block}
+    .brand-copy{min-width:0}
+    .brand-help{
+      margin-left:auto;flex:0 0 34px;width:34px;height:34px;padding:0;border:1px solid var(--line);
+      border-radius:11px;background:rgba(255,255,255,.72);color:#687187;display:grid;place-items:center;
+      font-size:15px;font-weight:850;line-height:1;transition:transform .14s ease,border-color .14s ease,color .14s ease,box-shadow .14s ease;
+    }
+    .brand-help:hover{color:var(--accent);border-color:rgba(103,87,232,.42);box-shadow:0 8px 18px rgba(35,45,75,.08)}
+    .eyebrow{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);font-weight:800;margin-bottom:2px}
+    h1{font-size:20px;line-height:1.15;margin:0;letter-spacing:-.02em}
+    h2{font-size:13px;margin:22px 0 10px;color:#39445a;letter-spacing:.01em}
+    .sub{font-size:13px;color:var(--muted);line-height:1.5;margin:0}
+
+    .layouts{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
+    }
+    .layout-btn{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.72);
+      border-radius:14px;
+      padding:8px;
+      min-height:82px;
+      transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease,background .16s ease;
+      color:var(--text);
+    }
+    .layout-btn:hover{border-color:rgba(103,87,232,.5);box-shadow:0 10px 22px rgba(75,73,120,.10)}
+    .layout-btn.active{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(103,87,232,.12),0 12px 24px rgba(75,73,120,.10)}
+    .mini{
+      position:relative;
+      width:100%;
+      aspect-ratio:1/1;
+      background:linear-gradient(145deg,#eef0f5,#e7eaf1);
+      overflow:hidden;
+      border-radius:0;
+    }
+    .mini-svg{width:100%;height:100%;display:block}
+    .mini-shape{
+      stroke:rgba(255,255,255,.98);
+      stroke-width: 4;
+      vector-effect:non-scaling-stroke;
+      stroke-linejoin:miter;
+    }
+    .mini-stop-start{stop-color:#cfd5e2}
+    .mini-stop-end{stop-color:#bfc8da}
+    .layout-btn.active .mini-stop-start{stop-color:#c9c2ff}
+    .layout-btn.active .mini-stop-end{stop-color:#9d8df5}
+    .layout-name{display:block;font-size:11px;margin-top:7px;color:var(--muted);font-weight:650}
+    .layout-btn.active .layout-name{color:var(--accent)}
+
+    .workspace{min-width:0;display:flex;flex-direction:column;gap:10px;align-self:start}
+    .topbar{
+      border-radius:18px;
+      padding:10px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      position:relative;
+      z-index:50;
+    }
+    .btn{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.82);
+      color:var(--text);
+      border-radius:11px;
+      padding:9px 12px;
+      font-weight:700;
+      font-size:12.5px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:7px;
+      transition:transform .14s ease,box-shadow .14s ease,border-color .14s ease,background .14s ease;
+    }
+    .icon{
+      width:16px;height:16px;flex:0 0 16px;display:inline-block;
+      fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+    }
+    .btn-label{min-width:0}
+    @media(min-width:761px){
+      .topbar{gap:6px;padding:8px}
+      .topbar .btn{padding:8px 9px;gap:5px;font-size:12px;white-space:nowrap}
+      .topbar .icon{width:14px;height:14px;flex-basis:14px}
+    }
+    .export-close .icon{width:17px;height:17px;flex-basis:17px}
+    .btn:hover:not(:disabled){border-color:rgba(103,87,232,.42);box-shadow:0 8px 18px rgba(35,45,75,.08)}
+    .btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;border-color:transparent;box-shadow:0 9px 20px rgba(103,87,232,.23)}
+    .btn.toggle-active{background:var(--accent-soft);color:var(--accent);border-color:rgba(103,87,232,.42);box-shadow:0 0 0 2px rgba(103,87,232,.10)}
+    .btn.danger{color:var(--danger)}
+    .spacer{flex:1}
+    .file-input{display:none}
+
+    .media-tray{
+      display:none;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+      padding:8px 10px;
+      border-radius:16px;
+      background:rgba(255,255,255,.58);
+      border:1px solid rgba(255,255,255,.78);
+      box-shadow:0 8px 24px rgba(35,45,75,.06);
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+    }
+    .media-tray.visible{display:flex}
+    .media-tray-head{
+      flex:0 0 auto;
+      display:flex;
+      align-items:baseline;
+      gap:6px;
+      padding-left:2px;
+      white-space:nowrap;
+    }
+    .media-tray-title{font-size:11px;font-weight:800;color:var(--text)}
+    .media-tray-count{font-size:10px;font-weight:750;color:var(--muted)}
+    .media-thumbs{
+      min-width:0;
+      flex:1;
+      display:flex;
+      gap:7px;
+      overflow-x:auto;
+      padding:2px 2px 4px;
+      overscroll-behavior-x:contain;
+    }
+    .media-thumb{
+      position:relative;
+      flex:0 0 52px;
+      width:52px;
+      height:52px;
+      padding:0;
+      overflow:hidden;
+      border-radius:11px;
+      border:1px solid rgba(124,132,158,.22);
+      background:#edf0f5;
+      box-shadow:0 3px 10px rgba(35,45,75,.06);
+      transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease;
+      touch-action:none;cursor:grab;
+    }
+    .media-thumb:active{cursor:grabbing}
+    .media-thumb:hover{
+      border-color:rgba(103,87,232,.5);
+      box-shadow:0 7px 16px rgba(55,52,110,.13);
+    }
+    .media-thumb.selected{
+      border-color:rgba(103,87,232,.82);
+      box-shadow:0 0 0 2px rgba(103,87,232,.14),0 7px 16px rgba(55,52,110,.12);
+    }
+    .media-thumb.dragging{opacity:.38;transform:scale(.96)}
+    .media-thumb.drop-before::before,.media-thumb.drop-after::after{
+      content:"";position:absolute;top:4px;bottom:4px;width:3px;border-radius:999px;background:var(--accent);z-index:5;box-shadow:0 0 0 2px rgba(255,255,255,.9),0 2px 8px rgba(103,87,232,.28)
+    }
+    .media-thumb.drop-before::before{left:-5px}
+    .media-thumb.drop-after::after{right:-5px}
+    .media-drag-ghost{
+      position:fixed;z-index:1600;width:58px;height:58px;border-radius:13px;overflow:hidden;pointer-events:none;
+      border:2px solid rgba(255,255,255,.96);box-shadow:0 14px 34px rgba(25,31,48,.28);transform:translate(-50%,-50%) rotate(2deg);background:#edf0f5
+    }
+    .media-drag-ghost img{width:100%;height:100%;object-fit:cover;display:block}
+    .media-thumb img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+    .media-thumb-index{
+      position:absolute;right:4px;bottom:4px;
+      min-width:17px;height:17px;padding:0 4px;
+      display:grid;place-items:center;
+      border-radius:999px;background:rgba(20,25,38,.72);color:#fff;
+      font-size:9px;font-weight:800;line-height:1;
+      backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
+    }
+
+    .stage-wrap{
+      min-height:0;
+      flex:0 0 auto;
+      display:grid;
+      place-items:start center;
+      padding:8px 12px 12px;
+      overflow:auto;
+      border-radius:24px;
+      background:rgba(255,255,255,.34);
+      border:1px solid rgba(255,255,255,.58);
+    }
+    #stage{
+      position:relative;
+      width:min(75vh,780px,100%);
+      aspect-ratio:1/1;
+      background:#fff;
+      box-shadow:0 26px 70px rgba(35,45,75,.18);
+      overflow:hidden;
+      touch-action:none;
+      user-select:none;
+      -webkit-user-select:none;
+      border-radius:4px;
+    }
+    .slot{
+      position:absolute;
+      overflow:hidden;
+      background:#e7eaf0;
+      outline:0 solid rgba(103,87,232,.95);
+      transition:outline-width .08s ease,filter .12s ease;
+      touch-action:none;
+    }
+    .slot.selected{outline-width:0;z-index:4}
+    .slot.swap-source{outline:0;z-index:9;filter:brightness(.91)}
+    .slot.swap-target{outline:0;z-index:10;filter:brightness(.95)}
+    .slot.circle-outer-slot.swap-source,
+    .slot.circle-outer-slot.swap-target{z-index:4}
+    .selection-guide,.swap-guide{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+    .selection-guide{z-index:24}
+    .selection-guide .selection-halo{fill:none;stroke:rgba(255,255,255,.78);stroke-width:4;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+    .selection-guide .selection-line{fill:none;stroke:rgba(103,87,232,.58);stroke-width:1.7;stroke-linejoin:round;vector-effect:non-scaling-stroke;filter:drop-shadow(0 1px 2px rgba(52,45,135,.18))}
+    .swap-guide{z-index:28}
+    .swap-guide polygon,.swap-guide path{stroke-width:3;stroke-dasharray:8 6;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+    .swap-guide polygon.source,.swap-guide path.source,
+    .swap-guide polygon.target,.swap-guide path.target{fill:rgba(103,87,232,.10);stroke:rgba(103,87,232,.98);filter:drop-shadow(0 3px 8px rgba(75,61,190,.24))}
+    .swap-label{position:absolute;z-index:29;pointer-events:none;box-sizing:border-box;padding:7px 10px;border-radius:12px;background:rgba(25,31,48,.86);color:#fff;font-size:11px;font-weight:800;line-height:1.22;text-align:center;box-shadow:0 5px 18px rgba(0,0,0,.22);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transform:translate(-50%,-50%);white-space:normal;overflow-wrap:normal;word-break:normal}
+    .swap-label.compact{padding:5px 7px;border-radius:10px;font-size:10px;line-height:1.18}
+    .drop-guide{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:28}
+    .drop-guide path{fill:rgba(24,30,46,.38);stroke:rgba(255,255,255,.98);stroke-width:3;stroke-dasharray:8 6;stroke-linejoin:round;vector-effect:non-scaling-stroke;filter:drop-shadow(0 3px 8px rgba(0,0,0,.24))}
+    .drop-label{position:absolute;z-index:29;pointer-events:none;box-sizing:border-box;padding:7px 10px;border-radius:12px;background:rgba(25,31,48,.86);color:#fff;font-size:11px;font-weight:800;line-height:1.22;text-align:center;box-shadow:0 5px 18px rgba(0,0,0,.22);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transform:translate(-50%,-50%);white-space:normal;overflow-wrap:normal;word-break:normal}
+    .drop-label.compact{padding:5px 7px;border-radius:10px;font-size:10px;line-height:1.18}
+    .slot img{position:absolute;max-width:none;max-height:none;transform:translate(-50%,-50%);transform-origin:center;pointer-events:none;-webkit-user-drag:none}
+    #stage.custom-draw-active{cursor:crosshair}
+    #stage.custom-draw-active .slot{cursor:crosshair}
+    #stage.custom-draw-active.custom-divider-hover,#stage.custom-draw-active.custom-divider-hover .slot{cursor:grab}
+    #stage.custom-divider-moving,#stage.custom-divider-moving .slot{cursor:grabbing!important}
+    .custom-draw-guide{position:absolute;inset:0;width:100%;height:100%;z-index:80;pointer-events:none;overflow:visible}
+    .custom-draw-guide line{stroke:var(--accent);stroke-width:3;stroke-dasharray:9 7;vector-effect:non-scaling-stroke;filter:drop-shadow(0 2px 4px rgba(55,45,145,.24))}
+    .custom-draw-guide.divider-hover line{stroke-width:2.2;stroke-dasharray:6 5;opacity:.78}
+    .custom-draw-guide.divider-move line{stroke-width:4;stroke-dasharray:12 6}
+    .custom-draw-guide.segment-selected line{stroke:var(--danger);stroke-width:4;stroke-dasharray:none;opacity:.95}
+    .custom-segment-action{position:absolute;z-index:96;transform:translate(-50%,calc(-100% - 10px));pointer-events:auto;display:flex;align-items:center;justify-content:center;gap:6px;max-width:calc(100% - 16px)}
+    .custom-segment-action.below{transform:translate(-50%,10px)}
+    .custom-segment-action button{border:1px solid rgba(194,59,74,.24);background:rgba(255,255,255,.96);color:var(--danger);border-radius:999px;padding:8px 11px;font:inherit;font-size:11px;font-weight:850;line-height:1;white-space:nowrap;box-shadow:0 8px 24px rgba(25,31,48,.18);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+    .custom-segment-action button:hover{border-color:rgba(194,59,74,.46);box-shadow:0 10px 28px rgba(25,31,48,.22)}
+    .custom-segment-action button.detach{color:var(--accent);border-color:rgba(103,87,232,.28)}
+    .custom-segment-action button.detach:hover{border-color:rgba(103,87,232,.52);box-shadow:0 10px 28px rgba(75,61,190,.18)}
+    .custom-gap-overlay{position:absolute;inset:0;width:100%;height:100%;z-index:12;pointer-events:none;overflow:visible;color:#fff}
+    .custom-gap-overlay line{stroke:currentColor;stroke-linecap:butt;stroke-linejoin:round;shape-rendering:geometricPrecision}
+    .custom-gap-overlay circle{fill:currentColor;shape-rendering:geometricPrecision}
+    .placeholder{
+      position:absolute;inset:0;display:grid;place-items:center;padding:16px;text-align:center;color:#7b8495;font-size:12px;
+      background:linear-gradient(135deg,rgba(255,255,255,.35),transparent),linear-gradient(45deg,#e9ecf2 25%,transparent 25%),linear-gradient(-45deg,#e9ecf2 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e9ecf2 75%),linear-gradient(-45deg,transparent 75%,#e9ecf2 75%);
+      background-size:auto,26px 26px,26px 26px,26px 26px,26px 26px;
+      background-position:0 0,0 0,0 13px,13px -13px,-13px 0;
+    }
+    .placeholder>span{position:absolute;left:var(--placeholder-x,50%);top:var(--placeholder-y,50%);max-width:var(--placeholder-max-width,calc(100% - 32px));background:rgba(255,255,255,.92);padding:8px 11px;border-radius:999px;box-shadow:0 5px 16px rgba(35,45,75,.07);pointer-events:none;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transform:translate(-50%,-50%);z-index:2;transition:transform .16s ease,box-shadow .16s ease,background .16s ease,color .16s ease}
+    .slot.empty{cursor:pointer}
+    .slot.empty .placeholder{transition:filter .16s ease,background-color .16s ease}
+    .slot.empty:hover .placeholder{filter:brightness(.985)}
+    .slot.empty:hover .placeholder>span{transform:translate(-50%,-50%) scale(1.035);background:#fff;color:var(--accent);box-shadow:0 10px 24px rgba(103,87,232,.18),0 0 0 1px rgba(103,87,232,.16)}
+    .slot.empty:active .placeholder>span{transform:translate(-50%,-50%) scale(.99)}
+
+    .splitter{position:absolute;z-index:30;touch-action:none;background:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+    .splitter::before{
+      content:"";position:absolute;left:50%;top:50%;background:rgba(34,41,61,.86);border:2px solid rgba(255,255,255,.98);box-shadow:0 3px 10px rgba(0,0,0,.22);border-radius:999px;transition:transform .12s ease,background .12s ease,box-shadow .12s ease
+    }
+    .splitter.vertical{width:28px;height:58px;margin-left:-14px;margin-top:-29px;cursor:col-resize}
+    .splitter.vertical::before{width:7px;height:46px;transform:translate(-50%,-50%)}
+    .splitter.horizontal{width:58px;height:28px;margin-left:-29px;margin-top:-14px;cursor:row-resize}
+    .splitter.horizontal::before{width:46px;height:7px;transform:translate(-50%,-50%)}
+    .splitter.diagonal{width:42px;height:42px;margin-left:-21px;margin-top:-21px;cursor:ew-resize}
+    .splitter.diagonal-y{cursor:ns-resize}
+    .splitter.diagonal::before{
+      width:22px;height:22px;transform:translate(-50%,-50%);
+      background:radial-gradient(circle at 37% 50%,#fff 0 1.3px,transparent 1.8px),radial-gradient(circle at 50% 50%,#fff 0 1.3px,transparent 1.8px),radial-gradient(circle at 63% 50%,#fff 0 1.3px,transparent 1.8px),rgba(34,41,61,.9)
+    }
+    .splitter.circle-size{width:42px;height:42px;margin-left:-21px;margin-top:-21px;cursor:ew-resize}
+    .splitter.circle-size::before{
+      width:22px;height:22px;transform:translate(-50%,-50%);
+      background:radial-gradient(circle at 50% 50%,transparent 0 5px,#fff 5.5px 7px,transparent 7.5px),rgba(34,41,61,.9)
+    }
+    .splitter.point{width:42px;height:42px;margin-left:-21px;margin-top:-21px;cursor:move}
+    .splitter.point::before{
+      width:22px;height:22px;transform:translate(-50%,-50%);
+      background:radial-gradient(circle at 50% 50%,#fff 0 2px,transparent 2.5px),radial-gradient(circle at 50% 50%,transparent 0 6px,#fff 6.5px 7.5px,transparent 8px),rgba(34,41,61,.9)
+    }
+    .circle-gap-ring{position:absolute;pointer-events:none;border-radius:50%;z-index:5}
+    .slot.circle-slot{z-index:6}
+    .splitter.vertical:hover::before,.splitter.vertical.dragging::before,.splitter.horizontal:hover::before,.splitter.horizontal.dragging::before,.splitter.diagonal:hover::before,.splitter.diagonal.dragging::before,.splitter.circle-size:hover::before,.splitter.circle-size.dragging::before,.splitter.point:hover::before,.splitter.point.dragging::before{transform:translate(-50%,-50%) scale(1.14);background-color:#171d2d;box-shadow:0 4px 14px rgba(0,0,0,.28)}
+
+    .control{margin-bottom:16px}
+    .control label{display:flex;justify-content:space-between;gap:12px;align-items:center;font-size:12px;font-weight:750;margin-bottom:8px}
+    .value{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:600}
+    input[type="range"]{width:100%;accent-color:var(--accent)}
+    input[type="color"]{width:100%;height:42px;border:1px solid var(--line);border-radius:12px;padding:4px;background:#fff;cursor:pointer;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.7)}
+    input[type="color"]::-webkit-color-swatch-wrapper{padding:0}
+    input[type="color"]::-webkit-color-swatch{border:0;border-radius:8px}
+    input[type="color"]::-moz-color-swatch{border:0;border-radius:8px}
+    select{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:10px 40px 10px 12px;
+      background-color:rgba(255,255,255,.86);
+      color:var(--text);
+      appearance:none;
+      -webkit-appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;
+      background-position:right 13px center;
+      background-size:16px 16px;
+    }
+    .help-modal{
+      position:fixed;inset:0;z-index:1100;display:grid;place-items:center;padding:18px;background:rgba(19,25,40,.55);
+      backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)
+    }
+    .help-modal[hidden]{display:none}
+    .help-card{width:min(480px,100%);background:#fff;border-radius:22px;padding:16px;box-shadow:0 30px 90px rgba(0,0,0,.28)}
+    .help-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+    .help-head h3{margin:0 0 3px;font-size:17px}
+    .help-head p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}
+    .help-list{display:grid;gap:8px}
+    .help-item{padding:10px 11px;border:1px solid var(--line);border-radius:13px;background:#fafbfc;font-size:12px;line-height:1.5;color:var(--muted)}
+    .help-item strong{color:#3f485b}
+    .status{min-height:22px;font-size:12px;color:var(--muted);padding:0 4px 4px;text-align:center}
+    .right-actions{display:grid;gap:8px}
+    .right-actions .btn{width:100%}
+
+    .export-modal{
+      position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:18px;background:rgba(19,25,40,.62);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)
+    }
+    .export-modal[hidden]{display:none}
+    .export-card{width:min(680px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:22px;padding:16px;box-shadow:0 30px 90px rgba(0,0,0,.30)}
+    .export-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+    .export-head h3{margin:0 0 3px;font-size:17px}
+    .export-head p{margin:0;color:var(--muted);font-size:12px}
+    .export-close{margin-left:auto;border:0;background:#f1f3f7;width:34px;height:34px;border-radius:10px;color:#596274;display:grid;place-items:center;cursor:pointer}
+    .export-preview-wrap{display:grid;place-items:center;background:#edf0f5;border-radius:16px;padding:10px;min-height:180px;overflow:hidden}
+    .export-preview-wrap img{display:block;max-width:100%;max-height:58vh;object-fit:contain;box-shadow:0 10px 30px rgba(35,45,75,.14)}
+    .export-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .export-actions .btn{flex:1 1 140px;text-align:center}
+
+    @media(prefers-color-scheme:dark){
+      :root{
+        color-scheme:dark;
+        --bg:#0f1118;
+        --bg2:#151923;
+        --panel:rgba(24,28,39,.84);
+        --panel-solid:#1b202c;
+        --text:#f2f4f8;
+        --muted:#9aa4b6;
+        --line:rgba(148,163,184,.22);
+        --accent:#8b7cf6;
+        --accent-2:#a78bfa;
+        --accent-soft:rgba(139,124,246,.16);
+        --danger:#ff7d8a;
+        --shadow:0 18px 55px rgba(0,0,0,.26);
+      }
+      html{background:var(--bg2)}
+      body{
+        background:
+          radial-gradient(circle at 15% 0%,rgba(139,92,246,.16),transparent 32rem),
+          radial-gradient(circle at 100% 18%,rgba(59,130,246,.10),transparent 28rem),
+          linear-gradient(145deg,var(--bg),var(--bg2) 48%,#11151e);
+      }
+      .panel,.topbar{border-color:rgba(255,255,255,.07)}
+      .brand-help{background:rgba(255,255,255,.055);color:#aeb7c8}
+      h2{color:#c7cfdd}
+      .layout-btn{background:rgba(255,255,255,.045)}
+      .layout-btn:hover{box-shadow:0 10px 22px rgba(0,0,0,.22)}
+      .layout-btn.active{background:rgba(139,124,246,.10);box-shadow:0 0 0 3px rgba(139,124,246,.12),0 12px 24px rgba(0,0,0,.20)}
+      .mini{background:linear-gradient(145deg,#252a35,#202530)}
+      .mini-shape{stroke:rgba(20,24,32,.94)}
+      .mini-stop-start{stop-color:#3a4252}
+      .mini-stop-end{stop-color:#2f3746}
+      .layout-btn.active .mini-stop-start{stop-color:#6257a8}
+      .layout-btn.active .mini-stop-end{stop-color:#4e477f}
+      .btn{background:rgba(255,255,255,.055)}
+      .btn:hover:not(:disabled){box-shadow:0 8px 18px rgba(0,0,0,.20)}
+      .media-tray{background:rgba(24,28,39,.62);border-color:rgba(255,255,255,.07);box-shadow:0 8px 24px rgba(0,0,0,.16)}
+      .media-thumb,.media-drag-ghost{background:#2a303d;border-color:rgba(255,255,255,.10)}
+      .media-thumb.drop-before::before,.media-thumb.drop-after::after{box-shadow:0 0 0 2px rgba(24,28,39,.92),0 2px 8px rgba(139,124,246,.35)}
+      .stage-wrap{background:rgba(24,28,39,.38);border-color:rgba(255,255,255,.06)}
+      .selection-guide .selection-halo{stroke:rgba(255,255,255,.82)}
+      .slot{background:#202631}
+      .placeholder{
+        color:#929cac;
+        background:
+          linear-gradient(135deg,rgba(255,255,255,.018),transparent),
+          linear-gradient(45deg,rgba(148,163,184,.065) 25%,transparent 25%),
+          linear-gradient(-45deg,rgba(148,163,184,.065) 25%,transparent 25%),
+          linear-gradient(45deg,transparent 75%,rgba(148,163,184,.065) 75%),
+          linear-gradient(-45deg,transparent 75%,rgba(148,163,184,.065) 75%);
+        background-size:auto,26px 26px,26px 26px,26px 26px,26px 26px;
+        background-position:0 0,0 0,0 13px,13px -13px,-13px 0;
+      }
+      .placeholder>span{background:rgba(28,33,45,.94);box-shadow:0 5px 16px rgba(0,0,0,.22)}
+      .slot.empty:hover .placeholder>span{background:#242a37;box-shadow:0 10px 24px rgba(0,0,0,.28),0 0 0 1px rgba(139,124,246,.24)}
+      input[type="color"]{background:#202633;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+      select{
+        background-color:rgba(255,255,255,.055);
+        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23aeb7c8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      }
+      .help-card,.export-card{background:#1b202c;color:var(--text)}
+      .custom-segment-action button{background:rgba(28,33,45,.97);border-color:rgba(255,125,138,.28)}
+      .custom-segment-action button.detach{border-color:rgba(139,124,246,.34)}
+      .help-item{background:#202633}
+      .help-item strong{color:#dce2ec}
+      .export-close{background:#252b38;color:#b8c1d0}
+      .export-preview-wrap{background:#121620}
+    }
+
+    @media(min-width:761px){
+      .left{
+        position:sticky;
+        top:20px;
+        max-height:calc(100vh - 40px);
+        overflow-y:auto;
+        overscroll-behavior:contain;
+      }
+    }
+
+    @media(max-width:1120px){
+      .app{grid-template-columns:250px minmax(0,1fr)}
+      .right{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+      .right h2:first-child{margin-top:0}
+    }
+    @media(max-width:760px){
+      .app{grid-template-columns:1fr;padding:10px;gap:12px}
+      .left,.right{grid-column:auto}
+      .right{display:block}
+      .panel{border-radius:18px;padding:14px}
+      .layouts{grid-template-columns:repeat(3,1fr);gap:8px}
+      .layout-btn{min-height:78px;padding:6px}
+      .topbar{
+        position:relative;
+        top:auto;
+        z-index:20;
+        display:grid;
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:7px;
+        width:100%;
+        max-width:100%;
+        padding:8px;
+        border-radius:15px;
+      }
+      .topbar .btn{
+        width:100%;
+        min-width:0;
+        padding:9px 8px;
+        font-size:11.5px;
+        line-height:1.2;
+        white-space:normal;
+        overflow-wrap:anywhere;
+      }
+      .topbar .spacer{display:none}
+      .topbar #resetDividers{grid-column:1/-1}
+      .topbar .primary{font-size:12px;padding:10px 8px}
+      .media-tray{padding:7px 8px;gap:8px;border-radius:14px}
+      .media-tray-head{display:none}
+      .media-thumb{flex-basis:46px;width:46px;height:46px;border-radius:10px}
+      .workspace{width:100%;min-width:0}
+      .stage-wrap{
+        width:100%;
+        min-width:0;
+        max-width:100%;
+        padding:8px;
+        border-radius:18px;
+        overflow:hidden;
+      }
+      #stage{
+        width:100%;
+        max-width:700px;
+        min-width:0;
+      }
+      .splitter.vertical{width:36px;height:64px;margin-left:-18px;margin-top:-32px}
+      .splitter.horizontal{width:64px;height:36px;margin-left:-32px;margin-top:-18px}
+      .splitter.diagonal,.splitter.circle-size,.splitter.point{width:48px;height:48px;margin-left:-24px;margin-top:-24px}
+      .custom-segment-action{flex-direction:column;align-items:stretch;gap:5px}
+      .custom-segment-action button{font-size:10.5px;padding:8px 10px}
+      .splitter.vertical::before{height:50px}
+      .splitter.horizontal::before{width:50px}
+      .brand-mark{width:40px;height:40px;flex-basis:40px}
+      .export-modal{
+        padding:max(12px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+        place-items:center;
+        min-height:100dvh;
+      }
+      .export-card{
+        width:min(100%,680px);
+        max-height:min(90dvh,760px);
+        border-radius:20px;
+      }
+      .export-preview-wrap img{max-height:46dvh}
+      .export-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+      .export-actions .btn{width:100%;min-width:0;flex:none}
+      .export-actions .btn:last-child{grid-column:1/-1}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="panel left">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="brandLogoGradient" x1="5" y1="4" x2="37" y2="38" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#6757E8"/>
+              <stop offset="1" stop-color="#8B5CF6"/>
+            </linearGradient>
+          </defs>
+          <rect width="42" height="42" rx="13" fill="url(#brandLogoGradient)"/>
+          <g fill="#fff" transform="translate(21 21) scale(0.8464) translate(-21 -21)">
+            <rect x="6" y="7" width="12" height="12" rx="1.8"/>
+            <rect x="22" y="7" width="14" height="8" rx="1.8"/>
+            <rect x="22" y="19" width="14" height="16" rx="1.8"/>
+            <rect x="6" y="23" width="12" height="12" rx="1.8"/>
+          </g>
+        </svg>
+      </div>
+      <div class="brand-copy">
+        <div class="eyebrow">Collage Studio</div>
+        <h1>Kollázs készítő</h1>
+      </div>
+      <button class="brand-help" id="openHelp" type="button" aria-label="Használati súgó megnyitása" title="Használati súgó">?</button>
+    </div>
+    <p class="sub">A te elrendezésed. Egyedi kollázs pár mozdulattal.</p>
+
+    <h2>Elrendezés</h2>
+    <div id="layouts" class="layouts"></div>
+
+    <h2>Képarány</h2>
+    <select id="aspect">
+      <option value="1">1:1 – négyzet</option>
+      <option value="0.8">4:5 – álló</option>
+      <option value="1.5">3:2 – fekvő</option>
+      <option value="1.7777777778">16:9 – széles</option>
+    </select>
+
+  </aside>
+
+  <main class="workspace">
+    <div class="topbar">
+      <button class="btn" id="addFiles" title="Képek hozzáadása" aria-label="Képek hozzáadása"><svg class="icon lucide lucide-image-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5h6"/><path d="M19 2v6"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7.5"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/><circle cx="9" cy="9" r="2"/></svg><span class="btn-label">Képek</span></button>
+      <input class="file-input" id="fileInput" type="file" accept="image/*" multiple>
+      <button class="btn" id="replaceBtn" title="Kijelölt kép cseréje" aria-label="Kijelölt kép cseréje"><svg class="icon lucide lucide-refresh-cw" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 0 0-15-6.7L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 15 6.7l3-2.7"/><path d="M21 21v-5h-5"/></svg><span class="btn-label">Csere</span></button>
+      <button class="btn" id="resetDividers" title="Elválasztók visszaállítása" aria-label="Elválasztók visszaállítása"><svg class="icon lucide lucide-rotate-ccw" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span class="btn-label">Elválasztók</span></button>
+      <button class="btn" id="customDrawToggle" type="button" hidden><svg class="icon lucide lucide-pencil-line" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span class="btn-label">Rajzolás</span></button>
+      <button class="btn" id="customUndo" type="button" hidden><svg class="icon lucide lucide-undo-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg><span class="btn-label">Vissza</span></button>
+      <div class="spacer"></div>
+      <button class="btn danger" id="clearAll" title="Minden kép törlése" aria-label="Minden kép törlése"><svg class="icon lucide lucide-trash-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg><span class="btn-label">Törlés</span></button>
+      <button class="btn primary" id="exportBtn" title="Export / mentés" aria-label="Export / mentés"><svg class="icon lucide lucide-download" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg><span class="btn-label">Export</span></button>
+    </div>
+
+    <div class="media-tray" id="mediaTray" aria-label="Betöltött képek">
+      <div class="media-tray-head">
+        <span class="media-tray-title">Betöltött képek</span>
+        <span class="media-tray-count" id="mediaTrayCount"></span>
+      </div>
+      <div class="media-thumbs" id="mediaThumbs"></div>
+    </div>
+
+    <div class="stage-wrap">
+      <div id="stage" aria-label="Kollázs szerkesztő"></div>
+    </div>
+    <div class="status" id="status" aria-live="polite">
+      Tipp: az elválasztók méretét elrendezésenként külön megjegyzi.
+    </div>
+  </main>
+
+  <aside class="panel right">
+    <div>
+      <h2 style="margin-top:0">Kijelölt kép</h2>
+      <div class="control">
+        <label>Nagyítás <span id="zoomValue" class="value">100%</span></label>
+        <input id="zoom" type="range" min="1" max="4" step="0.01" value="1">
+      </div>
+      <div class="right-actions">
+        <button class="btn" id="centerBtn"><svg class="icon lucide lucide-focus" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/></svg><span class="btn-label">Középre igazít</span></button>
+        <button class="btn" id="removeBtn"><svg class="icon lucide lucide-image-off" viewBox="0 0 24 24" aria-hidden="true"><path d="m2 2 20 20"/><path d="M10.41 10.41a2 2 0 1 0 2.83 2.83"/><path d="M13.5 15 6 22"/><path d="m18 12 3 3"/><path d="M3.59 3.59A2 2 0 0 0 3 5v14a2 2 0 0 0 2 2h14c.55 0 1.05-.22 1.41-.59"/><path d="M21 15V5a2 2 0 0 0-2-2H9"/></svg><span class="btn-label">Kép eltávolítása</span></button>
+      </div>
+    </div>
+
+    <div>
+      <h2>Kollázs</h2>
+      <div class="control">
+        <label>Hézag <span id="gapValue" class="value">8 px</span></label>
+        <input id="gap" type="range" min="0" max="30" step="1" value="8">
+      </div>
+      <div class="control">
+        <label>Sarokkerekítés <span id="radiusValue" class="value">0 px</span></label>
+        <input id="radius" type="range" min="0" max="40" step="1" value="0">
+      </div>
+      <div class="control">
+        <label>Háttérszín</label>
+        <input id="bgColor" type="color" value="#ffffff">
+      </div>
+    </div>
+
+    <div>
+      <h2>Export</h2>
+      <div class="control">
+        <label>Szélesség</label>
+        <select id="exportSize">
+          <option value="1200">1200 px</option>
+          <option value="1600">1600 px</option>
+          <option value="2048">2048 px</option>
+          <option value="3000">3000 px</option>
+        </select>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<div class="help-modal" id="helpModal" hidden>
+  <div class="help-card" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <div class="help-head">
+      <div>
+        <h3 id="helpTitle">Súgó</h3>
+        <p>Röviden, hogyan működik.</p>
+      </div>
+      <button class="export-close" id="closeHelp" type="button" aria-label="Bezárás"><svg class="icon lucide lucide-x" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    </div>
+    <div class="help-list">
+      <div class="help-item"><strong>Kép mozgatása:</strong> húzd a képet.</div>
+      <div class="help-item"><strong>Képcsere:</strong> tartsd nyomva, majd húzd egy másik mezőre.</div>
+      <div class="help-item"><strong>Betöltött képek:</strong> húzd őket a kollázsra, vagy rendezd át fent.</div>
+      <div class="help-item"><strong>Nagyítás:</strong> mobilon két ujjal, gépen Ctrl/⌘ + görgetéssel vagy a csúszkával.</div>
+      <div class="help-item"><strong>Elválasztók:</strong> húzd a fogantyút. Dupla kattintás vagy koppintás visszaállítja.</div>
+    </div>
+  </div>
+</div>
+
+<div class="export-modal" id="exportModal" hidden>
+  <div class="export-card" role="dialog" aria-modal="true" aria-labelledby="exportTitle">
+    <div class="export-head">
+      <div>
+        <h3 id="exportTitle">Kollázs exportálása</h3>
+        <p id="exportMeta">Válaszd ki a kívánt formátumot.</p>
+      </div>
+      <button class="export-close" id="closeExport" type="button" aria-label="Bezárás"><svg class="icon lucide lucide-x" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    </div>
+    <div class="export-preview-wrap">
+      <img id="exportPreview" alt="Az exportált kollázs előnézete">
+    </div>
+    <div class="export-actions">
+      <button class="btn primary" id="downloadExport" type="button"><svg class="icon lucide lucide-download" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg><span class="btn-label">PNG</span></button>
+      <button class="btn primary" id="downloadJpg" type="button"><svg class="icon lucide lucide-download" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg><span class="btn-label">JPG</span></button>
+      <button class="btn" id="openExport" type="button"><svg class="icon lucide lucide-external-link" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg><span class="btn-label">Kép megnyitása</span></button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const clamp = (v,min,max) => Math.max(min,Math.min(max,v));
+  const clone = obj => JSON.parse(JSON.stringify(obj));
+
+  const browserLanguage = (navigator.languages?.[0] || navigator.language || "en").toLowerCase();
+  const uiLang = browserLanguage.startsWith("hu") ? "hu" : "en";
+  document.documentElement.lang = uiLang;
+
+  const I18N = {
+    hu:{
+      pageTitle:"Collage Studio – modern kollázs készítő",
+      appTitle:"Kollázs készítő",
+      tagline:"A te elrendezésed. Egyedi kollázs pár mozdulattal.",
+      helpOpen:"Használati súgó megnyitása", helpTitleAttr:"Használati súgó",
+      layoutHeading:"Elrendezés", aspectHeading:"Képarány",
+      aspectSquare:"1:1 – négyzet", aspectPortrait:"4:5 – álló", aspectLandscape:"3:2 – fekvő", aspectWide:"16:9 – széles",
+      addImages:"Képek", addImagesFull:"Képek hozzáadása", replace:"Csere", replaceFull:"Kijelölt kép cseréje",
+      dividers:"Elválasztók", dividersFull:"Elválasztók visszaállítása", delete:"Törlés", deleteFull:"Minden kép törlése",
+      customDraw:"Rajzol\u00e1s", customDrawOn:"Rajzol\u00e1s bekapcsolva \u2013 h\u00fazz \u00faj elv\u00e1laszt\u00f3t, vagy fogj meg egy megl\u00e9v\u0151t \u00e9s mozgasd. Kattints vagy koppints egy metsz\u00e9sek k\u00f6zti szakaszra: t\u00f6r\u00f6lheted vagy lev\u00e1laszthatod. Shift: 15\u00b0-os illeszt\u00e9s.", customDrawOff:"Rajzol\u00e1s kikapcsolva \u2013 most a k\u00e9peket szerkesztheted.", customUndo:"Vissza", customReset:"\u00dajrakezd\u00e9s",
+      export:"Export", exportFull:"Export / mentés", loadedImages:"Betöltött képek", stageLabel:"Kollázs szerkesztő",
+      initialTip:"Tipp: az elválasztók méretét elrendezésenként külön megjegyzi.",
+      selectedImage:"Kijelölt kép", zoom:"Nagyítás", center:"Középre igazít", removeImage:"Kép eltávolítása",
+      collage:"Kollázs", gap:"Hézag", radius:"Sarokkerekítés", background:"Háttérszín", width:"Szélesség",
+      quickHelp:"Súgó", helpIntro:"Röviden, hogyan működik.", close:"Bezárás",
+      helpMove:"<strong>Kép mozgatása:</strong> húzd a képet.",
+      helpSwap:"<strong>Képcsere:</strong> tartsd nyomva, majd húzd egy másik mezőre.",
+      helpLoaded:"<strong>Betöltött képek:</strong> húzd őket a kollázsra, vagy rendezd át fent.",
+      helpZoom:"<strong>Nagyítás:</strong> mobilon két ujjal, gépen Ctrl/⌘ + görgetéssel vagy a csúszkával.",
+      helpDividers:"<strong>Elválasztók:</strong> húzd a fogantyút. Dupla kattintás vagy koppintás visszaállítja.",
+      helpCustom:"<strong>Egyedi rajz:</strong> h\u00fazz egyenes elv\u00e1laszt\u00f3kat a v\u00e1sznon. <strong>Meglev\u0151 elv\u00e1laszt\u00f3 mozgat\u00e1sa:</strong> Rajzol\u00e1s m\u00f3dban fogd meg a vonalat \u00e9s h\u00fazd arr\u00e9bb; a d\u0151l\u00e9ssz\u00f6ge megmarad. <strong>Szakasz m\u0171veletek:</strong> ahol elv\u00e1laszt\u00f3k metszik egym\u00e1st, kattints vagy koppints a metsz\u00e9sek k\u00f6zti vonaldarabra. A Szakasz t\u00f6rl\u00e9se csak azt a r\u00e9szt t\u00f6rli, a Szakasz lev\u00e1laszt\u00e1sa pedig k\u00fcl\u00f6n elv\u00e1laszt\u00f3kk\u00e1 bontja az addig \u00f6sszetartoz\u00f3 r\u00e9szeket, \u00edgy ut\u00e1na egym\u00e1st\u00f3l f\u00fcggetlen\u00fcl mozgathat\u00f3k. <strong>Shift:</strong> \u00faj vonaln\u00e1l 15\u00b0-os l\u00e9p\u00e9sekre pattint. A Vissza gomb az utols\u00f3 egyedi m\u00f3dos\u00edt\u00e1st vonja vissza.",
+      exportTitle:"Kollázs exportálása", exportChoose:"Válaszd ki a kívánt formátumot.", exportPreviewAlt:"Az exportált kollázs előnézete",
+      openImage:"Kép megnyitása", dropImage:"Ide engedd a képet",
+      layoutNames:{"custom-draw":"Egyedi rajz",single:"1 kép","two-cols":"2 oszlop","two-rows":"2 sor","diagonal-2":"2 átlós","feature-3":"3 kiemelt","diagonal-3":"3 átlós","diagonal-4":"4 átlós","pinwheel-4":"4 forgó","panorama-4":"4 panoráma","grid-4":"4 rács","offset-4":"4 magazin","diagonal-5":"5 átlós","center-band-5":"5 középsáv","center-focus-5":"5 középső","mosaic-5":"5 mozaik","feature-5":"5 aszimmetrikus","masonry-6":"6 téglafal","grid-6":"6 rács","hero-6":"6 kiemelt","gallery-7":"7 galéria","circle-focus-5":"5 körfókusz"},
+      diagonalActive:"Átlós elrendezés aktív – a kör alakú fogantyúval módosíthatod az átlót.",
+      pinwheelActive:"4 forgó elrendezés aktív – a két ferde elválasztót a saját fogantyújukkal mozgathatod.",
+      circleActive:"Körfókusz elrendezés aktív – a kör jobb szélén lévő fogantyúval a középső kép méretét is állíthatod.",
+      customActive:"Egyedi rajz akt\u00edv \u2013 az elv\u00e1laszt\u00f3k mozgathat\u00f3k; egy metsz\u00e9sek k\u00f6zti szakaszra kattintva vagy koppintva t\u00f6r\u00f6lheted vagy lev\u00e1laszthatod azt. Shift: 15\u00b0-os sz\u00f6gilleszt\u00e9s.",
+      customCutAdded:n=>`Új elválasztó hozzáadva. ${n} mező van a kollázsban.`, customCutIgnored:"Ez a vonal nem hozott létre használható új mezőt.", customTooMany:n=>`Legfeljebb ${n} egyedi mező hozható létre.`, customUndoDone:"Az utolsó egyedi módosítás visszavonva.", customUndoEmpty:"Nincs több visszavonható egyedi módosítás.", customResetDone:"Az egyedi elrendezés újra egyetlen mezőből áll.", customDividerMoveStart:"Elválasztó mozgatása – húzd párhuzamosan bárhová. A megmaradó szakasz a csatlakozó elválasztónál követi a metszéspontot. Ha teljesen lehúzod a vászonról, törlődik.", customDividerMoved:"Az elválasztó új helyre került.", customDividerDeleted:"Az elválasztó törölve, mert teljesen a vásznon kívülre húztad.", customDividerDeleteHint:"Elengedéskor az elválasztó törlődik.", customDividerMoveInvalid:"Ezen a helyen nem sikerült stabilan újraszámolni az egyedi mezőket. Próbáld néhány pixellel arrébb.", customSegmentDelete:"Szakasz törlése", customSegmentDetach:"Szakasz leválasztása", customSegmentSelected:"Szakasz kijelölve – törölheted, leválaszthatod, vagy húzással továbbra is mozgathatod az egész elválasztót.", customSegmentDeleted:"A kijelölt elválasztószakasz törölve. A megmaradó rész továbbra is mozgatható.", customSegmentDeleteInvalid:"Ezt a szakaszt ezen a topológián nem sikerült biztonságosan törölni.", customSegmentDetached:"A szakasz leválasztva. Az eddig összetartozó részek most külön mozgathatók.", customSegmentDetachInvalid:"Ezt a szakaszt ezen a topológián nem sikerült biztonságosan leválasztani.",
+      layoutChanged:"Az elrendezés megváltozott, a korábban feltöltött képek megmaradtak.",
+      dragTray:"Húzd a képet egy kollázsmezőre, vagy rendezd át a felső képsávban.",
+      movedToSlot:n=>`A kép a(z) ${n}. kollázsmezőre került.`, trayReordered:"A betöltött képek sorrendje frissült.", moveCancelled:"A kép áthelyezése megszakítva.",
+      imageSelected:n=>`${n}. kép kijelölve.`, imageHidden:n=>`${n}. kép megmaradt, de az aktuális elrendezésben nincs látható mezője.`,
+      imageWord:"Kép", loadedImage:"betöltött kép", thumbTitle:(name,n)=>`${name || `Kép ${n}`} · húzd a kollázsba vagy rendezd át`,
+      thumbAria:(name,n)=>`${n}. kép: ${name || "betöltött kép"}. Húzható.`, swapLabel:"Húzd egy másik mezőre",
+      swapMode:"Csere mód: húzd a képet arra a mezőre, amellyel fel szeretnéd cserélni.", pinchActive:"Kétujjas nagyítás aktív.",
+      imagesSwapped:(a,b)=>`A(z) ${a}. és ${b}. kép helyet cserélt.`, swapCancelled:"A képcsere megszakítva.",
+      dividerResetTitle:"Dupla kattintás: elválasztó alaphelyzetbe", diagonalAdjusted:"Átlós elválasztó módosítva.", pointAdjusted:"A ferde osztások középpontja módosítva.", circleAdjusted:"A középső kör mérete módosítva.", dividerAdjusted:"Elválasztó mérete módosítva.", dividerReset:"Az elválasztó visszaállt az alaphelyzetébe.",
+      imageLoadError:"A kép nem tölthető be.", allCleared:"Minden kép törölve.", allDividersReset:"Az aktuális elrendezés elválasztói visszaálltak az alaphelyzetbe.",
+      exportBlobError:"Nem sikerült elkészíteni az exportált képet.", exporting:"Exportálás…",
+      exportReady:(w,h)=>`Az export előnézete elkészült: ${w} × ${h} px. A felugró ablakban válassz PNG vagy JPG mentést.`,
+      exportFailed:"Az export nem sikerült. Próbálj kisebb exportméretet vagy másik böngészőt.", unknownError:"ismeretlen hiba",
+      pngStarted:name=>`PNG mentés indítva: ${name}`, jpgStarted:name=>`Optimalizált JPG mentés indítva: ${name}`,
+      popupBlocked:"A böngésző blokkolta az új lapot. Engedélyezd a felugró ablakot, vagy használd a mentés gombot.",
+      fileBase:"kollazs", optimizedSuffix:"optimalizalt"
+    },
+    en:{
+      pageTitle:"Collage Studio – modern collage maker",
+      appTitle:"Collage maker",
+      tagline:"Your layout. A unique collage in just a few moves.",
+      helpOpen:"Open quick guide", helpTitleAttr:"Help",
+      layoutHeading:"Layout", aspectHeading:"Aspect ratio",
+      aspectSquare:"1:1 – square", aspectPortrait:"4:5 – portrait", aspectLandscape:"3:2 – landscape", aspectWide:"16:9 – wide",
+      addImages:"Images", addImagesFull:"Add images", replace:"Replace", replaceFull:"Replace selected image",
+      dividers:"Dividers", dividersFull:"Reset dividers", delete:"Delete", deleteFull:"Delete all images",
+      customDraw:"Draw", customDrawOn:"Drawing enabled \u2013 drag a new divider, or grab an existing one and move it. Click or tap a segment between intersections to delete or detach it. Shift: 15\u00b0 snapping.", customDrawOff:"Drawing disabled \u2013 you can edit images now.", customUndo:"Undo", customReset:"Start over",
+      export:"Export", exportFull:"Export / save", loadedImages:"Loaded images", stageLabel:"Collage editor",
+      initialTip:"Tip: divider positions are remembered separately for each layout.",
+      selectedImage:"Selected image", zoom:"Zoom", center:"Center image", removeImage:"Remove image",
+      collage:"Collage", gap:"Gap", radius:"Corner radius", background:"Background color", width:"Width",
+      quickHelp:"Help", helpIntro:"A quick guide to the basics.", close:"Close",
+      helpMove:"<strong>Move image:</strong> drag the image.",
+      helpSwap:"<strong>Swap images:</strong> press and hold, then drag to another slot.",
+      helpLoaded:"<strong>Loaded images:</strong> drag them onto the collage or reorder them above.",
+      helpZoom:"<strong>Zoom:</strong> use two fingers on mobile, or Ctrl/⌘ + scroll or the slider on desktop.",
+      helpDividers:"<strong>Dividers:</strong> drag the handle. Double-click or double-tap to reset it.",
+      helpCustom:"<strong>Custom draw:</strong> drag straight dividers across the canvas. <strong>Move an existing divider:</strong> while Draw is enabled, grab a divider and drag it; its angle stays fixed. <strong>Segment actions:</strong> where dividers intersect, click or tap the piece between intersections. Delete segment removes only that piece, while Detach segment splits the previously linked divider pieces so they can be moved independently. <strong>Shift:</strong> snaps new lines to 15\u00b0 increments. Undo restores the last custom change.",
+      exportTitle:"Export collage", exportChoose:"Choose your preferred format.", exportPreviewAlt:"Preview of the exported collage",
+      openImage:"Open image", dropImage:"Drop image here",
+      layoutNames:{"custom-draw":"Custom draw",single:"1 image","two-cols":"2 columns","two-rows":"2 rows","diagonal-2":"2 diagonal","feature-3":"3 featured","diagonal-3":"3 diagonal","diagonal-4":"4 diagonal","pinwheel-4":"4 pinwheel","panorama-4":"4 panorama","grid-4":"4 grid","offset-4":"4 magazine","diagonal-5":"5 diagonal","center-band-5":"5 center strip","center-focus-5":"5 centered","mosaic-5":"5 mosaic","feature-5":"5 asymmetric","masonry-6":"6 masonry","grid-6":"6 grid","hero-6":"6 featured","gallery-7":"7 gallery","circle-focus-5":"5 circle focus"},
+      diagonalActive:"Diagonal layout active – drag the circular handle to adjust the diagonal.",
+      pinwheelActive:"4 pinwheel layout active – move the two diagonal dividers with their own handles.",
+      circleActive:"Circle focus layout active – drag the handle on the right edge of the circle to resize the center image.",
+      customActive:"Custom draw is active \u2013 dividers stay movable, and you can click or tap a piece between intersections to delete or detach it. Shift snaps new lines to 15\u00b0 increments.",
+      customCutAdded:n=>`Divider added. The collage now has ${n} slots.`, customCutIgnored:"That line did not create a usable new slot.", customTooMany:n=>`A custom layout can contain up to ${n} slots.`, customUndoDone:"The last custom change was undone.", customUndoEmpty:"There are no more custom changes to undo.", customResetDone:"The custom layout is back to one slot.", customDividerMoveStart:"Moving divider – drag it parallel anywhere. A remaining trimmed segment keeps following its junction with the connected divider. Drag it fully off the canvas to delete it.", customDividerMoved:"Divider moved.", customDividerDeleted:"Divider deleted because it was dragged completely off the canvas.", customDividerDeleteHint:"Release to delete this divider.", customDividerMoveInvalid:"The custom slots could not be recalculated reliably at this exact position. Try moving the divider a few pixels.", customSegmentDelete:"Delete segment", customSegmentDetach:"Detach segment", customSegmentSelected:"Segment selected – delete it, detach it, or keep dragging to move the whole divider.", customSegmentDeleted:"The selected divider segment was deleted. The remaining part stays movable.", customSegmentDeleteInvalid:"This segment could not be safely removed from the current topology.", customSegmentDetached:"Segment detached. The divider pieces can now be moved independently.", customSegmentDetachInvalid:"This segment could not be safely detached from the current topology.",
+      layoutChanged:"Layout changed. Your previously loaded images have been kept.",
+      dragTray:"Drag the image onto a collage slot, or reorder it in the image strip.",
+      movedToSlot:n=>`Image moved to collage slot ${n}.`, trayReordered:"Loaded image order updated.", moveCancelled:"Image move cancelled.",
+      imageSelected:n=>`Image ${n} selected.`, imageHidden:n=>`Image ${n} is kept, but has no visible slot in the current layout.`,
+      imageWord:"Image", loadedImage:"loaded image", thumbTitle:(name,n)=>`${name || `Image ${n}`} · drag onto collage or reorder`,
+      thumbAria:(name,n)=>`Image ${n}: ${name || "loaded image"}. Draggable.`, swapLabel:"Drag onto another slot",
+      swapMode:"Swap mode: drag the image onto the slot you want to swap it with.", pinchActive:"Pinch zoom active.",
+      imagesSwapped:(a,b)=>`Images ${a} and ${b} were swapped.`, swapCancelled:"Image swap cancelled.",
+      dividerResetTitle:"Double-click: reset divider", diagonalAdjusted:"Diagonal divider adjusted.", pointAdjusted:"Diagonal meeting point adjusted.", circleAdjusted:"Center circle resized.", dividerAdjusted:"Divider adjusted.", dividerReset:"Divider reset to its default position.",
+      imageLoadError:"The image could not be loaded.", allCleared:"All images removed.", allDividersReset:"The current layout dividers were reset to their default positions.",
+      exportBlobError:"Could not create the exported image.", exporting:"Exporting…",
+      exportReady:(w,h)=>`Export preview is ready: ${w} × ${h} px. Choose PNG or JPG in the dialog.`,
+      exportFailed:"Export failed. Try a smaller export size or another browser.", unknownError:"unknown error",
+      pngStarted:name=>`PNG download started: ${name}`, jpgStarted:name=>`Optimized JPG download started: ${name}`,
+      popupBlocked:"The browser blocked the new tab. Allow pop-ups, or use a download button instead.",
+      fileBase:"collage", optimizedSuffix:"optimized"
+    }
+  };
+  const tr = I18N[uiLang];
+
+  function circlePolygon(cx,cy,r,aspect=1,segments=56){
+    const safeAspect=Math.max(.01,aspect || 1);
+    const rx=safeAspect>=1 ? r/safeAspect : r;
+    const ry=safeAspect>=1 ? r : r*safeAspect;
+    return Array.from({length:segments},(_,i)=>{
+      const a=Math.PI*2*i/segments;
+      return [cx+Math.cos(a)*rx,cy+Math.sin(a)*ry];
+    });
+  }
+
+  const CUSTOM_MAX_SLOTS = 12;
+  const CUSTOM_MIN_AREA = .006;
+  const CUSTOM_GEOM_EPS = 2e-6;
+  let customLayoutPolygons = [[[0,0],[1,0],[1,1],[0,1]]];
+  let customLayoutCuts = [];
+  const customLayoutHistory = [];
+  let customCutIdCounter = 1;
+
+  function nextCustomCutId(){
+    return `c${customCutIdCounter++}`;
+  }
+
+  function ensureCustomCutIds(cuts=customLayoutCuts){
+    for(const cut of cuts || []){
+      if(!cut.id) cut.id=nextCustomCutId();
+      if(cut.startAnchor && typeof cut.startAnchor==="string") cut.startAnchor={id:cut.startAnchor};
+      if(cut.endAnchor && typeof cut.endAnchor==="string") cut.endAnchor={id:cut.endAnchor};
+    }
+    return cuts;
+  }
+
+  function snapshotCustomLayout(){
+    return {
+      polygons:clone(customLayoutPolygons),
+      cuts:clone(customLayoutCuts),
+      slotOrder:state?.slots ? state.slots.slice() : null,
+      selected:state?.selected ?? 0
+    };
+  }
+
+  function restoreCustomLayout(snapshot){
+    if(Array.isArray(snapshot)){
+      customLayoutPolygons=clone(snapshot);
+      customLayoutCuts=[];
+      return;
+    }
+    customLayoutPolygons=clone(snapshot?.polygons || [[[0,0],[1,0],[1,1],[0,1]]]);
+    customLayoutCuts=clone(snapshot?.cuts || []);
+    ensureCustomCutIds(customLayoutCuts);
+    if(snapshot?.slotOrder){
+      state.slots=snapshot.slotOrder.slice();
+      state.selected=clamp(snapshot.selected ?? state.selected,0,Math.max(0,state.slots.length-1));
+    }
+  }
+
+  const layouts = {
+    "custom-draw": {
+      name:"Egyedi rajz",
+      type:"custom",
+      defaults:{},
+      rects:() => customLayoutPolygons.map(() => [0,0,1,1]),
+      polygons:() => customLayoutPolygons,
+      handles:() => []
+    },
+    "single": {
+      name:"1 kép",
+      defaults:{},
+      rects:() => [[0,0,1,1]],
+      handles:() => []
+    },
+    "two-cols": {
+      name:"2 oszlop",
+      defaults:{x:.5},
+      rects:p => [[0,0,p.x,1],[p.x,0,1-p.x,1]],
+      handles:p => [{o:"v",key:"x",pos:p.x,from:0,to:1,min:.18,max:.82}]
+    },
+    "two-rows": {
+      name:"2 sor",
+      defaults:{y:.5},
+      rects:p => [[0,0,1,p.y],[0,p.y,1,1-p.y]],
+      handles:p => [{o:"h",key:"y",pos:p.y,from:0,to:1,min:.18,max:.82}]
+    },
+    "diagonal-2": {
+      name:"2 átlós",
+      defaults:{d:.5},
+      rects:() => [[0,0,1,1],[0,0,1,1]],
+      polygons:p => {
+        const s=.17, top=clamp(p.d+s,.08,.92), bottom=clamp(p.d-s,.08,.92);
+        return [
+          [[0,0],[top,0],[bottom,1],[0,1]],
+          [[top,0],[1,0],[1,1],[bottom,1]]
+        ];
+      },
+      handles:p => [{o:"d",key:"d",pos:p.d,y:.5,min:.25,max:.75}]
+    },
+    "feature-3": {
+      name:"3 kiemelt",
+      defaults:{x:.62,ry:.5},
+      rects:p => [[0,0,p.x,1],[p.x,0,1-p.x,p.ry],[p.x,p.ry,1-p.x,1-p.ry]],
+      handles:p => [
+        {o:"v",key:"x",pos:p.x,from:0,to:1,min:.28,max:.78},
+        {o:"h",key:"ry",pos:p.ry,from:p.x,to:1,min:.18,max:.82}
+      ]
+    },
+    "diagonal-3": {
+      name:"3 átlós",
+      defaults:{d1:.35,d2:.68},
+      rects:() => [[0,0,1,1],[0,0,1,1],[0,0,1,1]],
+      polygons:p => {
+        const s=.13;
+        const aTop=clamp(p.d1+s,.05,.9), aBottom=clamp(p.d1-s,.05,.9);
+        const bTop=clamp(p.d2+s,.1,.95), bBottom=clamp(p.d2-s,.1,.95);
+        return [
+          [[0,0],[aTop,0],[aBottom,1],[0,1]],
+          [[aTop,0],[bTop,0],[bBottom,1],[aBottom,1]],
+          [[bTop,0],[1,0],[1,1],[bBottom,1]]
+        ];
+      },
+      handles:p => [
+        {o:"d",key:"d1",pos:p.d1,y:.5,min:.20,max:()=>p.d2-.18},
+        {o:"d",key:"d2",pos:p.d2,y:.5,min:()=>p.d1+.18,max:.82}
+      ]
+    },
+    "diagonal-4": {
+      name:"4 átlós",
+      defaults:{d1:.25,d2:.5,d3:.75},
+      rects:() => [[0,0,1,1],[0,0,1,1],[0,0,1,1],[0,0,1,1]],
+      polygons:p => {
+        const s=.10;
+        const aTop=clamp(p.d1+s,.04,.91), aBottom=clamp(p.d1-s,.04,.91);
+        const bTop=clamp(p.d2+s,.09,.94), bBottom=clamp(p.d2-s,.06,.91);
+        const cTop=clamp(p.d3+s,.09,.96), cBottom=clamp(p.d3-s,.09,.96);
+        return [
+          [[0,0],[aTop,0],[aBottom,1],[0,1]],
+          [[aTop,0],[bTop,0],[bBottom,1],[aBottom,1]],
+          [[bTop,0],[cTop,0],[cBottom,1],[bBottom,1]],
+          [[cTop,0],[1,0],[1,1],[cBottom,1]]
+        ];
+      },
+      handles:p => [
+        {o:"d",key:"d1",pos:p.d1,y:.5,min:.18,max:()=>p.d2-.15},
+        {o:"d",key:"d2",pos:p.d2,y:.5,min:()=>p.d1+.15,max:()=>p.d3-.15},
+        {o:"d",key:"d3",pos:p.d3,y:.5,min:()=>p.d2+.15,max:.82}
+      ]
+    },
+    "pinwheel-4": {
+      name:"4 forgó",
+      type:"pinwheel",
+      defaults:{diagX:.5,diagY:.5},
+      rects:() => [[0,0,1,1],[0,0,1,1],[0,0,1,1],[0,0,1,1]],
+      polygons:p => {
+        const k=.32;
+        const topX=clamp(p.diagX-k*.5,.05,.95);
+        const bottomX=clamp(p.diagX+k*.5,.05,.95);
+        const leftY=clamp(p.diagY+k*.5,.05,.95);
+        const rightY=clamp(p.diagY-k*.5,.05,.95);
+
+        const A=p.diagX-.5, B=p.diagY-.5;
+        const den=1+k*k;
+        const cx=.5+(A+k*B)/den;
+        const cy=.5+(B-k*A)/den;
+
+        return [
+          [[0,0],[topX,0],[cx,cy],[0,leftY]],
+          [[topX,0],[1,0],[1,rightY],[cx,cy]],
+          [[1,rightY],[1,1],[bottomX,1],[cx,cy]],
+          [[bottomX,1],[0,1],[0,leftY],[cx,cy]]
+        ];
+      },
+      handles:p => {
+        const k=.32;
+        const y1=.28;
+        const x2=.72;
+        const offset1=k*(y1-.5);
+        const offset2=-k*(x2-.5);
+        return [
+          {o:"dlx",key:"diagX",x:p.diagX+offset1,y:y1,offset:offset1,min:.30,max:.70},
+          {o:"dly",key:"diagY",x:x2,y:p.diagY+offset2,offset:offset2,min:.30,max:.70}
+        ];
+      }
+    },
+    "panorama-4": {
+      name:"4 panoráma",
+      defaults:{y:.62,x1:.333,x2:.666},
+      rects:p => [
+        [0,0,1,p.y],
+        [0,p.y,p.x1,1-p.y],
+        [p.x1,p.y,p.x2-p.x1,1-p.y],
+        [p.x2,p.y,1-p.x2,1-p.y]
+      ],
+      handles:p => [
+        {o:"h",key:"y",pos:p.y,from:0,to:1,min:.36,max:.78},
+        {o:"v",key:"x1",pos:p.x1,from:p.y,to:1,min:.16,max:()=>p.x2-.12},
+        {o:"v",key:"x2",pos:p.x2,from:p.y,to:1,min:()=>p.x1+.12,max:.84}
+      ]
+    },
+    "grid-4": {
+      name:"4 rács",
+      defaults:{x:.5,y:.5},
+      rects:p => [[0,0,p.x,p.y],[p.x,0,1-p.x,p.y],[0,p.y,p.x,1-p.y],[p.x,p.y,1-p.x,1-p.y]],
+      handles:p => [{o:"v",key:"x",pos:p.x,from:0,to:1,min:.2,max:.8},{o:"h",key:"y",pos:p.y,from:0,to:1,min:.2,max:.8}]
+    },
+    "offset-4": {
+      name:"4 magazin",
+      defaults:{x:.6,y1:.58,y2:.42},
+      rects:p => [[0,0,p.x,p.y1],[0,p.y1,p.x,1-p.y1],[p.x,0,1-p.x,p.y2],[p.x,p.y2,1-p.x,1-p.y2]],
+      handles:p => [
+        {o:"v",key:"x",pos:p.x,from:0,to:1,min:.38,max:.72},
+        {o:"h",key:"y1",pos:p.y1,from:0,to:p.x,min:.25,max:.78},
+        {o:"h",key:"y2",pos:p.y2,from:p.x,to:1,min:.22,max:.75}
+      ]
+    },
+    "diagonal-5": {
+      name:"5 átlós",
+      defaults:{d1:.18,d2:.39,d3:.61,d4:.82},
+      rects:() => [[0,0,1,1],[0,0,1,1],[0,0,1,1],[0,0,1,1],[0,0,1,1]],
+      polygons:p => {
+        const s=.075;
+        const aTop=clamp(p.d1+s,.035,.92), aBottom=clamp(p.d1-s,.035,.92);
+        const bTop=clamp(p.d2+s,.06,.94), bBottom=clamp(p.d2-s,.04,.92);
+        const cTop=clamp(p.d3+s,.08,.96), cBottom=clamp(p.d3-s,.06,.94);
+        const dTop=clamp(p.d4+s,.08,.965), dBottom=clamp(p.d4-s,.08,.965);
+        return [
+          [[0,0],[aTop,0],[aBottom,1],[0,1]],
+          [[aTop,0],[bTop,0],[bBottom,1],[aBottom,1]],
+          [[bTop,0],[cTop,0],[cBottom,1],[bBottom,1]],
+          [[cTop,0],[dTop,0],[dBottom,1],[cBottom,1]],
+          [[dTop,0],[1,0],[1,1],[dBottom,1]]
+        ];
+      },
+      handles:p => [
+        {o:"d",key:"d1",pos:p.d1,y:.5,min:.15,max:()=>p.d2-.14},
+        {o:"d",key:"d2",pos:p.d2,y:.5,min:()=>p.d1+.14,max:()=>p.d3-.14},
+        {o:"d",key:"d3",pos:p.d3,y:.5,min:()=>p.d2+.14,max:()=>p.d4-.14},
+        {o:"d",key:"d4",pos:p.d4,y:.5,min:()=>p.d3+.14,max:.85}
+      ]
+    },
+    "center-band-5": {
+      name:"5 középsáv",
+      defaults:{y1:.28,y2:.68,topX:.5,bottomX:.5},
+      rects:p => [
+        [0,0,p.topX,p.y1],
+        [p.topX,0,1-p.topX,p.y1],
+        [0,p.y1,1,p.y2-p.y1],
+        [0,p.y2,p.bottomX,1-p.y2],
+        [p.bottomX,p.y2,1-p.bottomX,1-p.y2]
+      ],
+      handles:p => [
+        {o:"h",key:"y1",pos:p.y1,from:0,to:1,min:.16,max:()=>p.y2-.18},
+        {o:"h",key:"y2",pos:p.y2,from:0,to:1,min:()=>p.y1+.18,max:.84},
+        {o:"v",key:"topX",pos:p.topX,from:0,to:p.y1,min:.2,max:.8},
+        {o:"v",key:"bottomX",pos:p.bottomX,from:p.y2,to:1,min:.2,max:.8}
+      ]
+    },
+    "center-focus-5": {
+      name:"5 középső",
+      defaults:{x1:.28,x2:.72,ly:.5,ry:.5},
+      rects:p => [
+        [0,0,p.x1,p.ly],
+        [0,p.ly,p.x1,1-p.ly],
+        [p.x1,0,p.x2-p.x1,1],
+        [p.x2,0,1-p.x2,p.ry],
+        [p.x2,p.ry,1-p.x2,1-p.ry]
+      ],
+      handles:p => [
+        {o:"v",key:"x1",pos:p.x1,from:0,to:1,min:.16,max:()=>p.x2-.22},
+        {o:"v",key:"x2",pos:p.x2,from:0,to:1,min:()=>p.x1+.22,max:.84},
+        {o:"h",key:"ly",pos:p.ly,from:0,to:p.x1,min:.2,max:.8},
+        {o:"h",key:"ry",pos:p.ry,from:p.x2,to:1,min:.2,max:.8}
+      ]
+    },
+    "mosaic-5": {
+      name:"5 mozaik",
+      defaults:{x:.5,ly:.5,ry1:.333,ry2:.666},
+      rects:p => [[0,0,p.x,p.ly],[0,p.ly,p.x,1-p.ly],[p.x,0,1-p.x,p.ry1],[p.x,p.ry1,1-p.x,p.ry2-p.ry1],[p.x,p.ry2,1-p.x,1-p.ry2]],
+      handles:p => [
+        {o:"v",key:"x",pos:p.x,from:0,to:1,min:.28,max:.72},
+        {o:"h",key:"ly",pos:p.ly,from:0,to:p.x,min:.2,max:.8},
+        {o:"h",key:"ry1",pos:p.ry1,from:p.x,to:1,min:.15,max:()=>p.ry2-.12},
+        {o:"h",key:"ry2",pos:p.ry2,from:p.x,to:1,min:()=>p.ry1+.12,max:.85}
+      ]
+    },
+    "feature-5": {
+      name:"5 aszimmetrikus",
+      defaults:{mainY:.6,topX:.6,rightY:.3,bottomX:.5},
+      rects:p => [[0,0,p.topX,p.mainY],[p.topX,0,1-p.topX,p.rightY],[p.topX,p.rightY,1-p.topX,p.mainY-p.rightY],[0,p.mainY,p.bottomX,1-p.mainY],[p.bottomX,p.mainY,1-p.bottomX,1-p.mainY]],
+      handles:p => [
+        {o:"h",key:"mainY",pos:p.mainY,from:0,to:1,min:()=>p.rightY+.14,max:.82},
+        {o:"v",key:"topX",pos:p.topX,from:0,to:p.mainY,min:.28,max:.78},
+        {o:"h",key:"rightY",pos:p.rightY,from:p.topX,to:1,min:.12,max:()=>p.mainY-.14},
+        {o:"v",key:"bottomX",pos:p.bottomX,from:p.mainY,to:1,min:.2,max:.8}
+      ]
+    },
+    "masonry-6": {
+      name:"6 téglafal",
+      defaults:{x1:.34,x2:.68,ly:.42,my:.62,ry:.48},
+      rects:p => [
+        [0,0,p.x1,p.ly],
+        [0,p.ly,p.x1,1-p.ly],
+        [p.x1,0,p.x2-p.x1,p.my],
+        [p.x1,p.my,p.x2-p.x1,1-p.my],
+        [p.x2,0,1-p.x2,p.ry],
+        [p.x2,p.ry,1-p.x2,1-p.ry]
+      ],
+      handles:p => [
+        {o:"v",key:"x1",pos:p.x1,from:0,to:1,min:.18,max:()=>p.x2-.14},
+        {o:"v",key:"x2",pos:p.x2,from:0,to:1,min:()=>p.x1+.14,max:.82},
+        {o:"h",key:"ly",pos:p.ly,from:0,to:p.x1,min:.18,max:.82},
+        {o:"h",key:"my",pos:p.my,from:p.x1,to:p.x2,min:.18,max:.82},
+        {o:"h",key:"ry",pos:p.ry,from:p.x2,to:1,min:.18,max:.82}
+      ]
+    },
+    "grid-6": {
+      name:"6 rács",
+      defaults:{x1:.333,x2:.666,y:.5},
+      rects:p => [[0,0,p.x1,p.y],[p.x1,0,p.x2-p.x1,p.y],[p.x2,0,1-p.x2,p.y],[0,p.y,p.x1,1-p.y],[p.x1,p.y,p.x2-p.x1,1-p.y],[p.x2,p.y,1-p.x2,1-p.y]],
+      handles:p => [
+        {o:"v",key:"x1",pos:p.x1,from:0,to:1,min:.16,max:()=>p.x2-.12},
+        {o:"v",key:"x2",pos:p.x2,from:0,to:1,min:()=>p.x1+.12,max:.84},
+        {o:"h",key:"y",pos:p.y,from:0,to:1,min:.2,max:.8}
+      ]
+    },
+    "hero-6": {
+      name:"6 kiemelt",
+      defaults:{x:.64,y:.62,rightX:.82,rightY:.31,by:.5},
+      rects:p => [
+        [0,0,p.x,p.y],
+        [p.x,0,p.rightX-p.x,p.rightY],
+        [p.rightX,0,1-p.rightX,p.rightY],
+        [p.x,p.rightY,1-p.x,p.y-p.rightY],
+        [0,p.y,p.by,1-p.y],
+        [p.by,p.y,1-p.by,1-p.y]
+      ],
+      handles:p => [
+        {o:"v",key:"x",pos:p.x,from:0,to:p.y,min:.42,max:()=>p.rightX-.12},
+        {o:"h",key:"y",pos:p.y,from:0,to:1,min:()=>p.rightY+.14,max:.78},
+        {o:"v",key:"rightX",pos:p.rightX,from:0,to:p.rightY,min:()=>p.x+.12,max:.90},
+        {o:"h",key:"rightY",pos:p.rightY,from:p.x,to:1,min:.14,max:()=>p.y-.14},
+        {o:"v",key:"by",pos:p.by,from:p.y,to:1,min:.22,max:.78}
+      ]
+    },
+    "circle-focus-5": {
+      name:"5 körfókusz",
+      type:"circle",
+      defaults:{r:.235},
+      rects:() => [[0,0,1,1],[0,0,1,1],[0,0,1,1],[0,0,1,1],[0,0,1,1]],
+      polygons:(p,aspect=1) => [
+        [[0,0],[.5,0],[.5,.5],[0,.5]],
+        [[.5,0],[1,0],[1,.5],[.5,.5]],
+        [[0,.5],[.5,.5],[.5,1],[0,1]],
+        [[.5,.5],[1,.5],[1,1],[.5,1]],
+        circlePolygon(.5,.5,p.r,aspect)
+      ],
+      circleSlot:p => ({index:4,cx:.5,cy:.5,r:p.r}),
+      handles:p => [{o:"c",key:"r",pos:p.r,cx:.5,cy:.5,min:.15,max:.34}]
+    },
+    "gallery-7": {
+      name:"7 galéria",
+      defaults:{x:.46,rx:.73,y1:.333,y2:.666},
+      rects:p => [
+        [0,0,p.x,1],
+        [p.x,0,p.rx-p.x,p.y1],
+        [p.rx,0,1-p.rx,p.y1],
+        [p.x,p.y1,p.rx-p.x,p.y2-p.y1],
+        [p.rx,p.y1,1-p.rx,p.y2-p.y1],
+        [p.x,p.y2,p.rx-p.x,1-p.y2],
+        [p.rx,p.y2,1-p.rx,1-p.y2]
+      ],
+      handles:p => [
+        {o:"v",key:"x",pos:p.x,from:0,to:1,min:.30,max:()=>p.rx-.14},
+        {o:"v",key:"rx",pos:p.rx,from:0,to:1,min:()=>p.x+.14,max:.86},
+        {o:"h",key:"y1",pos:p.y1,from:p.x,to:1,min:.16,max:()=>p.y2-.14},
+        {o:"h",key:"y2",pos:p.y2,from:p.x,to:1,min:()=>p.y1+.14,max:.84}
+      ]
+    }
+  };
+
+  const maxSlots = Math.max(CUSTOM_MAX_SLOTS,...Object.values(layouts).map(l => l.rects(l.defaults).length));
+
+  const makeSlotState = () => ({
+    url:null,
+    fileName:"",
+    img:null,
+    zoom:1,
+    offsetX:0,
+    offsetY:0
+  });
+
+  const colorSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+  const state = {
+    layout:"mosaic-5",
+    slots:Array.from({length:maxSlots}, makeSlotState),
+    layoutParams:Object.fromEntries(
+      Object.entries(layouts).map(([key,val]) => [key, clone(val.defaults)])
+    ),
+    selected:0,
+    gap:8,
+    radius:0,
+    bg:colorSchemeQuery.matches ? "#000000" : "#ffffff",
+    bgManuallySet:false,
+    aspect:1,
+    replaceMode:false,
+    customDrawActive:false,
+    suppressClickUntil:0
+  };
+
+  const stage = document.getElementById("stage");
+  const layoutBox = document.getElementById("layouts");
+  const fileInput = document.getElementById("fileInput");
+  const addFiles = document.getElementById("addFiles");
+  const replaceBtn = document.getElementById("replaceBtn");
+  const exportBtn = document.getElementById("exportBtn");
+  const clearAll = document.getElementById("clearAll");
+  const resetDividers = document.getElementById("resetDividers");
+  const customDrawToggle = document.getElementById("customDrawToggle");
+  const customUndo = document.getElementById("customUndo");
+  const zoom = document.getElementById("zoom");
+  const zoomValue = document.getElementById("zoomValue");
+  const centerBtn = document.getElementById("centerBtn");
+  const removeBtn = document.getElementById("removeBtn");
+  const gap = document.getElementById("gap");
+  const gapValue = document.getElementById("gapValue");
+  const radius = document.getElementById("radius");
+  const radiusValue = document.getElementById("radiusValue");
+  const bgColor = document.getElementById("bgColor");
+  bgColor.value = state.bg;
+  const aspect = document.getElementById("aspect");
+  const exportSize = document.getElementById("exportSize");
+  const status = document.getElementById("status");
+  const mediaTray = document.getElementById("mediaTray");
+  const mediaThumbs = document.getElementById("mediaThumbs");
+  const mediaTrayCount = document.getElementById("mediaTrayCount");
+  const helpModal = document.getElementById("helpModal");
+  const openHelp = document.getElementById("openHelp");
+  const closeHelp = document.getElementById("closeHelp");
+  const exportModal = document.getElementById("exportModal");
+  const exportPreview = document.getElementById("exportPreview");
+  const exportMeta = document.getElementById("exportMeta");
+  const downloadExport = document.getElementById("downloadExport");
+  const downloadJpg = document.getElementById("downloadJpg");
+  const openExport = document.getElementById("openExport");
+  const closeExport = document.getElementById("closeExport");
+  let currentExportUrl = null;
+  let currentExportFile = null;
+  let currentExportJpgFile = null;
+
+  function applyStaticTranslations(){
+    document.title = tr.pageTitle;
+    document.querySelector(".brand-copy h1").textContent = tr.appTitle;
+    document.querySelector(".sub").textContent = tr.tagline;
+    openHelp.setAttribute("aria-label",tr.helpOpen);
+    openHelp.title = tr.helpTitleAttr;
+
+    const leftHeadings = document.querySelectorAll(".left > h2");
+    if(leftHeadings[0]) leftHeadings[0].textContent = tr.layoutHeading;
+    if(leftHeadings[1]) leftHeadings[1].textContent = tr.aspectHeading;
+    const aspectOptions = aspect.options;
+    if(aspectOptions[0]) aspectOptions[0].textContent = tr.aspectSquare;
+    if(aspectOptions[1]) aspectOptions[1].textContent = tr.aspectPortrait;
+    if(aspectOptions[2]) aspectOptions[2].textContent = tr.aspectLandscape;
+    if(aspectOptions[3]) aspectOptions[3].textContent = tr.aspectWide;
+
+    const setButton = (el,label,title=label) => {
+      el.querySelector(".btn-label").textContent = label;
+      el.title = title;
+      el.setAttribute("aria-label",title);
+    };
+    setButton(addFiles,tr.addImages,tr.addImagesFull);
+    setButton(replaceBtn,tr.replace,tr.replaceFull);
+    setButton(resetDividers,tr.dividers,tr.dividersFull);
+    setButton(customDrawToggle,tr.customDraw,tr.customDrawOn);
+    setButton(customUndo,tr.customUndo);
+    setButton(clearAll,tr.delete,tr.deleteFull);
+    setButton(exportBtn,tr.export,tr.exportFull);
+    setButton(centerBtn,tr.center);
+    setButton(removeBtn,tr.removeImage);
+    setButton(openExport,tr.openImage);
+
+    mediaTray.setAttribute("aria-label",tr.loadedImages);
+    document.querySelector(".media-tray-title").textContent = tr.loadedImages;
+    stage.setAttribute("aria-label",tr.stageLabel);
+    status.textContent = tr.initialTip;
+
+    const rightSections = document.querySelectorAll(".right > div");
+    if(rightSections[0]){
+      rightSections[0].querySelector("h2").textContent = tr.selectedImage;
+      const label = rightSections[0].querySelector(".control label");
+      if(label) label.firstChild.textContent = tr.zoom + " ";
+    }
+    if(rightSections[1]){
+      rightSections[1].querySelector("h2").textContent = tr.collage;
+      const labels = rightSections[1].querySelectorAll(".control label");
+      if(labels[0]) labels[0].firstChild.textContent = tr.gap + " ";
+      if(labels[1]) labels[1].firstChild.textContent = tr.radius + " ";
+      if(labels[2]) labels[2].textContent = tr.background;
+    }
+    if(rightSections[2]){
+      rightSections[2].querySelector("h2").textContent = tr.export;
+      const label = rightSections[2].querySelector(".control label");
+      if(label) label.textContent = tr.width;
+    }
+
+    document.getElementById("helpTitle").textContent = tr.quickHelp;
+    document.querySelector(".help-head p").textContent = tr.helpIntro;
+    closeHelp.setAttribute("aria-label",tr.close);
+    document.querySelector(".help-list").innerHTML = [tr.helpMove,tr.helpSwap,tr.helpLoaded,tr.helpZoom,tr.helpDividers,tr.helpCustom]
+      .map(item=>`<div class="help-item">${item}</div>`).join("");
+
+    document.getElementById("exportTitle").textContent = tr.exportTitle;
+    exportMeta.textContent = tr.exportChoose;
+    closeExport.setAttribute("aria-label",tr.close);
+    exportPreview.alt = tr.exportPreviewAlt;
+    document.documentElement.style.setProperty("--drop-copy",JSON.stringify(tr.dropImage));
+  }
+
+  function currentLayout(){
+    return layouts[state.layout];
+  }
+
+  function currentParams(){
+    return state.layoutParams[state.layout];
+  }
+
+  function currentRects(){
+    return currentLayout().rects(currentParams());
+  }
+
+  function currentPolygons(){
+    const cfg = currentLayout();
+    return cfg.polygons ? cfg.polygons(currentParams(),state.aspect) : null;
+  }
+
+  function currentCircleSlot(){
+    const cfg=currentLayout();
+    return cfg.circleSlot ? cfg.circleSlot(currentParams()) : null;
+  }
+
+  function circleSlotMetrics(circle,width,height,gapPx=state.gap){
+    if(!circle) return null;
+    const minDim=Math.min(width,height);
+    const outerRadius=circle.r*minDim;
+    const innerRadius=Math.max(1,outerRadius-gapPx/2);
+    return {cx:circle.cx*width,cy:circle.cy*height,outerRadius,innerRadius,x:circle.cx*width-innerRadius,y:circle.cy*height-innerRadius,size:innerRadius*2};
+  }
+
+  function shrinkPolygon(points,insetNorm){
+    if(!insetNorm) return points;
+    const cx = points.reduce((sum,p)=>sum+p[0],0)/points.length;
+    const cy = points.reduce((sum,p)=>sum+p[1],0)/points.length;
+    const factor = clamp(1-insetNorm*2.15,.78,1);
+    return points.map(([x,y]) => [cx+(x-cx)*factor,cy+(y-cy)*factor]);
+  }
+
+  function polygonCss(points,insetNorm=0){
+    return `polygon(${shrinkPolygon(points,insetNorm).map(([x,y]) => `${x*100}% ${y*100}%`).join(",")})`;
+  }
+
+  function insetPolygon(points,width,height,gapPx){
+    if(!gapPx || !width || !height) return points.map(([x,y]) => [x,y]);
+    const px = points.map(([x,y]) => [x*width,y*height]);
+    const cx = px.reduce((sum,p)=>sum+p[0],0)/px.length;
+    const cy = px.reduce((sum,p)=>sum+p[1],0)/px.length;
+    const eps = 1e-6;
+    const lines = [];
+
+    for(let i=0;i<px.length;i++){
+      const a = px[i], b = px[(i+1)%px.length];
+      const dx=b[0]-a[0], dy=b[1]-a[1];
+      const len=Math.hypot(dx,dy) || 1;
+      let nx=-dy/len, ny=dx/len;
+      const mx=(a[0]+b[0])/2, my=(a[1]+b[1])/2;
+      if(nx*(cx-mx)+ny*(cy-my) < 0){ nx=-nx; ny=-ny; }
+
+      const pa=points[i], pb=points[(i+1)%points.length];
+      const outer =
+        (Math.abs(pa[0])<eps && Math.abs(pb[0])<eps) ||
+        (Math.abs(pa[0]-1)<eps && Math.abs(pb[0]-1)<eps) ||
+        (Math.abs(pa[1])<eps && Math.abs(pb[1])<eps) ||
+        (Math.abs(pa[1]-1)<eps && Math.abs(pb[1]-1)<eps);
+      const distance = outer ? gapPx : gapPx/2;
+      lines.push({nx,ny,c:nx*a[0]+ny*a[1]+distance});
+    }
+
+    const out=[];
+    const customBevel = state.layout === "custom-draw";
+    const maxMiter = Math.max(2,gapPx*2.25);
+    const projectToLine = (p,l) => {
+      const d=l.c-(l.nx*p[0]+l.ny*p[1]);
+      return [p[0]+l.nx*d,p[1]+l.ny*d];
+    };
+
+    for(let i=0;i<lines.length;i++){
+      const l1=lines[(i-1+lines.length)%lines.length];
+      const l2=lines[i];
+      const p=px[i];
+      const det=l1.nx*l2.ny-l2.nx*l1.ny;
+      if(Math.abs(det)<1e-8){
+        out.push(projectToLine(p,l2));
+        continue;
+      }
+      const x=(l1.c*l2.ny-l2.c*l1.ny)/det;
+      const y=(l1.nx*l2.c-l2.nx*l1.c)/det;
+      const miterLength=Math.hypot(x-p[0],y-p[1]);
+
+      if(customBevel && miterLength>maxMiter){
+        const q1=projectToLine(p,l1);
+        const q2=projectToLine(p,l2);
+        if(!out.length || Math.hypot(out[out.length-1][0]-q1[0],out[out.length-1][1]-q1[1])>.01) out.push(q1);
+        if(Math.hypot(q2[0]-q1[0],q2[1]-q1[1])>.01) out.push(q2);
+      } else {
+        out.push([x,y]);
+      }
+    }
+    let finalPoints=out;
+    if(customBevel){
+      const border=Math.min(gapPx,Math.max(0,width/2-1),Math.max(0,height/2-1));
+      const clipEdge=(input,inside,intersect) => {
+        if(!input.length) return [];
+        const result=[];
+        let a=input[input.length-1];
+        let aInside=inside(a);
+        for(const b of input){
+          const bInside=inside(b);
+          if(bInside){
+            if(!aInside) result.push(intersect(a,b));
+            result.push(b);
+          } else if(aInside){
+            result.push(intersect(a,b));
+          }
+          a=b;
+          aInside=bInside;
+        }
+        return result;
+      };
+      const atX=(a,b,x) => {
+        const dx=b[0]-a[0];
+        const t=Math.abs(dx)<1e-9 ? 0 : (x-a[0])/dx;
+        return [x,a[1]+(b[1]-a[1])*t];
+      };
+      const atY=(a,b,y) => {
+        const dy=b[1]-a[1];
+        const t=Math.abs(dy)<1e-9 ? 0 : (y-a[1])/dy;
+        return [a[0]+(b[0]-a[0])*t,y];
+      };
+      finalPoints=clipEdge(finalPoints,p=>p[0]>=border-1e-7,(a,b)=>atX(a,b,border));
+      finalPoints=clipEdge(finalPoints,p=>p[0]<=width-border+1e-7,(a,b)=>atX(a,b,width-border));
+      finalPoints=clipEdge(finalPoints,p=>p[1]>=border-1e-7,(a,b)=>atY(a,b,border));
+      finalPoints=clipEdge(finalPoints,p=>p[1]<=height-border+1e-7,(a,b)=>atY(a,b,height-border));
+    }
+    return finalPoints.map(([x,y]) => [clamp(x/width,0,1),clamp(y/height,0,1)]);
+  }
+
+  function polygonCssFixed(points,width,height,gapPx){
+    return `polygon(${insetPolygon(points,width,height,gapPx).map(([x,y]) => `${x*100}% ${y*100}%`).join(",")})`;
+  }
+
+  function roundedPolygonCorners(points,radius){
+    if(!points?.length) return [];
+    const r = Math.max(0,+radius || 0);
+    return points.map((point,i) => {
+      const prev = points[(i-1+points.length)%points.length];
+      const next = points[(i+1)%points.length];
+      const toPrev = [prev[0]-point[0],prev[1]-point[1]];
+      const toNext = [next[0]-point[0],next[1]-point[1]];
+      const lenPrev = Math.hypot(...toPrev) || 1;
+      const lenNext = Math.hypot(...toNext) || 1;
+      const cut = Math.min(r,lenPrev*.45,lenNext*.45);
+      return {
+        point,
+        start:[point[0]+toPrev[0]/lenPrev*cut,point[1]+toPrev[1]/lenPrev*cut],
+        end:[point[0]+toNext[0]/lenNext*cut,point[1]+toNext[1]/lenNext*cut]
+      };
+    });
+  }
+
+  function roundedPolygonPathD(points,radius){
+    const corners = roundedPolygonCorners(points,radius);
+    if(!corners.length) return "";
+    if(!radius){
+      return `M ${points.map(([x,y]) => `${x} ${y}`).join(" L ")} Z`;
+    }
+    let d = `M ${corners[0].start[0]} ${corners[0].start[1]}`;
+    corners.forEach((c,i) => {
+      if(i>0) d += ` L ${c.start[0]} ${c.start[1]}`;
+      d += ` Q ${c.point[0]} ${c.point[1]} ${c.end[0]} ${c.end[1]}`;
+    });
+    d += " Z";
+    return d;
+  }
+
+  function ensurePolygonClip(index,points,width,height){
+    const ns = "http://www.w3.org/2000/svg";
+    let svg = stage.querySelector(".polygon-clip-defs");
+    if(!svg){
+      svg = document.createElementNS(ns,"svg");
+      svg.classList.add("polygon-clip-defs");
+      svg.setAttribute("width","0");
+      svg.setAttribute("height","0");
+      svg.setAttribute("aria-hidden","true");
+      svg.style.position = "absolute";
+      svg.style.pointerEvents = "none";
+      const defs = document.createElementNS(ns,"defs");
+      svg.appendChild(defs);
+      stage.prepend(svg);
+    }
+    const defs = svg.querySelector("defs");
+    const id = `slot-clip-${index}`;
+    let clip = defs.querySelector(`#${id}`);
+    if(!clip){
+      clip = document.createElementNS(ns,"clipPath");
+      clip.id = id;
+      clip.setAttribute("clipPathUnits","userSpaceOnUse");
+      clip.appendChild(document.createElementNS(ns,"path"));
+      defs.appendChild(clip);
+    }
+    const pxPoints = insetPolygon(points,width,height,state.gap).map(([x,y]) => [x*width,y*height]);
+    clip.querySelector("path").setAttribute("d",roundedPolygonPathD(pxPoints,state.radius));
+    return `url(#${id})`;
+  }
+
+  function evalBound(v){
+    return typeof v === "function" ? v() : v;
+  }
+
+  function polygonArea(points){
+    let area=0;
+    for(let i=0;i<points.length;i++){
+      const a=points[i], b=points[(i+1)%points.length];
+      area += a[0]*b[1]-b[0]*a[1];
+    }
+    return Math.abs(area)/2;
+  }
+
+  function cleanCustomPolygon(points,eps=CUSTOM_GEOM_EPS){
+    if(!points?.length) return [];
+    const snapUnit=v => Math.abs(v)<eps ? 0 : Math.abs(v-1)<eps ? 1 : v;
+    let out=[];
+    for(const point of points){
+      const p=[snapUnit(point[0]),snapUnit(point[1])];
+      const prev=out[out.length-1];
+      if(!prev || Math.hypot(prev[0]-p[0],prev[1]-p[1])>eps) out.push(p);
+    }
+    if(out.length>1 && Math.hypot(out[0][0]-out[out.length-1][0],out[0][1]-out[out.length-1][1])<=eps) out.pop();
+
+    let changed=true;
+    let guard=0;
+    while(changed && out.length>3 && guard++<12){
+      changed=false;
+      const next=[];
+      for(let i=0;i<out.length;i++){
+        const prev=out[(i-1+out.length)%out.length];
+        const p=out[i];
+        const after=out[(i+1)%out.length];
+        const l1=Math.hypot(p[0]-prev[0],p[1]-prev[1]);
+        const l2=Math.hypot(after[0]-p[0],after[1]-p[1]);
+        if(l1<=eps || l2<=eps){ changed=true; continue; }
+        const vx=p[0]-prev[0], vy=p[1]-prev[1];
+        const wx=after[0]-p[0], wy=after[1]-p[1];
+        const cross=Math.abs(vx*wy-vy*wx);
+        const scale=Math.max(eps,l1+l2);
+        if(cross<=eps*scale && vx*wx+vy*wy>=-eps){ changed=true; continue; }
+        next.push(p);
+      }
+      if(next.length>=3) out=next;
+      else break;
+    }
+    return out;
+  }
+
+  function splitPolygonByLine(points,a,b){
+    const dx=b[0]-a[0], dy=b[1]-a[1];
+    const len=Math.hypot(dx,dy);
+    if(len<1e-5) return null;
+    const side=p => dx*(p[1]-a[1])-dy*(p[0]-a[0]);
+    const eps=CUSTOM_GEOM_EPS;
+    const left=[], right=[];
+    let hasLeft=false, hasRight=false;
+
+    for(let i=0;i<points.length;i++){
+      const p=points[i], q=points[(i+1)%points.length];
+      const sp=side(p), sq=side(q);
+      if(sp>eps) hasLeft=true;
+      if(sp<-eps) hasRight=true;
+      if(sp>=-eps) left.push([p[0],p[1]]);
+      if(sp<=eps) right.push([p[0],p[1]]);
+      if((sp>eps && sq<-eps) || (sp<-eps && sq>eps)){
+        const t=sp/(sp-sq);
+        const hit=[p[0]+(q[0]-p[0])*t,p[1]+(q[1]-p[1])*t];
+        left.push(hit);
+        right.push(hit);
+      }
+    }
+
+    const cleanLeft=cleanCustomPolygon(left);
+    const cleanRight=cleanCustomPolygon(right);
+    if(!hasLeft || !hasRight || cleanLeft.length<3 || cleanRight.length<3) return null;
+    if(polygonArea(cleanLeft)<CUSTOM_MIN_AREA || polygonArea(cleanRight)<CUSTOM_MIN_AREA) return null;
+    return [cleanLeft,cleanRight];
+  }
+
+  function cutCustomLayout(a,b){
+    const kept=[];
+    const added=[];
+    let changed=false;
+    for(const poly of customLayoutPolygons){
+      const split=splitPolygonByLine(poly,a,b);
+      if(split){
+        const area0=polygonArea(split[0]);
+        const area1=polygonArea(split[1]);
+        const keepIndex=area1>area0 ? 1 : 0;
+        kept.push(cleanCustomPolygon(split[keepIndex]));
+        added.push(cleanCustomPolygon(split[1-keepIndex]));
+        changed=true;
+      } else {
+        kept.push(cleanCustomPolygon(poly));
+      }
+    }
+    const next=[...kept,...added];
+    if(!changed) return {ok:false,reason:"ignored"};
+    if(next.length>CUSTOM_MAX_SLOTS) return {ok:false,reason:"max"};
+
+    const clipped=lineAcrossUnitSquare(a,b);
+    customLayoutHistory.push(snapshotCustomLayout());
+    if(customLayoutHistory.length>40) customLayoutHistory.shift();
+    customLayoutCuts.push({id:nextCustomCutId(),a:[...clipped[0]],b:[...clipped[1]],startAnchor:null,endAnchor:null});
+    customLayoutPolygons=next;
+    return {ok:true};
+  }
+
+  function customLineSide(a,b,p){
+    return (b[0]-a[0])*(p[1]-a[1])-(b[1]-a[1])*(p[0]-a[0]);
+  }
+
+  function customPolygonSignature(poly,cuts=customLayoutCuts){
+    if(!poly?.length) return [];
+    const center=[
+      poly.reduce((sum,p)=>sum+p[0],0)/poly.length,
+      poly.reduce((sum,p)=>sum+p[1],0)/poly.length
+    ];
+    return cuts.map(cut => {
+      let value=customLineSide(cut.a,cut.b,center);
+      if(Math.abs(value)<=CUSTOM_GEOM_EPS){
+        let best=0;
+        for(const p of poly){
+          const candidate=customLineSide(cut.a,cut.b,p);
+          if(Math.abs(candidate)>Math.abs(best)) best=candidate;
+        }
+        value=best;
+      }
+      return value>=0 ? 1 : -1;
+    });
+  }
+
+  function clipCustomPolygonToSide(points,a,b,keepSign){
+    if(!points?.length) return [];
+    const eps=CUSTOM_GEOM_EPS;
+    const signed=p => keepSign*customLineSide(a,b,p);
+    const out=[];
+    for(let i=0;i<points.length;i++){
+      const p=points[i], q=points[(i+1)%points.length];
+      const sp=signed(p), sq=signed(q);
+      const pInside=sp>=-eps, qInside=sq>=-eps;
+      if(pInside) out.push([p[0],p[1]]);
+      if(pInside!==qInside){
+        const den=sp-sq;
+        if(Math.abs(den)>1e-12){
+          const t=sp/den;
+          out.push([p[0]+(q[0]-p[0])*t,p[1]+(q[1]-p[1])*t]);
+        }
+      }
+    }
+    return cleanCustomPolygon(out);
+  }
+
+  function polygonsForCustomSignatures(signatures,cuts){
+    const polygons=[];
+    for(const signature of signatures){
+      let poly=[[0,0],[1,0],[1,1],[0,1]];
+      for(let i=0;i<cuts.length;i++){
+        poly=clipCustomPolygonToSide(poly,cuts[i].a,cuts[i].b,signature[i] || 1);
+        if(poly.length<3) break;
+      }
+      poly=cleanCustomPolygon(poly);
+      if(poly.length<3 || polygonArea(poly)<CUSTOM_MIN_AREA) return null;
+      polygons.push(poly);
+    }
+    const total=polygons.reduce((sum,poly)=>sum+polygonArea(poly),0);
+    if(Math.abs(total-1)>.002) return null;
+    return polygons;
+  }
+
+  function customLineIntersection(cutA,cutB){
+    if(!cutA?.a || !cutA?.b || !cutB?.a || !cutB?.b) return null;
+    const ax=cutA.a[0], ay=cutA.a[1];
+    const adx=cutA.b[0]-ax, ady=cutA.b[1]-ay;
+    const bx=cutB.a[0], by=cutB.a[1];
+    const bdx=cutB.b[0]-bx, bdy=cutB.b[1]-by;
+    const den=adx*bdy-ady*bdx;
+    if(Math.abs(den)<1e-10) return null;
+    const qx=bx-ax, qy=by-ay;
+    const t=(qx*bdy-qy*bdx)/den;
+    const u=(qx*ady-qy*adx)/den;
+    return {point:[ax+adx*t,ay+ady*t],tA:t,tB:u};
+  }
+
+  function customLineCanvasInterval(cut){
+    if(!cut?.a || !cut?.b) return null;
+    const ax=cut.a[0], ay=cut.a[1];
+    const dx=cut.b[0]-ax, dy=cut.b[1]-ay;
+    if(Math.hypot(dx,dy)<1e-9) return null;
+    const hits=[];
+    const add=(t,x,y) => {
+      if(x>=-1e-8 && x<=1+1e-8 && y>=-1e-8 && y<=1+1e-8){
+        if(!hits.some(h=>Math.hypot(h.x-x,h.y-y)<1e-7)) hits.push({t,x:clamp(x,0,1),y:clamp(y,0,1)});
+      }
+    };
+    if(Math.abs(dx)>1e-12){
+      let t=(0-ax)/dx; add(t,0,ay+t*dy);
+      t=(1-ax)/dx; add(t,1,ay+t*dy);
+    }
+    if(Math.abs(dy)>1e-12){
+      let t=(0-ay)/dy; add(t,ax+t*dx,0);
+      t=(1-ay)/dy; add(t,ax+t*dx,1);
+    }
+    hits.sort((a,b)=>a.t-b.t);
+    if(hits.length<2) return null;
+    return {t0:hits[0].t,t1:hits[hits.length-1].t,a:[hits[0].x,hits[0].y],b:[hits[hits.length-1].x,hits[hits.length-1].y]};
+  }
+
+  function pointOnCustomCut(cut,t){
+    return [
+      cut.a[0]+(cut.b[0]-cut.a[0])*t,
+      cut.a[1]+(cut.b[1]-cut.a[1])*t
+    ];
+  }
+
+  function effectiveCustomCutSegment(cut,cuts=customLayoutCuts){
+    if(!cut) return null;
+    ensureCustomCutIds(cuts);
+    const canvas=customLineCanvasInterval(cut);
+    if(!canvas) return null;
+    let t0=canvas.t0, t1=canvas.t1;
+    const byId=new Map((cuts || []).map(item=>[item.id,item]));
+    if(cut.startAnchor?.id){
+      const anchor=byId.get(cut.startAnchor.id);
+      const hit=anchor ? customLineIntersection(cut,anchor) : null;
+      if(!hit || hit.tA<canvas.t0-1e-6 || hit.tA>canvas.t1+1e-6) return null;
+      t0=hit.tA;
+    }
+    if(cut.endAnchor?.id){
+      const anchor=byId.get(cut.endAnchor.id);
+      const hit=anchor ? customLineIntersection(cut,anchor) : null;
+      if(!hit || hit.tA<canvas.t0-1e-6 || hit.tA>canvas.t1+1e-6) return null;
+      t1=hit.tA;
+    }
+    if(t1-t0<1e-6) return null;
+    return {a:pointOnCustomCut(cut,t0),b:pointOnCustomCut(cut,t1),t0,t1};
+  }
+
+  function customDividerIntersectsCanvas(cut,cuts=customLayoutCuts){
+    const seg=effectiveCustomCutSegment(cut,cuts);
+    return !!seg && Math.hypot(seg.b[0]-seg.a[0],seg.b[1]-seg.a[1])>1e-6;
+  }
+
+  function customCutDependencies(cut){
+    return [cut?.startAnchor?.id,cut?.endAnchor?.id].filter(Boolean);
+  }
+
+  function orderCustomCutsForBuild(cuts){
+    ensureCustomCutIds(cuts);
+    const byId=new Map(cuts.map((cut,index)=>[cut.id,{cut,index}]));
+    const indegree=new Map(cuts.map(cut=>[cut.id,0]));
+    const children=new Map(cuts.map(cut=>[cut.id,[]]));
+    for(const cut of cuts){
+      for(const dep of customCutDependencies(cut)){
+        if(!byId.has(dep) || dep===cut.id) continue;
+        indegree.set(cut.id,(indegree.get(cut.id)||0)+1);
+        children.get(dep).push(cut.id);
+      }
+    }
+    const queue=cuts.filter(cut=>(indegree.get(cut.id)||0)===0).sort((a,b)=>byId.get(a.id).index-byId.get(b.id).index);
+    const ordered=[];
+    while(queue.length){
+      const cut=queue.shift();
+      ordered.push(cut);
+      for(const childId of children.get(cut.id) || []){
+        indegree.set(childId,indegree.get(childId)-1);
+        if(indegree.get(childId)===0){
+          queue.push(byId.get(childId).cut);
+          queue.sort((a,b)=>byId.get(a.id).index-byId.get(b.id).index);
+        }
+      }
+    }
+    return ordered.length===cuts.length ? {ok:true,cuts:ordered} : {ok:false,reason:"dependency"};
+  }
+
+  function customLinePolygonBoundaryParams(points,a,b){
+    const dx=b[0]-a[0], dy=b[1]-a[1];
+    if(Math.hypot(dx,dy)<1e-9) return [];
+    const params=[];
+    const add=t => { if(!params.some(v=>Math.abs(v-t)<1e-7)) params.push(t); };
+    for(let i=0;i<points.length;i++){
+      const p=points[i], q=points[(i+1)%points.length];
+      const ex=q[0]-p[0], ey=q[1]-p[1];
+      const den=dx*ey-dy*ex;
+      const rx=p[0]-a[0], ry=p[1]-a[1];
+      if(Math.abs(den)<1e-10){
+        const cross=rx*dy-ry*dx;
+        if(Math.abs(cross)<1e-9){
+          const len2=dx*dx+dy*dy;
+          add(((p[0]-a[0])*dx+(p[1]-a[1])*dy)/len2);
+          add(((q[0]-a[0])*dx+(q[1]-a[1])*dy)/len2);
+        }
+        continue;
+      }
+      const t=(rx*ey-ry*ex)/den;
+      const u=(rx*dy-ry*dx)/den;
+      if(u>=-1e-7 && u<=1+1e-7) add(t);
+    }
+    return params.sort((x,y)=>x-y);
+  }
+
+  function splitPolygonBySegment(points,a,b){
+    const params=customLinePolygonBoundaryParams(points,a,b);
+    if(params.length<2) return null;
+    const lo=params[0], hi=params[params.length-1];
+    if(hi-lo<1e-7 || lo<-1e-6 || hi>1+1e-6) return null;
+    return splitPolygonByLine(points,a,b);
+  }
+
+  function customPointOnSegment(point,a,b,eps=2e-6){
+    if(!point || !a || !b) return false;
+    const dx=b[0]-a[0], dy=b[1]-a[1];
+    const len2=dx*dx+dy*dy;
+    if(len2<1e-12) return Math.hypot(point[0]-a[0],point[1]-a[1])<=eps;
+    const t=((point[0]-a[0])*dx+(point[1]-a[1])*dy)/len2;
+    if(t<-eps || t>1+eps) return false;
+    const q=[a[0]+dx*t,a[1]+dy*t];
+    return Math.hypot(point[0]-q[0],point[1]-q[1])<=eps;
+  }
+
+  function customFiniteSegmentIntersection(segA,segB,eps=2e-7){
+    const ax=segA.a[0], ay=segA.a[1];
+    const arx=segA.b[0]-ax, ary=segA.b[1]-ay;
+    const bx=segB.a[0], by=segB.a[1];
+    const brx=segB.b[0]-bx, bry=segB.b[1]-by;
+    const den=arx*bry-ary*brx;
+    if(Math.abs(den)<1e-11) return null;
+    const qx=bx-ax, qy=by-ay;
+    const t=(qx*bry-qy*brx)/den;
+    const u=(qx*ary-qy*arx)/den;
+    if(t<-eps || t>1+eps || u<-eps || u>1+eps) return null;
+    const tc=clamp(t,0,1), uc=clamp(u,0,1);
+    return {tA:tc,tB:uc,point:[ax+arx*tc,ay+ary*tc]};
+  }
+
+  function customPlanarFacesFromSegments(segments){
+    const all=[
+      {a:[0,0],b:[1,0],kind:"border"},
+      {a:[1,0],b:[1,1],kind:"border"},
+      {a:[1,1],b:[0,1],kind:"border"},
+      {a:[0,1],b:[0,0],kind:"border"},
+      ...segments.map(seg=>({a:[...seg.a],b:[...seg.b],kind:"cut",cutId:seg.cutId}))
+    ];
+    const marks=all.map(()=>[0,1]);
+    const addMark=(list,t) => {
+      t=clamp(t,0,1);
+      if(!list.some(v=>Math.abs(v-t)<1e-7)) list.push(t);
+    };
+
+    for(let i=0;i<all.length;i++){
+      for(let j=i+1;j<all.length;j++){
+        const hit=customFiniteSegmentIntersection(all[i],all[j]);
+        if(!hit) continue;
+        addMark(marks[i],hit.tA);
+        addMark(marks[j],hit.tB);
+      }
+    }
+
+    const quant=v => Math.round(v*1e8);
+    const nodes=[];
+    const nodeByKey=new Map();
+    const nodeFor=point => {
+      const p=[clamp(point[0],0,1),clamp(point[1],0,1)];
+      const key=`${quant(p[0])},${quant(p[1])}`;
+      if(nodeByKey.has(key)) return nodeByKey.get(key);
+      const index=nodes.length;
+      nodes.push({p,neighbors:new Set()});
+      nodeByKey.set(key,index);
+      return index;
+    };
+    const edgeKeys=new Set();
+    const addEdge=(a,b) => {
+      if(a===b) return;
+      const key=a<b ? `${a}|${b}` : `${b}|${a}`;
+      if(edgeKeys.has(key)) return;
+      edgeKeys.add(key);
+      nodes[a].neighbors.add(b);
+      nodes[b].neighbors.add(a);
+    };
+
+    all.forEach((seg,index)=>{
+      const ts=marks[index].sort((a,b)=>a-b);
+      for(let i=0;i<ts.length-1;i++){
+        if(ts[i+1]-ts[i]<1e-8) continue;
+        const a=[seg.a[0]+(seg.b[0]-seg.a[0])*ts[i],seg.a[1]+(seg.b[1]-seg.a[1])*ts[i]];
+        const b=[seg.a[0]+(seg.b[0]-seg.a[0])*ts[i+1],seg.a[1]+(seg.b[1]-seg.a[1])*ts[i+1]];
+        if(Math.hypot(b[0]-a[0],b[1]-a[1])<1e-8) continue;
+        addEdge(nodeFor(a),nodeFor(b));
+      }
+    });
+
+    const orderedNeighbors=nodes.map((node)=>[...node.neighbors].sort((ia,ib)=>{
+      const a=nodes[ia].p, b=nodes[ib].p, p=node.p;
+      return Math.atan2(a[1]-p[1],a[0]-p[0])-Math.atan2(b[1]-p[1],b[0]-p[0]);
+    }));
+    const used=new Set();
+    const faces=[];
+    const directedKey=(a,b)=>`${a}>${b}`;
+
+    for(let u=0;u<nodes.length;u++){
+      for(const v0 of orderedNeighbors[u]){
+        const startKey=directedKey(u,v0);
+        if(used.has(startKey)) continue;
+        const cycle=[];
+        let a=u, b=v0;
+        let guard=0;
+        while(guard++<edgeKeys.size*2+20){
+          const key=directedKey(a,b);
+          if(used.has(key)){
+            if(key===startKey) break;
+            cycle.length=0;
+            break;
+          }
+          used.add(key);
+          cycle.push(nodes[a].p);
+          const neighbors=orderedNeighbors[b];
+          const incomingIndex=neighbors.indexOf(a);
+          if(incomingIndex<0 || !neighbors.length){ cycle.length=0; break; }
+          const c=neighbors[(incomingIndex-1+neighbors.length)%neighbors.length];
+          a=b; b=c;
+          if(a===u && b===v0) break;
+        }
+        const poly=cleanCustomPolygon(cycle);
+        if(poly.length<3) continue;
+        const signed=signedCustomPolygonArea(poly);
+        if(signed<=CUSTOM_GEOM_EPS) continue;
+        const area=Math.abs(signed);
+        if(area<CUSTOM_MIN_AREA) continue;
+        const cx=poly.reduce((sum,p)=>sum+p[0],0)/poly.length;
+        const cy=poly.reduce((sum,p)=>sum+p[1],0)/poly.length;
+        if(cx<-1e-6 || cx>1+1e-6 || cy<-1e-6 || cy>1+1e-6) continue;
+        faces.push(poly);
+      }
+    }
+
+    const total=faces.reduce((sum,poly)=>sum+polygonArea(poly),0);
+    if(!faces.length || Math.abs(total-1)>.003) return {ok:false,reason:"geometry"};
+    return {ok:true,polygons:faces};
+  }
+
+  function buildCustomPolygonsFromCuts(cuts){
+    cuts=clone(cuts || []);
+    ensureCustomCutIds(cuts);
+    const effective=cuts.map(cut=>effectiveCustomCutSegment(cut,cuts));
+    if(effective.some(seg=>!seg)) return {ok:false,reason:"geometry"};
+
+    const byId=new Map(cuts.map((cut,index)=>[cut.id,{cut,index}]));
+    for(let i=0;i<cuts.length;i++){
+      const cut=cuts[i], seg=effective[i];
+      for(const anchor of [cut.startAnchor,cut.endAnchor]){
+        if(!anchor?.id) continue;
+        const target=byId.get(anchor.id);
+        if(!target) return {ok:false,reason:"geometry"};
+        const hit=customLineIntersection(cut,target.cut);
+        const targetSeg=effective[target.index];
+        if(!hit || !targetSeg || !customPointOnSegment(hit.point,targetSeg.a,targetSeg.b,4e-6)){
+          return {ok:false,reason:"geometry"};
+        }
+      }
+    }
+
+    const segments=effective.map((seg,index)=>({a:seg.a,b:seg.b,cutId:cuts[index].id}));
+    const rebuilt=customPlanarFacesFromSegments(segments);
+    if(!rebuilt.ok) return rebuilt;
+    if(rebuilt.polygons.length>CUSTOM_MAX_SLOTS) return {ok:false,reason:"max"};
+    return rebuilt;
+  }
+
+  function signedCustomPolygonArea(points){
+    let area=0;
+    for(let i=0;i<points.length;i++){
+      const a=points[i], b=points[(i+1)%points.length];
+      area += a[0]*b[1]-b[0]*a[1];
+    }
+    return area/2;
+  }
+
+  function customPolygonIntersectionArea(subject,clipper){
+    let out=cleanCustomPolygon(subject || []);
+    if(out.length<3 || !clipper?.length) return 0;
+    const keepSign=signedCustomPolygonArea(clipper)>=0 ? 1 : -1;
+    for(let i=0;i<clipper.length && out.length>=3;i++){
+      out=clipCustomPolygonToSide(out,clipper[i],clipper[(i+1)%clipper.length],keepSign);
+    }
+    return out.length>=3 ? polygonArea(out) : 0;
+  }
+
+  function remapCustomSlotsForTopology(oldPolygons,newPolygons){
+    const oldSlots=state.slots.slice();
+    const oldSelectedSlot=oldSlots[state.selected] || null;
+    const oldVisibleCount=Math.min(oldPolygons.length,oldSlots.length);
+    const pairs=[];
+
+    for(let ni=0;ni<newPolygons.length;ni++){
+      for(let oi=0;oi<oldVisibleCount;oi++){
+        const overlap=customPolygonIntersectionArea(newPolygons[ni],oldPolygons[oi]);
+        if(overlap>CUSTOM_GEOM_EPS) pairs.push({ni,oi,overlap});
+      }
+    }
+    pairs.sort((a,b)=>b.overlap-a.overlap);
+
+    const newToOld=Array(newPolygons.length).fill(-1);
+    const usedOld=new Set();
+    for(const pair of pairs){
+      if(newToOld[pair.ni]>=0 || usedOld.has(pair.oi)) continue;
+      newToOld[pair.ni]=pair.oi;
+      usedOld.add(pair.oi);
+    }
+
+    const visibleSlots=newToOld.map(oi=>oi>=0 ? oldSlots[oi] : makeSlotState());
+    const carried=[];
+    oldSlots.forEach((slot,oi)=>{
+      if(usedOld.has(oi)) return;
+      if(slot?.img && slot?.url) carried.push(slot);
+    });
+
+    const targetLength=Math.max(maxSlots,visibleSlots.length+carried.length);
+    const nextSlots=Array.from({length:targetLength},makeSlotState);
+    visibleSlots.forEach((slot,i)=>{ nextSlots[i]=slot; });
+    carried.forEach((slot,i)=>{ nextSlots[visibleSlots.length+i]=slot; });
+    state.slots=nextSlots;
+
+    const selectedIndex=oldSelectedSlot ? state.slots.indexOf(oldSelectedSlot) : -1;
+    state.selected=selectedIndex>=0 && selectedIndex<newPolygons.length
+      ? selectedIndex
+      : clamp(state.selected,0,Math.max(0,newPolygons.length-1));
+  }
+
+  function removeCustomDivider(index){
+    if(index<0 || index>=customLayoutCuts.length) return {ok:false,reason:"invalid"};
+    ensureCustomCutIds(customLayoutCuts);
+    const remainingCuts=customLayoutCuts.filter((_,i)=>i!==index).map(clone);
+    const removedId=customLayoutCuts[index].id;
+    for(const cut of remainingCuts){
+      if(cut.startAnchor?.id===removedId) cut.startAnchor=null;
+      if(cut.endAnchor?.id===removedId) cut.endAnchor=null;
+    }
+    const rebuilt=buildCustomPolygonsFromCuts(remainingCuts);
+    if(!rebuilt.ok) return rebuilt;
+
+    const history=snapshotCustomLayout();
+    const oldPolygons=clone(customLayoutPolygons);
+    customLayoutHistory.push(history);
+    if(customLayoutHistory.length>40) customLayoutHistory.shift();
+    customLayoutCuts=remainingCuts;
+    customLayoutPolygons=rebuilt.polygons;
+    remapCustomSlotsForTopology(oldPolygons,customLayoutPolygons);
+    return {ok:true,removed:true};
+  }
+
+  function moveCustomDivider(index,candidateCut){
+    if(index<0 || index>=customLayoutCuts.length || !candidateCut) return {ok:false,reason:"invalid"};
+    ensureCustomCutIds(customLayoutCuts);
+    const cuts=clone(customLayoutCuts);
+    cuts[index]={...cuts[index],a:[...candidateCut.a],b:[...candidateCut.b]};
+
+    const rebuilt=buildCustomPolygonsFromCuts(cuts);
+    if(!rebuilt.ok) return rebuilt;
+
+    const history=snapshotCustomLayout();
+    const oldPolygons=clone(customLayoutPolygons);
+    customLayoutHistory.push(history);
+    if(customLayoutHistory.length>40) customLayoutHistory.shift();
+    customLayoutCuts=cuts;
+    customLayoutPolygons=rebuilt.polygons;
+    remapCustomSlotsForTopology(oldPolygons,customLayoutPolygons);
+    return {ok:true,topologyChanged:oldPolygons.length!==customLayoutPolygons.length};
+  }
+
+  function customDividerPieces(cuts=customLayoutCuts){
+    ensureCustomCutIds(cuts);
+    const effective=cuts.map(cut=>effectiveCustomCutSegment(cut,cuts));
+    const pieces=[];
+    cuts.forEach((cut,cutIndex)=>{
+      const seg=effective[cutIndex];
+      if(!seg) return;
+      const marks=[
+        {t:seg.t0,ref:cut.startAnchor?.id ? {type:"cut",id:cut.startAnchor.id} : {type:"border"}},
+        {t:seg.t1,ref:cut.endAnchor?.id ? {type:"cut",id:cut.endAnchor.id} : {type:"border"}}
+      ];
+      for(let j=0;j<cuts.length;j++){
+        if(j===cutIndex || !effective[j]) continue;
+        const hit=customLineIntersection(cut,cuts[j]);
+        if(!hit) continue;
+        const other=effective[j];
+        if(hit.tA<=seg.t0+1e-6 || hit.tA>=seg.t1-1e-6) continue;
+        if(hit.tB<other.t0-1e-6 || hit.tB>other.t1+1e-6) continue;
+        marks.push({t:hit.tA,ref:{type:"cut",id:cuts[j].id}});
+      }
+      marks.sort((a,b)=>a.t-b.t);
+      const unique=[];
+      for(const mark of marks){
+        const prev=unique[unique.length-1];
+        if(prev && Math.abs(prev.t-mark.t)<1e-6){
+          if(prev.ref.type!=="cut" && mark.ref.type==="cut") prev.ref=mark.ref;
+        } else unique.push(mark);
+      }
+      for(let i=0;i<unique.length-1;i++){
+        const m0=unique[i], m1=unique[i+1];
+        if(m1.t-m0.t<1e-6) continue;
+        const a=pointOnCustomCut(cut,m0.t), b=pointOnCustomCut(cut,m1.t);
+        pieces.push({cutId:cut.id,cutIndex,pieceIndex:i,a,b,t0:m0.t,t1:m1.t,startRef:clone(m0.ref),endRef:clone(m1.ref)});
+      }
+    });
+    return pieces;
+  }
+
+  function removeCustomDividerSegment(selection){
+    if(!selection?.cutId) return {ok:false,reason:"invalid"};
+    ensureCustomCutIds(customLayoutCuts);
+    const pieces=customDividerPieces(customLayoutCuts);
+    const cutPieces=pieces.filter(piece=>piece.cutId===selection.cutId).sort((a,b)=>a.t0-b.t0);
+    if(cutPieces.length<2) return {ok:false,reason:"no-segments"};
+    const piece=cutPieces[clamp(selection.pieceIndex ?? 0,0,cutPieces.length-1)];
+    const cutIndex=customLayoutCuts.findIndex(cut=>cut.id===selection.cutId);
+    if(cutIndex<0) return {ok:false,reason:"invalid"};
+
+    const cuts=clone(customLayoutCuts);
+    const original=cuts[cutIndex];
+    if(cutPieces.length===1) return removeCustomDivider(cutIndex);
+
+    if(piece===cutPieces[0]){
+      if(piece.endRef?.type!=="cut") return {ok:false,reason:"anchor"};
+      original.startAnchor={id:piece.endRef.id};
+    } else if(piece===cutPieces[cutPieces.length-1]){
+      if(piece.startRef?.type!=="cut") return {ok:false,reason:"anchor"};
+      original.endAnchor={id:piece.startRef.id};
+    } else {
+      if(piece.startRef?.type!=="cut" || piece.endRef?.type!=="cut") return {ok:false,reason:"anchor"};
+      const left={...clone(original),endAnchor:{id:piece.startRef.id}};
+      const right={...clone(original),id:nextCustomCutId(),startAnchor:{id:piece.endRef.id}};
+      cuts.splice(cutIndex,1,left,right);
+    }
+
+    const rebuilt=buildCustomPolygonsFromCuts(cuts);
+    if(!rebuilt.ok) return rebuilt;
+    const history=snapshotCustomLayout();
+    const oldPolygons=clone(customLayoutPolygons);
+    customLayoutHistory.push(history);
+    if(customLayoutHistory.length>40) customLayoutHistory.shift();
+    customLayoutCuts=cuts;
+    customLayoutPolygons=rebuilt.polygons;
+    remapCustomSlotsForTopology(oldPolygons,customLayoutPolygons);
+    return {ok:true,segmentRemoved:true};
+  }
+
+  function detachCustomDividerSegment(selection){
+    if(!selection?.cutId) return {ok:false,reason:"invalid"};
+    ensureCustomCutIds(customLayoutCuts);
+    const pieces=customDividerPieces(customLayoutCuts);
+    const cutPieces=pieces.filter(piece=>piece.cutId===selection.cutId).sort((a,b)=>a.t0-b.t0);
+    if(cutPieces.length<2) return {ok:false,reason:"no-segments"};
+    const selectedPiece=cutPieces[clamp(selection.pieceIndex ?? 0,0,cutPieces.length-1)];
+    const cutIndex=customLayoutCuts.findIndex(cut=>cut.id===selection.cutId);
+    if(cutIndex<0 || !selectedPiece) return {ok:false,reason:"invalid"};
+
+    const cuts=clone(customLayoutCuts);
+    const original=clone(cuts[cutIndex]);
+    const originalId=original.id;
+    const pointOnPiece=(point,piece) => customPointOnSegment(point,piece.a,piece.b,5e-6);
+
+    const splitCuts=cutPieces.map(piece => ({
+      ...clone(original),
+      id:piece===selectedPiece ? originalId : nextCustomCutId(),
+      startAnchor:piece.startRef?.type==="cut" ? {id:piece.startRef.id} : null,
+      endAnchor:piece.endRef?.type==="cut" ? {id:piece.endRef.id} : null
+    }));
+
+    const preferred=[
+      ...cutPieces.map((piece,i)=>({piece,cut:splitCuts[i]})).filter(item=>item.piece!==selectedPiece),
+      {piece:selectedPiece,cut:splitCuts[cutPieces.indexOf(selectedPiece)]}
+    ];
+    for(let i=0;i<cuts.length;i++){
+      if(i===cutIndex) continue;
+      const dependent=cuts[i];
+      for(const key of ["startAnchor","endAnchor"]){
+        if(dependent[key]?.id!==originalId) continue;
+        const hit=customLineIntersection(dependent,original);
+        if(!hit) return {ok:false,reason:"geometry"};
+        const target=preferred.find(item=>pointOnPiece(hit.point,item.piece));
+        if(!target) return {ok:false,reason:"geometry"};
+        dependent[key]={id:target.cut.id};
+      }
+    }
+
+    cuts.splice(cutIndex,1,...splitCuts);
+    const rebuilt=buildCustomPolygonsFromCuts(cuts);
+    if(!rebuilt.ok) return rebuilt;
+
+    const history=snapshotCustomLayout();
+    const oldPolygons=clone(customLayoutPolygons);
+    customLayoutHistory.push(history);
+    if(customLayoutHistory.length>40) customLayoutHistory.shift();
+    customLayoutCuts=cuts;
+    customLayoutPolygons=rebuilt.polygons;
+    remapCustomSlotsForTopology(oldPolygons,customLayoutPolygons);
+    return {ok:true,detached:true};
+  }
+
+  function customDividerSegments(polygons=customLayoutPolygons){
+    const eps=1e-6;
+    const quant=v => Math.round(v*1e7);
+    const pointKey=p => `${quant(p[0])},${quant(p[1])}`;
+    const segmentMap=new Map();
+
+    for(const poly of polygons || []){
+      for(let i=0;i<poly.length;i++){
+        const a=poly[i], b=poly[(i+1)%poly.length];
+        if(Math.hypot(b[0]-a[0],b[1]-a[1])<eps) continue;
+        const outer =
+          (Math.abs(a[0])<eps && Math.abs(b[0])<eps) ||
+          (Math.abs(a[0]-1)<eps && Math.abs(b[0]-1)<eps) ||
+          (Math.abs(a[1])<eps && Math.abs(b[1])<eps) ||
+          (Math.abs(a[1]-1)<eps && Math.abs(b[1]-1)<eps);
+        if(outer) continue;
+
+        const ka=pointKey(a), kb=pointKey(b);
+        const key=ka<kb ? `${ka}|${kb}` : `${kb}|${ka}`;
+        if(!segmentMap.has(key)) segmentMap.set(key,[[a[0],a[1]],[b[0],b[1]]]);
+      }
+    }
+    return [...segmentMap.values()];
+  }
+
+  function mergeCustomGapSegments(segments){
+    const pointEps=2e-6;
+    const collinearEps=2e-5;
+    const samePoint=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1])<=pointEps;
+    const work=(segments || []).map(([a,b])=>({a:[...a],b:[...b]}));
+
+    const sharedGeometry=(first,second)=>{
+      const variants=[
+        [first.a,first.b,second.a,second.b],
+        [first.a,first.b,second.b,second.a],
+        [first.b,first.a,second.a,second.b],
+        [first.b,first.a,second.b,second.a]
+      ];
+      for(const [sharedA,otherA,sharedB,otherB] of variants){
+        if(!samePoint(sharedA,sharedB)) continue;
+        const v1=[otherA[0]-sharedA[0],otherA[1]-sharedA[1]];
+        const v2=[otherB[0]-sharedB[0],otherB[1]-sharedB[1]];
+        const l1=Math.hypot(v1[0],v1[1]), l2=Math.hypot(v2[0],v2[1]);
+        if(l1<pointEps || l2<pointEps) continue;
+        const cross=Math.abs(v1[0]*v2[1]-v1[1]*v2[0])/(l1*l2);
+        const dot=(v1[0]*v2[0]+v1[1]*v2[1])/(l1*l2);
+        if(cross<=collinearEps && dot<-.9995) return {a:[...otherA],b:[...otherB]};
+      }
+      return null;
+    };
+
+    let changed=true;
+    let guard=0;
+    while(changed && guard++<200){
+      changed=false;
+      outer:
+      for(let i=0;i<work.length;i++){
+        for(let j=i+1;j<work.length;j++){
+          const merged=sharedGeometry(work[i],work[j]);
+          if(!merged) continue;
+          work.splice(j,1);
+          work[i]=merged;
+          changed=true;
+          break outer;
+        }
+      }
+    }
+    return work.map(seg=>[seg.a,seg.b]);
+  }
+
+  function customGapJoinPoints(originalSegments,mergedSegments){
+    const quant=v=>Math.round(v*1e7);
+    const nodes=new Map();
+    for(const [a,b] of originalSegments || []){
+      for(const p of [a,b]){
+        const key=`${quant(p[0])},${quant(p[1])}`;
+        if(!nodes.has(key)) nodes.set(key,{p:[...p],count:0});
+        nodes.get(key).count++;
+      }
+    }
+
+    const pointOnInterior=(p,a,b)=>{
+      const dx=b[0]-a[0], dy=b[1]-a[1];
+      const len2=dx*dx+dy*dy;
+      if(len2<1e-12) return false;
+      const t=((p[0]-a[0])*dx+(p[1]-a[1])*dy)/len2;
+      if(t<=2e-6 || t>=1-2e-6) return false;
+      const q=[a[0]+dx*t,a[1]+dy*t];
+      return Math.hypot(p[0]-q[0],p[1]-q[1])<=2e-6;
+    };
+
+    return [...nodes.values()]
+      .filter(node=>node.count>=2)
+      .filter(node=>!(mergedSegments || []).some(([a,b])=>pointOnInterior(node.p,a,b)))
+      .map(node=>node.p);
+  }
+
+  function customGapRenderGeometry(){
+    const original=customDividerSegments();
+    const segments=mergeCustomGapSegments(original);
+    const joins=customGapJoinPoints(original,segments);
+    return {segments,joins};
+  }
+
+  function updateCustomGapOverlay(stageW=stage.clientWidth || 1,stageH=stage.clientHeight || 1){
+    let svg=stage.querySelector(".custom-gap-overlay");
+    if(state.layout!=="custom-draw" || state.gap<=0){
+      svg?.remove();
+      return;
+    }
+
+    const ns="http://www.w3.org/2000/svg";
+    if(!svg){
+      svg=document.createElementNS(ns,"svg");
+      svg.classList.add("custom-gap-overlay");
+      svg.setAttribute("aria-hidden","true");
+      svg.setAttribute("preserveAspectRatio","none");
+      stage.appendChild(svg);
+    }
+    svg.setAttribute("viewBox",`0 0 ${stageW} ${stageH}`);
+    svg.style.color=state.bg;
+    svg.replaceChildren();
+
+    const strokeWidth=state.gap+1;
+    const geometry=customGapRenderGeometry();
+    for(const [a,b] of geometry.segments){
+      const line=document.createElementNS(ns,"line");
+      line.setAttribute("x1",a[0]*stageW);
+      line.setAttribute("y1",a[1]*stageH);
+      line.setAttribute("x2",b[0]*stageW);
+      line.setAttribute("y2",b[1]*stageH);
+      line.setAttribute("stroke-width",strokeWidth);
+      svg.appendChild(line);
+    }
+    for(const p of geometry.joins){
+      const circle=document.createElementNS(ns,"circle");
+      circle.setAttribute("cx",p[0]*stageW);
+      circle.setAttribute("cy",p[1]*stageH);
+      circle.setAttribute("r",strokeWidth/2);
+      svg.appendChild(circle);
+    }
+  }
+
+  function drawCustomGapOverlayOnCanvas(ctx,width,height,gapPx,sealPx=1){
+    if(state.layout!=="custom-draw" || gapPx<=0) return;
+    const geometry=customGapRenderGeometry();
+    if(!geometry.segments.length) return;
+    ctx.save();
+    ctx.strokeStyle=state.bg;
+    ctx.fillStyle=state.bg;
+    ctx.lineWidth=gapPx+Math.max(.5,sealPx);
+    ctx.lineCap="butt";
+    ctx.lineJoin="round";
+    for(const [a,b] of geometry.segments){
+      ctx.beginPath();
+      ctx.moveTo(a[0]*width,a[1]*height);
+      ctx.lineTo(b[0]*width,b[1]*height);
+      ctx.stroke();
+    }
+    for(const p of geometry.joins){
+      ctx.beginPath();
+      ctx.arc(p[0]*width,p[1]*height,ctx.lineWidth/2,0,Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function syncCustomDrawControls(){
+    const activeLayout=state.layout === "custom-draw";
+    customDrawToggle.hidden=!activeLayout;
+    customUndo.hidden=!activeLayout;
+    customUndo.disabled=!customLayoutHistory.length;
+    customDrawToggle.classList.toggle("toggle-active",activeLayout && state.customDrawActive);
+    customDrawToggle.querySelector(".btn-label").textContent=tr.customDraw;
+    customDrawToggle.title=state.customDrawActive ? tr.customDrawOff : tr.customDrawOn;
+    customDrawToggle.setAttribute("aria-pressed",String(activeLayout && state.customDrawActive));
+    if(activeLayout){
+      resetDividers.querySelector(".btn-label").textContent=tr.customReset;
+      resetDividers.title=tr.customReset;
+      resetDividers.setAttribute("aria-label",tr.customReset);
+    } else {
+      resetDividers.querySelector(".btn-label").textContent=tr.dividers;
+      resetDividers.title=tr.dividersFull;
+      resetDividers.setAttribute("aria-label",tr.dividersFull);
+    }
+    stage.classList.toggle("custom-draw-active",activeLayout && state.customDrawActive);
+  }
+
+  function renderLayoutButtons(){
+    layoutBox.innerHTML = "";
+    Object.entries(layouts)
+      .sort(([ka,a],[kb,b]) => ka==="custom-draw" ? -1 : kb==="custom-draw" ? 1 : a.rects(a.defaults).length - b.rects(b.defaults).length)
+      .forEach(([key,cfg]) => {
+      const btn = document.createElement("button");
+      btn.className = "layout-btn" + (key===state.layout ? " active" : "");
+      btn.type = "button";
+
+      const mini = document.createElement("div");
+      mini.className = "mini";
+      const previewRects = cfg.rects(cfg.defaults);
+      const previewPolygons = cfg.polygons ? cfg.polygons(cfg.defaults,1) : null;
+
+      const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+      svg.setAttribute("viewBox","0 0 100 100");
+      svg.setAttribute("preserveAspectRatio","none");
+      svg.classList.add("mini-svg");
+      svg.setAttribute("aria-hidden","true");
+
+      const defs = document.createElementNS("http://www.w3.org/2000/svg","defs");
+      const gradient = document.createElementNS("http://www.w3.org/2000/svg","linearGradient");
+      const gradId = `mini-grad-${key}`;
+      gradient.id = gradId;
+      gradient.setAttribute("x1","0"); gradient.setAttribute("y1","0");
+      gradient.setAttribute("x2","1"); gradient.setAttribute("y2","1");
+      const stop1 = document.createElementNS("http://www.w3.org/2000/svg","stop");
+      const stop2 = document.createElementNS("http://www.w3.org/2000/svg","stop");
+      stop1.setAttribute("offset","0%");
+      stop2.setAttribute("offset","100%");
+      stop1.classList.add("mini-stop-start");
+      stop2.classList.add("mini-stop-end");
+      gradient.append(stop1,stop2);
+      defs.appendChild(gradient);
+      svg.appendChild(defs);
+
+      if(previewPolygons){
+        previewPolygons.forEach(points => {
+          const shape = document.createElementNS("http://www.w3.org/2000/svg","polygon");
+          shape.classList.add("mini-shape");
+          shape.setAttribute("points",points.map(([x,y]) => `${x*100},${y*100}`).join(" "));
+          shape.setAttribute("fill",`url(#${gradId})`);
+          svg.appendChild(shape);
+        });
+      } else {
+        previewRects.forEach(([x,y,w,h]) => {
+          const shape = document.createElementNS("http://www.w3.org/2000/svg","rect");
+          shape.classList.add("mini-shape");
+          shape.setAttribute("x",x*100);
+          shape.setAttribute("y",y*100);
+          shape.setAttribute("width",w*100);
+          shape.setAttribute("height",h*100);
+          shape.setAttribute("fill",`url(#${gradId})`);
+          svg.appendChild(shape);
+        });
+      }
+      mini.appendChild(svg);
+
+      const name = document.createElement("span");
+      name.className = "layout-name";
+      name.textContent = tr.layoutNames[key] || cfg.name;
+      btn.append(mini,name);
+
+      btn.addEventListener("click",() => {
+        state.layout = key;
+        state.customDrawActive = key === "custom-draw";
+        const visibleCount = currentRects().length;
+        if(state.selected >= visibleCount) state.selected = 0;
+        renderLayoutButtons();
+        renderStage();
+        status.textContent = cfg.type === "custom" ? tr.customActive : cfg.type === "circle" ? tr.circleActive : cfg.type === "pinwheel" ? tr.pinwheelActive : (cfg.polygons ? tr.diagonalActive : tr.layoutChanged);
+        syncCustomDrawControls();
+      });
+
+      layoutBox.appendChild(btn);
+    });
+  }
+
+  function applyStageAspect(){
+    stage.style.aspectRatio = `${state.aspect} / 1`;
+  }
+
+  function rectGapInsets(rect,gapPx){
+    const [x,y,w,h] = rect;
+    const eps = 0.00001;
+    return {
+      left:x <= eps ? gapPx : gapPx/2,
+      top:y <= eps ? gapPx : gapPx/2,
+      right:x+w >= 1-eps ? gapPx : gapPx/2,
+      bottom:y+h >= 1-eps ? gapPx : gapPx/2
+    };
+  }
+
+  function applyRectGeometry(slot,rect){
+    const [x,y,w,h] = rect;
+    const inset = rectGapInsets(rect,state.gap);
+    slot.style.left = `calc(${x*100}% + ${inset.left}px)`;
+    slot.style.top = `calc(${y*100}% + ${inset.top}px)`;
+    slot.style.width = `calc(${w*100}% - ${inset.left+inset.right}px)`;
+    slot.style.height = `calc(${h*100}% - ${inset.top+inset.bottom}px)`;
+  }
+
+  function slotPixelRect(rect,stageW,stageH,gapPx){
+    const [x,y,w,h] = rect;
+    const inset = rectGapInsets(rect,gapPx);
+    return {
+      x:x*stageW + inset.left,
+      y:y*stageH + inset.top,
+      w:Math.max(1,w*stageW-inset.left-inset.right),
+      h:Math.max(1,h*stageH-inset.top-inset.bottom)
+    };
+  }
+
+  function getCoverSize(img,slotW,slotH,zoomFactor){
+    const ar = img.naturalWidth / img.naturalHeight;
+    let w,h;
+    if(ar > slotW/slotH){
+      h = slotH;
+      w = h*ar;
+    } else {
+      w = slotW;
+      h = w/ar;
+    }
+    return {w:w*zoomFactor,h:h*zoomFactor};
+  }
+
+  function polygonPixelBounds(points,width,height,gapPx=state.gap){
+    if(!points?.length || !width || !height) return null;
+    const px = insetPolygon(points,width,height,gapPx).map(([x,y]) => [x*width,y*height]);
+    const xs = px.map(p => p[0]);
+    const ys = px.map(p => p[1]);
+    const x = Math.min(...xs);
+    const y = Math.min(...ys);
+    return {
+      x,
+      y,
+      w:Math.max(1,Math.max(...xs)-x),
+      h:Math.max(1,Math.max(...ys)-y)
+    };
+  }
+
+  function shapePanOverscan(index,width,height,gapPx=state.gap){
+    const polygons = currentPolygons();
+    if(!polygons?.[index] || !width || !height) return {x:0,y:0};
+    const bounds = polygonPixelBounds(polygons[index],width,height,gapPx);
+    if(!bounds) return {x:0,y:0};
+
+    if(state.layout.startsWith("diagonal-") || currentLayout().type === "pinwheel"){
+      const pts = insetPolygon(polygons[index],width,height,gapPx).map(([x,y]) => [x*width,y*height]);
+      const samples=48;
+
+      const spanRange = (axis) => {
+        const primary=pts.map(p=>p[axis]);
+        const minP=Math.min(...primary), maxP=Math.max(...primary);
+        let minSpan=Infinity, maxSpan=0;
+        for(let n=0;n<=samples;n++){
+          const v=minP+(maxP-minP)*(n/samples);
+          const hits=[];
+          for(let j=0;j<pts.length;j++){
+            const a=pts[j], b=pts[(j+1)%pts.length];
+            const aP=a[axis], bP=b[axis];
+            if(Math.abs(aP-bP)<1e-6) continue;
+            if(v<Math.min(aP,bP) || v>Math.max(aP,bP)) continue;
+            const t=(v-aP)/(bP-aP);
+            if(t>=0 && t<=1) hits.push(a[1-axis]+(b[1-axis]-a[1-axis])*t);
+          }
+          hits.sort((a,b)=>a-b);
+          if(hits.length>=2){
+            const span=hits[hits.length-1]-hits[0];
+            if(span>1){ minSpan=Math.min(minSpan,span); maxSpan=Math.max(maxSpan,span); }
+          }
+        }
+        return Number.isFinite(minSpan) ? {minSpan,maxSpan} : {minSpan:0,maxSpan:0};
+      };
+
+      const horizontal=spanRange(1);
+      const vertical=spanRange(0);
+      const slantX=Math.max(0,horizontal.maxSpan-horizontal.minSpan);
+      const slantY=Math.max(0,vertical.maxSpan-vertical.minSpan);
+      return {
+        x:Math.min(bounds.w*.24,slantX*.55),
+        y:currentLayout().type === "pinwheel" ? Math.min(bounds.h*.24,slantY*.55) : 0
+      };
+    }
+
+    const circle=currentCircleSlot();
+    if(circle && index!==circle.index && index<4){
+      const m=circleSlotMetrics(circle,width,height,gapPx);
+      const extra=Math.min(bounds.w*.14,bounds.h*.14,m.innerRadius*.28);
+      return {x:extra,y:extra};
+    }
+    return {x:0,y:0};
+  }
+
+  function imageViewportForSlot(slotEl,index){
+    if(!slotEl) return null;
+    const circle = currentCircleSlot();
+    if(circle && index===circle.index){
+      return {x:0,y:0,w:slotEl.clientWidth,h:slotEl.clientHeight,extraX:0,extraY:0};
+    }
+    const polygons = currentPolygons();
+    if(polygons?.[index]){
+      const stageW = stage.clientWidth || slotEl.clientWidth || 1;
+      const stageH = stage.clientHeight || slotEl.clientHeight || 1;
+      const bounds=polygonPixelBounds(polygons[index],stageW,stageH,state.gap);
+      const extra=shapePanOverscan(index,stageW,stageH,state.gap);
+      return {...bounds,extraX:extra.x,extraY:extra.y};
+    }
+    return {x:0,y:0,w:slotEl.clientWidth,h:slotEl.clientHeight,extraX:0,extraY:0};
+  }
+
+  function coverForViewport(img,viewport,zoomFactor){
+    return getCoverSize(
+      img,
+      viewport.w + (viewport.extraX||0)*2,
+      viewport.h + (viewport.extraY||0)*2,
+      zoomFactor
+    );
+  }
+
+  function clampOffsets(slotState,slotEl,index=Number(slotEl?.dataset?.index)){
+    if(!slotState.img || !slotEl) return;
+    const viewport = imageViewportForSlot(slotEl,index);
+    if(!viewport?.w || !viewport?.h) return;
+    const cover = coverForViewport(slotState.img,viewport,slotState.zoom);
+    const maxX = Math.max(0,(cover.w-viewport.w)/2);
+    const maxY = Math.max(0,(cover.h-viewport.h)/2);
+    slotState.offsetX = clamp(slotState.offsetX,-maxX,maxX);
+    slotState.offsetY = clamp(slotState.offsetY,-maxY,maxY);
+  }
+
+  function updateImageElement(slotEl,slotState){
+    if(!slotEl || !slotState?.img) return;
+    const imageEl = slotEl.querySelector("img");
+    if(!imageEl) return;
+    const index = Number(slotEl.dataset.index);
+    const viewport = imageViewportForSlot(slotEl,index);
+    if(!viewport) return;
+    clampOffsets(slotState,slotEl,index);
+    const cover = coverForViewport(slotState.img,viewport,slotState.zoom);
+    imageEl.style.width = `${cover.w}px`;
+    imageEl.style.height = `${cover.h}px`;
+    imageEl.style.left = `${viewport.x + viewport.w/2 + slotState.offsetX}px`;
+    imageEl.style.top = `${viewport.y + viewport.h/2 + slotState.offsetY}px`;
+  }
+
+  function refreshAllImages(){
+    stage.querySelectorAll(".slot").forEach((el,i) => updateImageElement(el,state.slots[i]));
+  }
+
+  function selectSlot(i){
+    state.selected = i;
+    stage.querySelectorAll(".slot").forEach((el,idx) => el.classList.toggle("selected",idx===i));
+    mediaThumbs?.querySelectorAll(".media-thumb").forEach(el => {
+      el.classList.toggle("selected",Number(el.dataset.index)===i);
+    });
+    showSelectionGuide(i);
+    syncControls();
+  }
+
+  function loadedSlotIndices(){
+    return state.slots.map((slot,index) => slot?.img && slot?.url ? index : -1).filter(index => index>=0);
+  }
+
+  function clearMediaDropIndicators(){
+    mediaThumbs?.querySelectorAll(".media-thumb").forEach(el => {
+      el.classList.remove("dragging","drop-before","drop-after");
+    });
+    document.querySelector(".media-drag-ghost")?.remove();
+    clearSwapGuide();
+    stage.querySelectorAll(".slot").forEach(el => el.classList.remove("swap-target"));
+  }
+
+  function reorderLoadedImages(sourceIndex,targetIndex,insertAfter){
+    const indices = loadedSlotIndices();
+    const sourcePos = indices.indexOf(sourceIndex);
+    const targetPos = indices.indexOf(targetIndex);
+    if(sourcePos<0 || targetPos<0 || sourcePos===targetPos) return sourceIndex;
+
+    const images = indices.map(i => state.slots[i]);
+    const [moved] = images.splice(sourcePos,1);
+    let insertPos = targetPos + (insertAfter ? 1 : 0);
+    if(sourcePos < insertPos) insertPos--;
+    insertPos = clamp(insertPos,0,images.length);
+    images.splice(insertPos,0,moved);
+    indices.forEach((slotIndex,pos) => { state.slots[slotIndex] = images[pos]; });
+    return indices[insertPos];
+  }
+
+  function makeMediaThumbInteraction(btn,index,slotData){
+    let pointerId = null;
+    let startX=0,startY=0;
+    let dragging=false;
+    let ghost=null;
+    let stageTarget=null;
+    let thumbTarget=null;
+    let insertAfter=false;
+
+    const updateGhost = (x,y) => {
+      if(!ghost) return;
+      ghost.style.left = `${x}px`;
+      ghost.style.top = `${y}px`;
+    };
+
+    const beginDrag = (x,y) => {
+      dragging=true;
+      btn.classList.add("dragging");
+      ghost=document.createElement("div");
+      ghost.className="media-drag-ghost";
+      const img=document.createElement("img");
+      img.src=slotData.url;
+      img.alt="";
+      ghost.appendChild(img);
+      document.body.appendChild(ghost);
+      updateGhost(x,y);
+      state.suppressClickUntil=Date.now()+600;
+      status.textContent=tr.dragTray;
+    };
+
+    const detectTarget = (x,y) => {
+      stageTarget=null;
+      thumbTarget=null;
+      mediaThumbs?.querySelectorAll(".media-thumb").forEach(el => el.classList.remove("drop-before","drop-after"));
+
+      const stageRect=stage.getBoundingClientRect();
+      if(x>=stageRect.left && x<=stageRect.right && y>=stageRect.top && y<=stageRect.bottom){
+        stageTarget=findSlotAtPoint(x,y);
+        showSwapTarget(stageTarget,index);
+        return;
+      }
+
+      clearSwapGuide();
+      stage.querySelectorAll(".slot").forEach(el => el.classList.remove("swap-target"));
+      const under=document.elementFromPoint(x,y)?.closest?.(".media-thumb");
+      if(under && mediaThumbs.contains(under) && Number(under.dataset.index)!==index){
+        thumbTarget=Number(under.dataset.index);
+        const r=under.getBoundingClientRect();
+        insertAfter=x>(r.left+r.width/2);
+        under.classList.add(insertAfter ? "drop-after" : "drop-before");
+      }
+    };
+
+    btn.addEventListener("pointerdown",e => {
+      if(e.button!==undefined && e.button!==0) return;
+      pointerId=e.pointerId;
+      startX=e.clientX; startY=e.clientY;
+      btn.setPointerCapture?.(e.pointerId);
+      e.preventDefault();
+    });
+
+    btn.addEventListener("pointermove",e => {
+      if(e.pointerId!==pointerId) return;
+      const moved=Math.hypot(e.clientX-startX,e.clientY-startY);
+      if(!dragging && moved>6) beginDrag(e.clientX,e.clientY);
+      if(!dragging) return;
+      updateGhost(e.clientX,e.clientY);
+      detectTarget(e.clientX,e.clientY);
+      e.preventDefault();
+    });
+
+    const finish = e => {
+      if(e.pointerId!==pointerId) return;
+      if(dragging){
+        detectTarget(e.clientX,e.clientY);
+        if(stageTarget!==null && stageTarget!==index){
+          const tmp=state.slots[index];
+          state.slots[index]=state.slots[stageTarget];
+          state.slots[stageTarget]=tmp;
+          state.selected=stageTarget;
+          status.textContent=tr.movedToSlot(stageTarget+1);
+          clearMediaDropIndicators();
+          renderStage();
+        } else if(thumbTarget!==null){
+          const selectedIndex=reorderLoadedImages(index,thumbTarget,insertAfter);
+          state.selected=selectedIndex;
+          status.textContent=tr.trayReordered;
+          clearMediaDropIndicators();
+          renderStage();
+        } else {
+          clearMediaDropIndicators();
+          status.textContent=tr.moveCancelled;
+        }
+      } else {
+        const visibleCount=currentRects().length;
+        if(index<visibleCount){
+          selectSlot(index);
+          status.textContent=tr.imageSelected(index+1);
+        } else {
+          status.textContent=tr.imageHidden(index+1);
+        }
+      }
+      pointerId=null;
+      dragging=false;
+      ghost=null;
+      e.preventDefault();
+    };
+
+    btn.addEventListener("pointerup",finish);
+    btn.addEventListener("pointercancel",e => {
+      if(e.pointerId!==pointerId) return;
+      clearMediaDropIndicators();
+      pointerId=null;dragging=false;ghost=null;
+    });
+  }
+
+  function renderMediaTray(){
+    if(!mediaTray || !mediaThumbs || !mediaTrayCount) return;
+    const loaded = state.slots
+      .map((slot,index) => ({slot,index}))
+      .filter(item => item.slot?.img && item.slot?.url);
+
+    mediaTray.classList.toggle("visible",loaded.length>0);
+    mediaTrayCount.textContent = loaded.length ? `(${loaded.length})` : "";
+    mediaThumbs.innerHTML = "";
+
+    loaded.forEach(({slot,index}) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "media-thumb" + (index===state.selected ? " selected" : "");
+      btn.dataset.index = index;
+      btn.title = tr.thumbTitle(slot.fileName,index+1);
+      btn.setAttribute("aria-label", tr.thumbAria(slot.fileName,index+1));
+
+      const img = document.createElement("img");
+      img.src = slot.url;
+      img.alt = "";
+
+      const badge = document.createElement("span");
+      badge.className = "media-thumb-index";
+      badge.textContent = index+1;
+
+      btn.append(img,badge);
+      makeMediaThumbInteraction(btn,index,slot);
+      mediaThumbs.appendChild(btn);
+    });
+  }
+
+  function syncControls(){
+    const s = state.slots[state.selected];
+    const z = s?.zoom ?? 1;
+    zoom.value = z;
+    zoomValue.textContent = `${Math.round(z*100)}%`;
+    const disabled = !s?.img;
+    zoom.disabled = disabled;
+    centerBtn.disabled = disabled;
+    removeBtn.disabled = disabled;
+  }
+
+  function applyCircleSlotGeometry(slot,circle,stageW,stageH){
+    const m=circleSlotMetrics(circle,stageW,stageH);
+    if(!m) return;
+    slot.classList.add("circle-slot");
+    slot.style.left=`${m.x}px`;
+    slot.style.top=`${m.y}px`;
+    slot.style.width=`${m.size}px`;
+    slot.style.height=`${m.size}px`;
+    slot.style.clipPath="none";
+    slot.style.webkitClipPath="none";
+    slot.style.borderRadius="50%";
+    slot.style.zIndex="6";
+  }
+
+  function updateCircleGapRing(circle,stageW,stageH){
+    let ring=stage.querySelector(".circle-gap-ring");
+    if(!circle){ ring?.remove(); return; }
+    const minDim=Math.min(stageW,stageH);
+    const radius=circle.r*minDim+state.gap/2;
+    if(!ring){ ring=document.createElement("div"); ring.className="circle-gap-ring"; stage.appendChild(ring); }
+    ring.style.left=`${circle.cx*stageW-radius}px`;
+    ring.style.top=`${circle.cy*stageH-radius}px`;
+    ring.style.width=`${radius*2}px`;
+    ring.style.height=`${radius*2}px`;
+    ring.style.background=state.bg;
+  }
+
+  function updateStageGeometry(){
+    const rects = currentRects();
+    const polygons = currentPolygons();
+    const circle = currentCircleSlot();
+    const stageW = stage.clientWidth || 1;
+    const stageH = stage.clientHeight || 1;
+
+    stage.querySelectorAll(".slot").forEach((slot,i) => {
+      const rect = rects[i];
+      if(!rect) return;
+      slot.classList.toggle("circle-slot",!!circle && i===circle.index);
+      slot.classList.toggle("circle-outer-slot",!!circle && i>=0 && i<circle.index);
+      if(circle && i===circle.index){
+        applyCircleSlotGeometry(slot,circle,stageW,stageH);
+      } else if(polygons){
+        slot.style.left = "0";
+        slot.style.top = "0";
+        slot.style.width = "100%";
+        slot.style.height = "100%";
+        slot.style.zIndex = "";
+        const clipUrl = ensurePolygonClip(i,polygons[i],stageW,stageH);
+        slot.style.clipPath = clipUrl;
+        slot.style.webkitClipPath = clipUrl;
+        slot.style.borderRadius = "0";
+        if(circle) updateCircleFocusPlaceholderGeometry(slot,i,circle,stageW,stageH);
+        else updatePlaceholderGeometry(slot,i,polygons,stageW,stageH);
+      } else {
+        slot.style.clipPath = "none";
+        slot.style.zIndex = "";
+        applyRectGeometry(slot,rect);
+      }
+      requestAnimationFrame(() => updateImageElement(slot,state.slots[i]));
+    });
+    updateCircleGapRing(circle,stageW,stageH);
+    updateCustomGapOverlay(stageW,stageH);
+
+    const liveHandles = currentLayout().handles(currentParams());
+    stage.querySelectorAll(".splitter").forEach(handle => {
+      const h = liveHandles.find(x => x.key === handle.dataset.key);
+      if(!h) return;
+
+      if(h.o === "v"){
+        handle.style.left = `${h.pos*100}%`;
+        handle.style.top = `${((h.from+h.to)/2)*100}%`;
+        handle.style.height = "";
+      } else if(h.o === "h") {
+        handle.style.top = `${h.pos*100}%`;
+        handle.style.left = `${((h.from+h.to)/2)*100}%`;
+        handle.style.width = "";
+      } else if(h.o === "c") {
+        const minDim=Math.min(stageW,stageH);
+        handle.style.left = `${(h.cx ?? .5)*stageW + h.pos*minDim}px`;
+        handle.style.top = `${(h.cy ?? .5)*stageH}px`;
+      } else if(h.o === "p" || h.o === "dx" || h.o === "dy" || h.o === "dlx" || h.o === "dly") {
+        handle.style.left = `${h.x*100}%`;
+        handle.style.top = `${h.y*100}%`;
+      } else {
+        handle.style.left = `${h.pos*100}%`;
+        handle.style.top = `${(h.y ?? .5)*100}%`;
+      }
+    });
+    showSelectionGuide(state.selected);
+  }
+
+  function pointInPolygon(x,y,points){
+    let inside = false;
+    for(let i=0,j=points.length-1;i<points.length;j=i++){
+      const [xi,yi] = points[i];
+      const [xj,yj] = points[j];
+      const crosses = ((yi>y)!==(yj>y)) && (x < (xj-xi)*(y-yi)/((yj-yi)||1e-9)+xi);
+      if(crosses) inside = !inside;
+    }
+    return inside;
+  }
+
+  function findSlotAtPoint(clientX,clientY){
+    const polygons = currentPolygons();
+    if(polygons){
+      const r = stage.getBoundingClientRect();
+      const x = (clientX-r.left)/r.width;
+      const y = (clientY-r.top)/r.height;
+      if(x<0 || x>1 || y<0 || y>1) return null;
+      const stageW = stage.clientWidth || r.width || 1;
+      const stageH = stage.clientHeight || r.height || 1;
+      for(let i=polygons.length-1;i>=0;i--){
+        if(pointInPolygon(x,y,insetPolygon(polygons[i],stageW,stageH,state.gap))) return i;
+      }
+      return null;
+    }
+    const el = document.elementFromPoint(clientX,clientY);
+    const slot = el?.closest?.(".slot");
+    if(!slot || !stage.contains(slot)) return null;
+    return Number(slot.dataset.index);
+  }
+
+  function circleOuterGuideGeometry(index,w,h,circle,polygons){
+    if(!circle || index<0 || index>3 || !polygons?.[index]) return null;
+    const base=insetPolygon(polygons[index],w,h,state.gap).map(([x,y]) => [x*w,y*h]);
+    const minX=Math.min(...base.map(p=>p[0]));
+    const maxX=Math.max(...base.map(p=>p[0]));
+    const minY=Math.min(...base.map(p=>p[1]));
+    const maxY=Math.max(...base.map(p=>p[1]));
+    const cx=circle.cx*w;
+    const cy=circle.cy*h;
+    const minDim=Math.min(w,h);
+    const radius=circle.r*minDim+state.gap/2;
+    const right=index===1 || index===3;
+    const bottom=index===2 || index===3;
+    const innerX=right ? minX : maxX;
+    const innerY=bottom ? minY : maxY;
+    const dx=innerX-cx;
+    const dy=innerY-cy;
+    const yReach=Math.sqrt(Math.max(0,radius*radius-dx*dx));
+    const xReach=Math.sqrt(Math.max(0,radius*radius-dy*dy));
+    const pv=[innerX,cy+(bottom?1:-1)*yReach];
+    const ph=[cx+(right?1:-1)*xReach,innerY];
+
+    const arcPoints=(from,to,steps=22) => {
+      let a1=Math.atan2(from[1]-cy,from[0]-cx);
+      let a2=Math.atan2(to[1]-cy,to[0]-cx);
+      while(a2>a1) a2-=Math.PI*2;
+      if(a1-a2>Math.PI) a2+=Math.PI*2;
+      return Array.from({length:steps+1},(_,i)=>{
+        const t=i/steps;
+        const a=a1+(a2-a1)*t;
+        return [cx+Math.cos(a)*radius,cy+Math.sin(a)*radius];
+      });
+    };
+
+    let points;
+    if(index===0){
+      points=[[minX,minY],[maxX,minY],pv,...arcPoints(pv,ph).slice(1),[minX,maxY]];
+    } else if(index===1){
+      points=[[minX,minY],[maxX,minY],[maxX,maxY],ph,...arcPoints(ph,pv).slice(1)];
+    } else if(index===2){
+      points=[[minX,minY],ph,...arcPoints(ph,pv).slice(1),[maxX,maxY],[minX,maxY]];
+    } else {
+      points=[ph,[maxX,minY],[maxX,maxY],[minX,maxY],pv,...arcPoints(pv,ph).slice(1)];
+    }
+    return {w,h,points,pathD:roundedPolygonPathD(points,0)};
+  }
+
+  function guidePointsForSlot(index){
+    const stageRect = stage.getBoundingClientRect();
+    const w = stage.clientWidth || stageRect.width;
+    const h = stage.clientHeight || stageRect.height;
+    if(!w || !h) return null;
+
+    const polygons = currentPolygons();
+    const circle = currentCircleSlot();
+    if(circle && index===circle.index){
+      const m=circleSlotMetrics(circle,w,h);
+      const points=Array.from({length:64},(_,i)=>{ const a=Math.PI*2*i/64; return [m.cx+Math.cos(a)*m.innerRadius,m.cy+Math.sin(a)*m.innerRadius]; });
+      return {w,h,points,pathD:roundedPolygonPathD(points,0)};
+    }
+    if(circle && index>=0 && index<circle.index){
+      const circleGeometry=circleOuterGuideGeometry(index,w,h,circle,polygons);
+      if(circleGeometry) return circleGeometry;
+    }
+    if(polygons){
+      if(!polygons[index]) return null;
+      return {w,h,points:insetPolygon(polygons[index],w,h,state.gap).map(([x,y]) => [x*w,y*h])};
+    }
+
+    const target = stage.querySelector(`.slot[data-index="${index}"]`);
+    if(!target) return null;
+    const r = target.getBoundingClientRect();
+    return {w,h,points:[
+      [r.left-stageRect.left,r.top-stageRect.top],
+      [r.right-stageRect.left,r.top-stageRect.top],
+      [r.right-stageRect.left,r.bottom-stageRect.top],
+      [r.left-stageRect.left,r.bottom-stageRect.top]
+    ]};
+  }
+
+  function polygonCenter(points){
+    const xs = points.map(p => p[0]);
+    const ys = points.map(p => p[1]);
+    return [(Math.min(...xs)+Math.max(...xs))/2,(Math.min(...ys)+Math.max(...ys))/2];
+  }
+
+  function polygonInteriorCenter(points){
+    if(!points?.length) return [.5,.5];
+    return points.reduce((acc,[x,y]) => [acc[0]+x/points.length,acc[1]+y/points.length],[0,0]);
+  }
+
+  function polygonHorizontalSpanAtY(points,y){
+    const xs=[];
+    for(let i=0;i<points.length;i++){
+      const [x1,y1]=points[i];
+      const [x2,y2]=points[(i+1)%points.length];
+      if(Math.abs(y2-y1)<1e-9) continue;
+      if(y < Math.min(y1,y2) || y > Math.max(y1,y2)) continue;
+      const t=(y-y1)/(y2-y1);
+      if(t>=0 && t<=1) xs.push(x1+t*(x2-x1));
+    }
+    if(xs.length<2){
+      const allX=points.map(p=>p[0]);
+      return Math.max(...allX)-Math.min(...allX);
+    }
+    xs.sort((a,b)=>a-b);
+    return Math.max(0,xs[xs.length-1]-xs[0]);
+  }
+
+  function updatePlaceholderGeometry(slot,index,polygons,stageW,stageH){
+    const ph = slot?.querySelector?.(".placeholder");
+    if(!ph || !polygons?.[index]) return;
+    const innerPoly = insetPolygon(polygons[index],stageW,stageH,state.gap);
+    const [cx,cy] = polygonInteriorCenter(innerPoly);
+    const spanNorm = polygonHorizontalSpanAtY(innerPoly,cy);
+    const safeWidth = Math.max(54,spanNorm*stageW-22);
+    ph.style.setProperty("--placeholder-x",`${cx*100}%`);
+    ph.style.setProperty("--placeholder-y",`${cy*100}%`);
+    ph.style.setProperty("--placeholder-max-width",`${safeWidth}px`);
+  }
+
+  function updateCircleFocusPlaceholderGeometry(slot,index,circle,stageW,stageH){
+    const ph = slot?.querySelector?.(".placeholder");
+    if(!ph || !circle || index===circle.index || index<0 || index>3) return;
+
+    const minDim = Math.min(stageW,stageH);
+    const centerX = circle.cx*stageW;
+    const centerY = circle.cy*stageH;
+    const circleRadius = circle.r*minDim + state.gap/2;
+
+    const clearance = clamp(minDim*.13,42,64);
+    const desiredDistance = circleRadius + clearance;
+    const outerPadding = clamp(minDim*.055,18,34);
+    const maxDx = Math.max(24,stageW*.5-outerPadding);
+    const maxDy = Math.max(24,stageH*.5-outerPadding);
+
+    let dx = Math.min(maxDx,desiredDistance/Math.SQRT2);
+    let dy = Math.min(maxDy,desiredDistance/Math.SQRT2);
+    if(Math.hypot(dx,dy) < desiredDistance){
+      const neededDx = Math.sqrt(Math.max(0,desiredDistance*desiredDistance-dy*dy));
+      if(neededDx <= maxDx){
+        dx = neededDx;
+      } else {
+        dx = maxDx;
+        dy = Math.min(maxDy,Math.sqrt(Math.max(0,desiredDistance*desiredDistance-dx*dx)));
+      }
+    }
+
+    const right = index===1 || index===3;
+    const bottom = index===2 || index===3;
+    const px = centerX + (right ? dx : -dx);
+    const py = centerY + (bottom ? dy : -dy);
+    const safeWidth = Math.max(54,Math.min(150,stageW*.5-outerPadding*1.4));
+
+    ph.style.setProperty("--placeholder-x",`${px/stageW*100}%`);
+    ph.style.setProperty("--placeholder-y",`${py/stageH*100}%`);
+    ph.style.setProperty("--placeholder-max-width",`${safeWidth}px`);
+  }
+
+  function clearSelectionGuide(){
+    stage.querySelector(".selection-guide")?.remove();
+  }
+
+  function showSelectionGuide(index=state.selected){
+    clearSelectionGuide();
+    if(!state.slots[index]?.img) return;
+    const geometry = guidePointsForSlot(index);
+    if(!geometry) return;
+    const {w,h,points,pathD} = geometry;
+    const ns = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(ns,"svg");
+    svg.classList.add("selection-guide");
+    svg.setAttribute("viewBox",`0 0 ${w} ${h}`);
+    svg.setAttribute("aria-hidden","true");
+    for(const className of ["selection-halo","selection-line"]){
+      const path = document.createElementNS(ns,"path");
+      path.classList.add(className);
+      path.setAttribute("d",pathD || roundedPolygonPathD(points,state.radius));
+      svg.appendChild(path);
+    }
+    stage.appendChild(svg);
+  }
+
+  function clearSwapGuide(){
+    stage.querySelector(".swap-guide")?.remove();
+    stage.querySelector(".swap-label")?.remove();
+  }
+
+  function clearDropGuide(){
+    stage.querySelector(".drop-guide")?.remove();
+    stage.querySelector(".drop-label")?.remove();
+  }
+
+  function showDropGuide(index){
+    clearDropGuide();
+    if(index===null || index===undefined) return;
+    const geometry=guidePointsForSlot(index);
+    if(!geometry) return;
+    const {w,h,points,pathD}=geometry;
+    const ns="http://www.w3.org/2000/svg";
+    const svg=document.createElementNS(ns,"svg");
+    svg.classList.add("drop-guide");
+    svg.setAttribute("viewBox",`0 0 ${w} ${h}`);
+    svg.setAttribute("aria-hidden","true");
+    const path=document.createElementNS(ns,"path");
+    path.setAttribute("d",pathD || roundedPolygonPathD(points,state.radius));
+    svg.appendChild(path);
+    stage.appendChild(svg);
+
+    const [fallbackX,fallbackY]=polygonCenter(points);
+    const [insideX,insideY]=polygonInteriorCenter(points);
+    const minX=Math.min(...points.map(p=>p[0]));
+    const maxX=Math.max(...points.map(p=>p[0]));
+    const minY=Math.min(...points.map(p=>p[1]));
+    const maxY=Math.max(...points.map(p=>p[1]));
+    const cy=clamp(insideY,minY+8,maxY-8);
+    const spanAtY=polygonHorizontalSpanAtY(points,cy);
+    const bboxWidth=Math.max(0,maxX-minX);
+    const bboxHeight=Math.max(0,maxY-minY);
+    const availableWidth=Math.max(52,Math.min(bboxWidth,spanAtY)-16);
+    const labelWidth=Math.min(168,availableWidth);
+
+    const label=document.createElement("div");
+    label.className="drop-label";
+    if(labelWidth<104 || bboxHeight<62) label.classList.add("compact");
+    label.textContent=tr.dropImage;
+    label.style.width=`${labelWidth}px`;
+    label.style.maxWidth=`${labelWidth}px`;
+    label.style.left=`${Number.isFinite(insideX)?insideX:fallbackX}px`;
+    label.style.top=`${Number.isFinite(cy)?cy:fallbackY}px`;
+    stage.appendChild(label);
+  }
+
+  function showSwapTarget(index,sourceIndex){
+    stage.querySelectorAll(".slot").forEach((el,idx) => {
+      el.classList.toggle("swap-target",idx===index && idx!==sourceIndex);
+    });
+    clearSwapGuide();
+
+    const sourceGeometry = sourceIndex!==null && sourceIndex!==undefined ? guidePointsForSlot(sourceIndex) : null;
+    const targetGeometry = index!==null && index!==sourceIndex ? guidePointsForSlot(index) : null;
+    const baseGeometry = sourceGeometry || targetGeometry;
+    if(!baseGeometry) return;
+    const {w,h} = baseGeometry;
+    const ns = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(ns,"svg");
+    svg.classList.add("swap-guide");
+    svg.setAttribute("viewBox",`0 0 ${w} ${h}`);
+    svg.setAttribute("aria-hidden","true");
+
+    const addShape = (geometry,className) => {
+      const path = document.createElementNS(ns,"path");
+      path.classList.add(className);
+      path.setAttribute("d",geometry.pathD || roundedPolygonPathD(geometry.points,state.radius));
+      svg.appendChild(path);
+    };
+    if(sourceGeometry) addShape(sourceGeometry,"source");
+    if(targetGeometry) addShape(targetGeometry,"target");
+    stage.appendChild(svg);
+
+    if(sourceGeometry){
+      const points = sourceGeometry.points;
+      const [fallbackX,fallbackY] = polygonCenter(points);
+      const [insideX,insideY] = polygonInteriorCenter(points);
+      const minX = Math.min(...points.map(p => p[0]));
+      const maxX = Math.max(...points.map(p => p[0]));
+      const minY = Math.min(...points.map(p => p[1]));
+      const maxY = Math.max(...points.map(p => p[1]));
+      const cy = clamp(insideY,minY+8,maxY-8);
+      const spanAtY = polygonHorizontalSpanAtY(points,cy);
+      const bboxWidth = Math.max(0,maxX-minX);
+      const bboxHeight = Math.max(0,maxY-minY);
+      const availableWidth = Math.max(52,Math.min(bboxWidth,spanAtY)-16);
+      const labelWidth = Math.min(168,availableWidth);
+
+      const label = document.createElement("div");
+      label.className = "swap-label";
+      if(labelWidth < 104 || bboxHeight < 62) label.classList.add("compact");
+      label.textContent = tr.swapLabel;
+      label.style.width = `${labelWidth}px`;
+      label.style.maxWidth = `${labelWidth}px`;
+      label.style.left = `${Number.isFinite(insideX) ? insideX : fallbackX}px`;
+      label.style.top = `${Number.isFinite(cy) ? cy : fallbackY}px`;
+      stage.appendChild(label);
+    }
+  }
+
+  function makeSlotInteraction(slot,i){
+    const pointers = new Map();
+    let longPressTimer = null;
+    let gestureMode = null;
+    let startX = 0, startY = 0;
+    let lastX = 0, lastY = 0;
+    let pinchStartDistance = 0;
+    let pinchStartZoom = 1;
+    let swapTarget = null;
+
+    const clearLongPress = () => {
+      if(longPressTimer){
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+    };
+
+    const clearSwapClasses = () => {
+      stage.querySelectorAll(".slot").forEach(el => {
+        el.classList.remove("swap-source","swap-target");
+      });
+      clearSwapGuide();
+    };
+
+    const beginSwap = () => {
+      if(!state.slots[i].img || pointers.size !== 1) return;
+      gestureMode = "swap";
+      clearSwapClasses();
+      slot.classList.add("swap-source");
+      showSwapTarget(null,i);
+      status.textContent = tr.swapMode;
+      state.suppressClickUntil = Date.now()+800;
+    };
+
+    slot.addEventListener("pointerdown",e => {
+      if(!state.slots[i].img) return;
+
+      selectSlot(i);
+      slot.setPointerCapture?.(e.pointerId);
+      pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+
+      if(pointers.size === 1){
+        gestureMode = "pending";
+        startX = lastX = e.clientX;
+        startY = lastY = e.clientY;
+        clearLongPress();
+        longPressTimer = setTimeout(beginSwap,520);
+      } else if(pointers.size === 2){
+        clearLongPress();
+        gestureMode = "pinch";
+        const pts = [...pointers.values()];
+        pinchStartDistance = Math.hypot(pts[1].x-pts[0].x,pts[1].y-pts[0].y);
+        pinchStartZoom = state.slots[i].zoom;
+        status.textContent = tr.pinchActive;
+      }
+
+      e.preventDefault();
+    });
+
+    slot.addEventListener("pointermove",e => {
+      if(!pointers.has(e.pointerId)) return;
+      pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      const s = state.slots[i];
+
+      if(pointers.size >= 2){
+        clearLongPress();
+        gestureMode = "pinch";
+        const pts = [...pointers.values()].slice(0,2);
+        const d = Math.hypot(pts[1].x-pts[0].x,pts[1].y-pts[0].y);
+        if(!pinchStartDistance){
+          pinchStartDistance = d;
+          pinchStartZoom = s.zoom;
+        }
+        s.zoom = clamp(pinchStartZoom * (d/pinchStartDistance),1,4);
+        updateImageElement(slot,s);
+        syncControls();
+        e.preventDefault();
+        return;
+      }
+
+      const dxFromStart = e.clientX-startX;
+      const dyFromStart = e.clientY-startY;
+      const moved = Math.hypot(dxFromStart,dyFromStart);
+
+      if(gestureMode === "swap"){
+        const target = findSlotAtPoint(e.clientX,e.clientY);
+        if(target !== swapTarget){
+          swapTarget = target;
+          showSwapTarget(swapTarget,i);
+        }
+        e.preventDefault();
+        return;
+      }
+
+      if(gestureMode === "pending" && moved > 8){
+        clearLongPress();
+        gestureMode = "pan";
+      }
+
+      if(gestureMode === "pan"){
+        s.offsetX += e.clientX-lastX;
+        s.offsetY += e.clientY-lastY;
+        lastX = e.clientX;
+        lastY = e.clientY;
+        updateImageElement(slot,s);
+        state.suppressClickUntil = Date.now()+120;
+        e.preventDefault();
+      }
+    });
+
+    const endPointer = e => {
+      if(!pointers.has(e.pointerId)) return;
+      pointers.delete(e.pointerId);
+      clearLongPress();
+
+      if(gestureMode === "swap"){
+        const target = findSlotAtPoint(e.clientX,e.clientY);
+        if(target !== null && target !== i){
+          const tmp = state.slots[i];
+          state.slots[i] = state.slots[target];
+          state.slots[target] = tmp;
+          state.selected = target;
+          status.textContent = tr.imagesSwapped(i+1,target+1);
+          clearSwapClasses();
+          state.suppressClickUntil = Date.now()+800;
+          renderStage();
+          return;
+        }
+        clearSwapClasses();
+        status.textContent = tr.swapCancelled;
+        state.suppressClickUntil = Date.now()+500;
+      }
+
+      if(pointers.size === 1){
+        const remaining = [...pointers.values()][0];
+        gestureMode = "pending";
+        startX = lastX = remaining.x;
+        startY = lastY = remaining.y;
+        pinchStartDistance = 0;
+      } else if(pointers.size === 0){
+        gestureMode = null;
+        pinchStartDistance = 0;
+      }
+    };
+
+    slot.addEventListener("pointerup",endPointer);
+    slot.addEventListener("pointercancel",endPointer);
+
+    slot.addEventListener("wheel",e => {
+      const s = state.slots[i];
+      if(!s.img || !(e.ctrlKey || e.metaKey)) return;
+      e.preventDefault();
+      selectSlot(i);
+      const factor = e.deltaY < 0 ? 1.025 : 0.975;
+      s.zoom = clamp(s.zoom*factor,1,4);
+      updateImageElement(slot,s);
+      syncControls();
+    },{passive:false});
+  }
+
+  function renderSplitters(){
+    const cfg = currentLayout();
+    const p = currentParams();
+
+    cfg.handles(p).forEach(h => {
+      const handle = document.createElement("div");
+      const kind = h.o==="v" ? "vertical" : h.o==="h" ? "horizontal" : h.o==="c" ? "circle-size" : h.o==="p" ? "point" : (h.o==="dy" || h.o==="dly") ? "diagonal diagonal-y" : "diagonal";
+      handle.className = "splitter " + kind;
+      handle.dataset.key = h.key;
+      handle.title = tr.dividerResetTitle;
+
+      if(h.o === "v"){
+        handle.style.left = `${h.pos*100}%`;
+        handle.style.top = `${((h.from+h.to)/2)*100}%`;
+        handle.style.height = "";
+      } else if(h.o === "h") {
+        handle.style.top = `${h.pos*100}%`;
+        handle.style.left = `${((h.from+h.to)/2)*100}%`;
+        handle.style.width = "";
+      } else if(h.o === "c") {
+        const stageW=stage.clientWidth || 1, stageH=stage.clientHeight || 1;
+        const minDim=Math.min(stageW,stageH);
+        handle.style.left = `${(h.cx ?? .5)*stageW + h.pos*minDim}px`;
+        handle.style.top = `${(h.cy ?? .5)*stageH}px`;
+      } else if(h.o === "p" || h.o === "dx" || h.o === "dy" || h.o === "dlx" || h.o === "dly") {
+        handle.style.left = `${h.x*100}%`;
+        handle.style.top = `${h.y*100}%`;
+      } else {
+        handle.style.left = `${h.pos*100}%`;
+        handle.style.top = `${(h.y ?? .5)*100}%`;
+      }
+
+      let dragging = false;
+      let pointerStartX = 0;
+      let pointerStartY = 0;
+      let pointerStartValue = null;
+      let pointerMoved = false;
+      let lastTouchTapAt = 0;
+
+      const resetThisDivider = e => {
+        const live = currentLayout().handles(currentParams()).find(x => x.key===h.key);
+        if(h.o === "p"){
+          const dx=currentLayout().defaults[h.keyX];
+          const dy=currentLayout().defaults[h.keyY];
+          if(typeof dx !== "number" || typeof dy !== "number") return;
+          currentParams()[h.keyX]=clamp(dx,evalBound(live?.minX ?? 0),evalBound(live?.maxX ?? 1));
+          currentParams()[h.keyY]=clamp(dy,evalBound(live?.minY ?? 0),evalBound(live?.maxY ?? 1));
+        } else {
+          const defaultValue = currentLayout().defaults[h.key];
+          if(typeof defaultValue !== "number") return;
+
+          const min = live ? evalBound(live.min) : 0;
+          const max = live ? evalBound(live.max) : 1;
+          currentParams()[h.key] = clamp(defaultValue,min,max);
+        }
+
+        updateStageGeometry();
+        state.suppressClickUntil = Date.now()+300;
+        status.textContent = tr.dividerReset;
+        e?.preventDefault?.();
+        e?.stopPropagation?.();
+      };
+
+      handle.addEventListener("pointerdown",e => {
+        dragging = true;
+        pointerStartX = e.clientX;
+        pointerStartY = e.clientY;
+        pointerStartValue = h.o === "p" ? {x:currentParams()[h.keyX],y:currentParams()[h.keyY]} : currentParams()[h.key];
+        pointerMoved = false;
+        handle.classList.add("dragging");
+        handle.setPointerCapture?.(e.pointerId);
+        state.suppressClickUntil = Date.now()+400;
+        e.preventDefault();
+        e.stopPropagation();
+      });
+
+      handle.addEventListener("pointermove",e => {
+        if(!dragging) return;
+        if(Math.hypot(e.clientX-pointerStartX,e.clientY-pointerStartY) > 7){
+          pointerMoved = true;
+        }
+        const r = stage.getBoundingClientRect();
+        const handlesNow = currentLayout().handles(currentParams());
+        const live = handlesNow.find(x => x.key===h.key);
+
+        if(h.o === "p"){
+          const x=(e.clientX-r.left)/r.width;
+          const y=(e.clientY-r.top)/r.height;
+          currentParams()[h.keyX]=clamp(x,evalBound(live.minX),evalBound(live.maxX));
+          currentParams()[h.keyY]=clamp(y,evalBound(live.minY),evalBound(live.maxY));
+        } else if(h.o === "dlx" || h.o === "dly") {
+          const pointerValue = h.o === "dlx"
+            ? (e.clientX-r.left)/r.width
+            : (e.clientY-r.top)/r.height;
+          const value = pointerValue - (live.offset ?? 0);
+          currentParams()[h.key] = clamp(value,evalBound(live.min),evalBound(live.max));
+        } else if(h.o === "dx" || h.o === "dy") {
+          const pointerValue = h.o === "dx"
+            ? (e.clientX-r.left)/r.width
+            : (e.clientY-r.top)/r.height;
+          const center = live.center ?? .5;
+          const t = live.t ?? .5;
+          const value = center + (pointerValue-center)/t;
+          currentParams()[h.key] = clamp(value,evalBound(live.min),evalBound(live.max));
+        } else {
+          const value = h.o === "h"
+            ? (e.clientY-r.top)/r.height
+            : h.o === "c"
+              ? (e.clientX-(r.left+(h.cx ?? .5)*r.width))/Math.min(r.width,r.height)
+              : (e.clientX-r.left)/r.width;
+          const min = evalBound(live.min);
+          const max = evalBound(live.max);
+          currentParams()[h.key] = clamp(value,min,max);
+        }
+
+        updateStageGeometry();
+        handle.classList.add("dragging");
+        status.textContent = (h.o === "d" || h.o === "dx" || h.o === "dy" || h.o === "dlx" || h.o === "dly") ? tr.diagonalAdjusted : h.o === "c" ? tr.circleAdjusted : h.o === "p" ? tr.pointAdjusted : tr.dividerAdjusted;
+        e.preventDefault();
+        e.stopPropagation();
+      });
+
+      const stop = e => {
+        if(!dragging) return;
+        dragging = false;
+        handle.classList.remove("dragging");
+        state.suppressClickUntil = Date.now()+250;
+        e?.preventDefault?.();
+        e?.stopPropagation?.();
+      };
+
+      handle.addEventListener("pointerup",e => {
+        const isTouchLike = e.pointerType === "touch" || e.pointerType === "pen";
+        const isTap = dragging && isTouchLike && !pointerMoved &&
+          Math.hypot(e.clientX-pointerStartX,e.clientY-pointerStartY) <= 7;
+
+        if(isTap){
+          if(h.o === "p" && pointerStartValue && typeof pointerStartValue === "object"){
+            currentParams()[h.keyX]=pointerStartValue.x;
+            currentParams()[h.keyY]=pointerStartValue.y;
+            updateStageGeometry();
+          } else if(typeof pointerStartValue === "number"){
+            currentParams()[h.key] = pointerStartValue;
+            updateStageGeometry();
+          }
+        }
+
+        stop(e);
+
+        if(isTap){
+          const now = Date.now();
+          if(now-lastTouchTapAt <= 360){
+            lastTouchTapAt = 0;
+            resetThisDivider(e);
+          } else {
+            lastTouchTapAt = now;
+          }
+        }
+      });
+      handle.addEventListener("pointercancel",stop);
+
+      handle.addEventListener("touchend",e => {
+        e.preventDefault();
+        e.stopPropagation();
+      },{passive:false});
+
+      handle.addEventListener("dblclick",resetThisDivider);
+
+      stage.appendChild(handle);
+    });
+  }
+
+  function renderStage(){
+    const rects = currentRects();
+    const polygons = currentPolygons();
+    const circle = currentCircleSlot();
+    const stageW = stage.clientWidth || 1;
+    const stageH = stage.clientHeight || 1;
+    stage.innerHTML = "";
+    stage.style.background = state.bg;
+
+    rects.forEach((rect,i) => {
+      const slot = document.createElement("div");
+      const data = state.slots[i];
+      slot.className = "slot" + (i===state.selected ? " selected" : "") + (!data.img ? " empty" : "");
+      if(circle && i>=0 && i<circle.index) slot.classList.add("circle-outer-slot");
+      slot.dataset.index = i;
+      if(circle && i===circle.index){
+        applyCircleSlotGeometry(slot,circle,stageW,stageH);
+      } else if(polygons){
+        slot.style.left = "0";
+        slot.style.top = "0";
+        slot.style.width = "100%";
+        slot.style.height = "100%";
+        const clipUrl = ensurePolygonClip(i,polygons[i],stageW,stageH);
+        slot.style.clipPath = clipUrl;
+        slot.style.webkitClipPath = clipUrl;
+        slot.style.borderRadius = "0";
+      } else {
+        slot.style.webkitClipPath = "none";
+        applyRectGeometry(slot,rect);
+        slot.style.borderRadius = `${state.radius}px`;
+      }
+
+      if(data.img){
+        const img = document.createElement("img");
+        img.src = data.url;
+        img.alt = data.fileName || `${tr.imageWord} ${i+1}`;
+        slot.appendChild(img);
+        requestAnimationFrame(() => updateImageElement(slot,data));
+      } else {
+        const ph = document.createElement("div");
+        ph.className = "placeholder";
+        ph.innerHTML = `<span>+ ${tr.imageWord} ${i+1}</span>`;
+        slot.appendChild(ph);
+        if(polygons && !(circle && i===circle.index)){
+          if(circle) updateCircleFocusPlaceholderGeometry(slot,i,circle,stageW,stageH);
+          else updatePlaceholderGeometry(slot,i,polygons,stageW,stageH);
+        }
+      }
+
+      slot.addEventListener("click",e => {
+        if(Date.now() < state.suppressClickUntil) return;
+        selectSlot(i);
+        if(!state.slots[i].img && e.detail === 1){
+          openImagePicker({replace:true});
+        }
+      });
+
+      slot.addEventListener("dragenter",e => {
+        e.preventDefault();
+        showDropGuide(i);
+      });
+      slot.addEventListener("dragover",e => {
+        e.preventDefault();
+        if(e.dataTransfer) e.dataTransfer.dropEffect="copy";
+        showDropGuide(i);
+      });
+      slot.addEventListener("dragleave",e => {
+        e.preventDefault();
+        const next=e.relatedTarget;
+        if(!next || !stage.contains(next)) clearDropGuide();
+      });
+      slot.addEventListener("drop",e => {
+        e.preventDefault();
+        clearDropGuide();
+        const files = [...e.dataTransfer.files].filter(f => f.type.startsWith("image/"));
+        if(files.length){
+          selectSlot(i);
+          loadFilesIntoSlots(files,i,true);
+        }
+      });
+
+      makeSlotInteraction(slot,i);
+      stage.appendChild(slot);
+    });
+
+    updateCircleGapRing(circle,stageW,stageH);
+    if(circle){
+      const circleEl=stage.querySelector(`.slot[data-index="${circle.index}"]`);
+      if(circleEl) stage.appendChild(circleEl);
+    }
+    updateCustomGapOverlay(stageW,stageH);
+
+    showSelectionGuide(state.selected);
+    renderSplitters();
+    syncControls();
+    syncCustomDrawControls();
+    renderMediaTray();
+  }
+
+  let customPointerId=null;
+  let customDrawStart=null;
+  let customDrawLastPointer=null;
+  let customDrawGuide=null;
+  let customDividerDrag=null;
+  let customHoverDivider=-1;
+  let customShiftDown=false;
+  let customSegmentAction=null;
+  let customSelectedSegment=null;
+
+  function customPointFromEvent(e,clampToStage=true){
+    const r=stage.getBoundingClientRect();
+    const x=(e.clientX-r.left)/Math.max(1,r.width);
+    const y=(e.clientY-r.top)/Math.max(1,r.height);
+    return clampToStage ? [clamp(x,0,1),clamp(y,0,1)] : [x,y];
+  }
+
+  function customSegmentDistancePx(point,segment){
+    if(!point || !segment?.a || !segment?.b) return Infinity;
+    const r=stage.getBoundingClientRect();
+    const w=Math.max(1,r.width), h=Math.max(1,r.height);
+    const ax=segment.a[0]*w, ay=segment.a[1]*h;
+    const bx=segment.b[0]*w, by=segment.b[1]*h;
+    const px=point[0]*w, py=point[1]*h;
+    const dx=bx-ax, dy=by-ay;
+    const len2=dx*dx+dy*dy;
+    if(len2<1e-8) return Infinity;
+    const t=clamp(((px-ax)*dx+(py-ay)*dy)/len2,0,1);
+    return Math.hypot(px-(ax+t*dx),py-(ay+t*dy));
+  }
+
+  function findCustomDividerHitNearPoint(point,pointerType="mouse"){
+    if(!customLayoutCuts.length) return null;
+    const base=pointerType==="touch" || pointerType==="pen" ? 18 : 10;
+    const threshold=Math.max(base,state.gap/2+6);
+    const candidates=[];
+    for(const segment of customDividerPieces()){
+      const distance=customSegmentDistancePx(point,segment);
+      if(distance<=threshold) candidates.push({...segment,distance});
+    }
+    if(candidates.length!==1) return null;
+    return candidates[0];
+  }
+
+  function hideCustomSegmentAction(){
+    customSegmentAction?.remove();
+    customSegmentAction=null;
+    customSelectedSegment=null;
+    if(customDrawGuide?.classList.contains("segment-selected")) clearCustomDrawGuide();
+  }
+
+  function showCustomSegmentAction(segment,point){
+    hideCustomSegmentAction();
+    if(!segment) return;
+    const cutPieces=customDividerPieces().filter(piece=>piece.cutId===segment.cutId).sort((a,b)=>a.t0-b.t0);
+    if(cutPieces.length<2) return;
+    const current=cutPieces[clamp(segment.pieceIndex ?? 0,0,cutPieces.length-1)];
+    if(!current) return;
+    customSelectedSegment={cutId:current.cutId,pieceIndex:current.pieceIndex};
+    const guide=ensureCustomDrawGuide();
+    guide.classList.remove("divider-hover","divider-move");
+    guide.classList.add("segment-selected");
+    updateCustomDrawGuide(current.a,current.b,false);
+    const box=document.createElement("div");
+    box.className="custom-segment-action";
+    const x=clamp(point?.[0] ?? (current.a[0]+current.b[0])/2,.13,.87);
+    const y=clamp(point?.[1] ?? (current.a[1]+current.b[1])/2,.06,.94);
+    box.style.left=`${x*100}%`;
+    box.style.top=`${y*100}%`;
+    if(y<.16) box.classList.add("below");
+    const detachButton=document.createElement("button");
+    detachButton.type="button";
+    detachButton.className="detach";
+    detachButton.textContent=tr.customSegmentDetach;
+    detachButton.addEventListener("pointerdown",e=>{ e.preventDefault(); e.stopPropagation(); });
+    detachButton.addEventListener("click",e=>{
+      e.preventDefault();
+      e.stopPropagation();
+      const selection=customSelectedSegment ? {...customSelectedSegment} : null;
+      hideCustomSegmentAction();
+      const result=detachCustomDividerSegment(selection);
+      if(result.ok){
+        const visibleCount=currentRects().length;
+        if(state.selected>=visibleCount) state.selected=Math.max(0,visibleCount-1);
+        renderLayoutButtons();
+        renderStage();
+        status.textContent=tr.customSegmentDetached;
+      } else {
+        status.textContent=tr.customSegmentDetachInvalid;
+      }
+    });
+
+    const deleteButton=document.createElement("button");
+    deleteButton.type="button";
+    deleteButton.textContent=tr.customSegmentDelete;
+    deleteButton.addEventListener("pointerdown",e=>{ e.preventDefault(); e.stopPropagation(); });
+    deleteButton.addEventListener("click",e=>{
+      e.preventDefault();
+      e.stopPropagation();
+      const selection=customSelectedSegment ? {...customSelectedSegment} : null;
+      hideCustomSegmentAction();
+      const result=removeCustomDividerSegment(selection);
+      if(result.ok){
+        const visibleCount=currentRects().length;
+        if(state.selected>=visibleCount) state.selected=Math.max(0,visibleCount-1);
+        renderLayoutButtons();
+        renderStage();
+        status.textContent=tr.customSegmentDeleted;
+      } else {
+        status.textContent=tr.customSegmentDeleteInvalid;
+      }
+    });
+    box.append(detachButton,deleteButton);
+    stage.appendChild(box);
+    customSegmentAction=box;
+  }
+
+  function setCustomDividerHover(hit){
+    customHoverDivider=hit?.cutIndex ?? -1;
+    const active=!!hit && !customDividerDrag;
+    stage.classList.toggle("custom-divider-hover",active);
+    if(customPointerId!==null) return;
+    if(active){
+      const svg=ensureCustomDrawGuide();
+      svg.classList.remove("divider-move");
+      svg.classList.add("divider-hover");
+      updateCustomDrawGuide(hit.a,hit.b,false);
+    } else if(customDrawGuide?.classList.contains("divider-hover")){
+      clearCustomDrawGuide();
+    }
+  }
+
+  function translateCustomDividerParallel(cut,pointerStart,pointerNow){
+    const r=stage.getBoundingClientRect();
+    const w=Math.max(1,r.width), h=Math.max(1,r.height);
+    const ax=cut.a[0]*w, ay=cut.a[1]*h;
+    const bx=cut.b[0]*w, by=cut.b[1]*h;
+    const dx=bx-ax, dy=by-ay;
+    const len=Math.hypot(dx,dy);
+    if(len<1e-6) return clone(cut);
+    const nx=-dy/len, ny=dx/len;
+    const moveX=(pointerNow[0]-pointerStart[0])*w;
+    const moveY=(pointerNow[1]-pointerStart[1])*h;
+    const offset=moveX*nx+moveY*ny;
+    return {
+      ...clone(cut),
+      a:[(ax+nx*offset)/w,(ay+ny*offset)/h],
+      b:[(bx+nx*offset)/w,(by+ny*offset)/h]
+    };
+  }
+
+  function customCandidateSegment(index,candidateCut){
+    const cuts=clone(customLayoutCuts);
+    if(index<0 || index>=cuts.length) return null;
+    cuts[index]={...cuts[index],a:[...candidateCut.a],b:[...candidateCut.b]};
+    return effectiveCustomCutSegment(cuts[index],cuts);
+  }
+
+  function snapCustomDrawPoint(start,end,snapEnabled){
+    if(!snapEnabled || !start || !end) return end;
+    const r=stage.getBoundingClientRect();
+    const w=Math.max(1,r.width), h=Math.max(1,r.height);
+    const dx=(end[0]-start[0])*w;
+    const dy=(end[1]-start[1])*h;
+    const distance=Math.hypot(dx,dy);
+    if(distance<1e-6) return end;
+    const step=Math.PI/12;
+    const angle=Math.atan2(dy,dx);
+    const snappedAngle=Math.round(angle/step)*step;
+    return [
+      start[0]+Math.cos(snappedAngle)*distance/w,
+      start[1]+Math.sin(snappedAngle)*distance/h
+    ];
+  }
+
+  function currentCustomDrawLine(pointer,shiftKey){
+    if(!customDrawStart || !pointer) return null;
+    return [customDrawStart,snapCustomDrawPoint(customDrawStart,pointer,!!shiftKey)];
+  }
+
+  function ensureCustomDrawGuide(){
+    if(customDrawGuide?.isConnected) return customDrawGuide;
+    const ns="http://www.w3.org/2000/svg";
+    customDrawGuide=document.createElementNS(ns,"svg");
+    customDrawGuide.classList.add("custom-draw-guide");
+    customDrawGuide.setAttribute("viewBox","0 0 100 100");
+    customDrawGuide.setAttribute("preserveAspectRatio","none");
+    customDrawGuide.appendChild(document.createElementNS(ns,"line"));
+    stage.appendChild(customDrawGuide);
+    return customDrawGuide;
+  }
+
+  function lineAcrossUnitSquare(a,b){
+    const dx=b[0]-a[0], dy=b[1]-a[1];
+    if(Math.hypot(dx,dy)<1e-6) return [a,b];
+    const hits=[];
+    const add=(t,x,y) => {
+      if(x>=-1e-7 && x<=1+1e-7 && y>=-1e-7 && y<=1+1e-7){
+        if(!hits.some(h=>Math.hypot(h.x-x,h.y-y)<1e-6)) hits.push({t,x:clamp(x,0,1),y:clamp(y,0,1)});
+      }
+    };
+    if(Math.abs(dx)>1e-9){
+      let t=(0-a[0])/dx; add(t,0,a[1]+t*dy);
+      t=(1-a[0])/dx; add(t,1,a[1]+t*dy);
+    }
+    if(Math.abs(dy)>1e-9){
+      let t=(0-a[1])/dy; add(t,a[0]+t*dx,0);
+      t=(1-a[1])/dy; add(t,a[0]+t*dx,1);
+    }
+    hits.sort((u,v)=>u.t-v.t);
+    return hits.length>=2 ? [[hits[0].x,hits[0].y],[hits[hits.length-1].x,hits[hits.length-1].y]] : [a,b];
+  }
+
+  function updateCustomDrawGuide(a,b,extend=true){
+    const svg=ensureCustomDrawGuide();
+    const line=svg.querySelector("line");
+    const [p1,p2]=extend ? lineAcrossUnitSquare(a,b) : [a,b];
+    line.setAttribute("x1",p1[0]*100); line.setAttribute("y1",p1[1]*100);
+    line.setAttribute("x2",p2[0]*100); line.setAttribute("y2",p2[1]*100);
+  }
+
+  function refreshCustomDrawGuide(shiftKey=customShiftDown){
+    if(customPointerId===null || !customDrawStart || !customDrawLastPointer) return;
+    const line=currentCustomDrawLine(customDrawLastPointer,shiftKey);
+    if(line) updateCustomDrawGuide(line[0],line[1]);
+  }
+
+  function clearCustomDrawGuide(){
+    customDrawGuide?.remove();
+    customDrawGuide=null;
+    stage.classList.remove("custom-divider-moving");
+  }
+
+  function resetCustomPointerState(){
+    customPointerId=null;
+    customDrawStart=null;
+    customDrawLastPointer=null;
+    customDividerDrag=null;
+    stage.classList.remove("custom-divider-moving");
+  }
+
+  stage.addEventListener("pointerdown",e => {
+    if(state.layout!=="custom-draw" || !state.customDrawActive) return;
+    if(e.button!==undefined && e.button!==0) return;
+    if(e.target.closest?.(".custom-segment-action")) return;
+
+    hideCustomSegmentAction();
+    const pointer=customPointFromEvent(e,false);
+    const hit=findCustomDividerHitNearPoint(pointer,e.pointerType);
+    customPointerId=e.pointerId;
+    customDrawLastPointer=pointer;
+    customShiftDown=!!e.shiftKey;
+
+    if(hit){
+      ensureCustomCutIds(customLayoutCuts);
+      customDividerDrag={
+        index:hit.cutIndex,
+        hitSegment:{cutId:hit.cutId,pieceIndex:hit.pieceIndex},
+        pointerStart:[...pointer],
+        originalCut:clone(customLayoutCuts[hit.cutIndex]),
+        candidateCut:clone(customLayoutCuts[hit.cutIndex]),
+        deleteOnRelease:false
+      };
+      customDrawStart=null;
+      setCustomDividerHover(null);
+      const svg=ensureCustomDrawGuide();
+      svg.classList.remove("divider-hover");
+      svg.classList.add("divider-move");
+      const activeSegment=effectiveCustomCutSegment(customDividerDrag.originalCut,customLayoutCuts);
+      if(activeSegment) updateCustomDrawGuide(activeSegment.a,activeSegment.b,false);
+      stage.classList.add("custom-divider-moving");
+    } else {
+      customDrawStart=customPointFromEvent(e,true);
+      customDividerDrag=null;
+      updateCustomDrawGuide(customDrawStart,customDrawStart);
+    }
+
+    stage.setPointerCapture?.(e.pointerId);
+    state.suppressClickUntil=Date.now()+500;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+  },true);
+
+  stage.addEventListener("pointermove",e => {
+    if(state.layout==="custom-draw" && state.customDrawActive && customPointerId===null){
+      setCustomDividerHover(findCustomDividerHitNearPoint(customPointFromEvent(e,false),e.pointerType));
+      return;
+    }
+    if(e.pointerId!==customPointerId) return;
+    customDrawLastPointer=customPointFromEvent(e,false);
+    customShiftDown=!!e.shiftKey;
+
+    if(customDividerDrag){
+      customDividerDrag.candidateCut=translateCustomDividerParallel(
+        customDividerDrag.originalCut,
+        customDividerDrag.pointerStart,
+        customDrawLastPointer
+      );
+      const candidateSegment=customCandidateSegment(customDividerDrag.index,customDividerDrag.candidateCut);
+      const outside=!candidateSegment;
+      if(outside!==customDividerDrag.deleteOnRelease){
+        customDividerDrag.deleteOnRelease=outside;
+        status.textContent=outside ? tr.customDividerDeleteHint : tr.customDividerMoveStart;
+      }
+      if(candidateSegment) updateCustomDrawGuide(candidateSegment.a,candidateSegment.b,false);
+      const r=stage.getBoundingClientRect();
+      const movedPx=Math.hypot(
+        (customDividerDrag.candidateCut.a[0]-customDividerDrag.originalCut.a[0])*r.width,
+        (customDividerDrag.candidateCut.a[1]-customDividerDrag.originalCut.a[1])*r.height
+      );
+      if(movedPx>=2 && !outside) status.textContent=tr.customDividerMoveStart;
+    } else if(customDrawStart){
+      refreshCustomDrawGuide(customShiftDown);
+    }
+    e.preventDefault();
+    e.stopImmediatePropagation();
+  },true);
+
+  stage.addEventListener("pointerleave",() => {
+    if(customPointerId===null) setCustomDividerHover(null);
+  });
+
+  const finishCustomDraw=e => {
+    if(e.pointerId!==customPointerId) return;
+    customDrawLastPointer=customPointFromEvent(e,false);
+    customShiftDown=!!e.shiftKey;
+
+    if(customDividerDrag){
+      const drag=customDividerDrag;
+      drag.candidateCut=translateCustomDividerParallel(drag.originalCut,drag.pointerStart,customDrawLastPointer);
+      const r=stage.getBoundingClientRect();
+      const movedPx=Math.hypot(
+        (drag.candidateCut.a[0]-drag.originalCut.a[0])*r.width,
+        (drag.candidateCut.a[1]-drag.originalCut.a[1])*r.height
+      );
+      const clickedPoint=[...drag.pointerStart];
+      const clickedSegment={...drag.hitSegment};
+      let result={ok:true,unchanged:true};
+      const candidateSegment=customCandidateSegment(drag.index,drag.candidateCut);
+      const deleteOnRelease=!candidateSegment;
+      if(deleteOnRelease){
+        result=removeCustomDivider(drag.index);
+      } else if(movedPx>=2){
+        result=moveCustomDivider(drag.index,drag.candidateCut);
+      }
+      resetCustomPointerState();
+      clearCustomDrawGuide();
+      state.suppressClickUntil=Date.now()+500;
+      setCustomDividerHover(null);
+
+      if(result.ok && result.unchanged){
+        showCustomSegmentAction(clickedSegment,clickedPoint);
+        if(customSegmentAction) status.textContent=tr.customSegmentSelected;
+      } else if(result.ok){
+        const visibleCount=currentRects().length;
+        if(state.selected>=visibleCount) state.selected=Math.max(0,visibleCount-1);
+        renderLayoutButtons();
+        renderStage();
+        status.textContent=result.removed ? tr.customDividerDeleted : tr.customDividerMoved;
+      } else {
+        renderStage();
+        status.textContent=result.reason==="max" ? tr.customTooMany(CUSTOM_MAX_SLOTS) : tr.customDividerMoveInvalid;
+      }
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      return;
+    }
+
+    if(!customDrawStart) return;
+    const line=currentCustomDrawLine(customDrawLastPointer,customShiftDown);
+    const start=line?.[0] || customDrawStart;
+    const end=line?.[1] || customDrawStart;
+    const r=stage.getBoundingClientRect();
+    const pxDistance=Math.hypot((end[0]-start[0])*r.width,(end[1]-start[1])*r.height);
+    resetCustomPointerState();
+    clearCustomDrawGuide();
+    state.suppressClickUntil=Date.now()+500;
+
+    if(pxDistance>=18){
+      const result=cutCustomLayout(start,end);
+      if(result.ok){
+        const visibleCount=currentRects().length;
+        if(state.selected>=visibleCount) state.selected=Math.max(0,visibleCount-1);
+        renderLayoutButtons();
+        renderStage();
+        status.textContent=tr.customCutAdded(visibleCount);
+      } else if(result.reason==="max") status.textContent=tr.customTooMany(CUSTOM_MAX_SLOTS);
+      else status.textContent=tr.customCutIgnored;
+    }
+    e.preventDefault();
+    e.stopImmediatePropagation();
+  };
+
+  stage.addEventListener("pointerup",finishCustomDraw,true);
+  stage.addEventListener("pointercancel",e => {
+    if(e.pointerId!==customPointerId) return;
+    resetCustomPointerState();
+    clearCustomDrawGuide();
+    e.preventDefault();
+    e.stopImmediatePropagation();
+  },true);
+
+  window.addEventListener("keydown",e => {
+    if(e.key==="Shift"){
+      customShiftDown=true;
+      if(customPointerId!==null) refreshCustomDrawGuide(true);
+      return;
+    }
+  });
+  window.addEventListener("keyup",e => {
+    if(e.key==="Shift"){
+      customShiftDown=false;
+      if(customPointerId!==null) refreshCustomDrawGuide(false);
+      return;
+    }
+  });
+
+  function readImageFile(file){
+    return new Promise((resolve,reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => resolve({url,img,fileName:file.name});
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject(new Error(tr.imageLoadError));
+      };
+      img.src = url;
+    });
+  }
+
+  async function setSlotImage(index,file){
+    if(index<0 || index>=state.slots.length) return;
+    const loaded = await readImageFile(file);
+    const old = state.slots[index];
+    if(old?.url) URL.revokeObjectURL(old.url);
+    state.slots[index] = {
+      ...loaded,
+      zoom:1,
+      offsetX:0,
+      offsetY:0
+    };
+  }
+
+  async function loadFilesIntoSlots(files,startIndex=0,replaceFirst=false){
+    const visibleCount = currentRects().length;
+    let index = startIndex;
+
+    for(const file of files){
+      if(!file.type.startsWith("image/")) continue;
+
+      if(!replaceFirst){
+        while(index < visibleCount && state.slots[index].img) index++;
+        if(index >= visibleCount){
+          index = Array.from({length:visibleCount},(_,i)=>i).find(i => !state.slots[i].img);
+          if(index === undefined) break;
+        }
+      }
+
+      await setSlotImage(index,file);
+      index++;
+      replaceFirst = false;
+    }
+
+    renderStage();
+  }
+
+  function openImagePicker({replace=false}={}){
+    state.replaceMode = replace;
+    fileInput.multiple = !replace;
+    fileInput.value = "";
+    fileInput.click();
+  }
+
+  addFiles.addEventListener("click",() => {
+    openImagePicker({replace:false});
+  });
+
+  replaceBtn.addEventListener("click",() => {
+    openImagePicker({replace:true});
+  });
+
+  fileInput.addEventListener("change",async() => {
+    const files = [...fileInput.files];
+    if(!files.length) return;
+
+    if(state.replaceMode){
+      await loadFilesIntoSlots([files[0]],state.selected,true);
+    } else {
+      const visibleCount = currentRects().length;
+      const firstEmpty = Array.from({length:visibleCount},(_,i)=>i).find(i => !state.slots[i].img);
+      await loadFilesIntoSlots(files,firstEmpty ?? state.selected,false);
+    }
+
+    fileInput.value = "";
+  });
+
+  zoom.addEventListener("input",() => {
+    const s = state.slots[state.selected];
+    if(!s?.img) return;
+    s.zoom = parseFloat(zoom.value);
+    zoomValue.textContent = `${Math.round(s.zoom*100)}%`;
+    const slotEl = stage.querySelector(`.slot[data-index="${state.selected}"]`);
+    updateImageElement(slotEl,s);
+  });
+
+  centerBtn.addEventListener("click",() => {
+    const s = state.slots[state.selected];
+    if(!s?.img) return;
+    s.offsetX = 0;
+    s.offsetY = 0;
+    const slotEl = stage.querySelector(`.slot[data-index="${state.selected}"]`);
+    updateImageElement(slotEl,s);
+  });
+
+  removeBtn.addEventListener("click",() => {
+    const s = state.slots[state.selected];
+    if(s?.url) URL.revokeObjectURL(s.url);
+    state.slots[state.selected] = makeSlotState();
+    renderStage();
+  });
+
+  clearAll.addEventListener("click",() => {
+    state.slots.forEach(s => s.url && URL.revokeObjectURL(s.url));
+    state.slots = Array.from({length:maxSlots},makeSlotState);
+    state.selected = 0;
+    renderStage();
+    status.textContent = tr.allCleared;
+  });
+
+  customDrawToggle.addEventListener("click",() => {
+    if(state.layout!=="custom-draw") return;
+    hideCustomSegmentAction();
+    state.customDrawActive=!state.customDrawActive;
+    setCustomDividerHover(null);
+    syncCustomDrawControls();
+    status.textContent=state.customDrawActive ? tr.customDrawOn : tr.customDrawOff;
+  });
+
+  customUndo.addEventListener("click",() => {
+    if(state.layout!=="custom-draw") return;
+    hideCustomSegmentAction();
+    const previous=customLayoutHistory.pop();
+    if(!previous){ status.textContent=tr.customUndoEmpty; syncCustomDrawControls(); return; }
+    restoreCustomLayout(previous);
+    const visibleCount=currentRects().length;
+    if(state.selected>=visibleCount) state.selected=Math.max(0,visibleCount-1);
+    renderLayoutButtons();
+    renderStage();
+    status.textContent=tr.customUndoDone;
+  });
+
+  resetDividers.addEventListener("click",() => {
+    if(state.layout==="custom-draw"){
+      hideCustomSegmentAction();
+      customLayoutPolygons=[[[0,0],[1,0],[1,1],[0,1]]];
+      customLayoutCuts=[];
+      customLayoutHistory.length=0;
+      state.selected=0;
+      renderLayoutButtons();
+      renderStage();
+      status.textContent=tr.customResetDone;
+      return;
+    }
+    state.layoutParams[state.layout] = clone(layouts[state.layout].defaults);
+    renderStage();
+    status.textContent = tr.allDividersReset;
+  });
+
+  gap.addEventListener("input",() => {
+    state.gap = +gap.value;
+    gapValue.textContent = `${state.gap} px`;
+    renderStage();
+  });
+
+  radius.addEventListener("input",() => {
+    state.radius = +radius.value;
+    radiusValue.textContent = `${state.radius} px`;
+    renderStage();
+  });
+
+  bgColor.addEventListener("input",() => {
+    state.bgManuallySet = true;
+    state.bg = bgColor.value;
+    stage.style.background = state.bg;
+    const ring=stage.querySelector(".circle-gap-ring");
+    if(ring) ring.style.background=state.bg;
+    const customGap=stage.querySelector(".custom-gap-overlay");
+    if(customGap) customGap.style.color=state.bg;
+  });
+
+  colorSchemeQuery.addEventListener?.("change",e => {
+    if(state.bgManuallySet) return;
+    state.bg = e.matches ? "#000000" : "#ffffff";
+    bgColor.value = state.bg;
+    stage.style.background = state.bg;
+    const ring=stage.querySelector(".circle-gap-ring");
+    if(ring) ring.style.background=state.bg;
+    const customGap=stage.querySelector(".custom-gap-overlay");
+    if(customGap) customGap.style.color=state.bg;
+  });
+
+  aspect.addEventListener("change",() => {
+    state.aspect = parseFloat(aspect.value);
+    applyStageAspect();
+    requestAnimationFrame(renderStage);
+  });
+
+  stage.addEventListener("dragover",e => e.preventDefault());
+  stage.addEventListener("dragleave",e => {
+    const r=stage.getBoundingClientRect();
+    if(e.clientX<=r.left || e.clientX>=r.right || e.clientY<=r.top || e.clientY>=r.bottom) clearDropGuide();
+  });
+  stage.addEventListener("drop",() => clearDropGuide());
+
+  document.addEventListener("keydown",e => {
+    if((e.key==="Delete" || e.key==="Backspace") &&
+       !["INPUT","SELECT","TEXTAREA"].includes(document.activeElement.tagName)){
+      const s = state.slots[state.selected];
+      if(s?.img){
+        if(s.url) URL.revokeObjectURL(s.url);
+        state.slots[state.selected] = makeSlotState();
+        renderStage();
+      }
+    }
+  });
+
+  function roundedRectPath(ctx,x,y,w,h,r){
+    r = Math.min(r,w/2,h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+  }
+
+  function polygonPath(ctx,points,w,h,radius=0){
+    const pxPoints = points.map(([x,y]) => [x*w,y*h]);
+    const corners = roundedPolygonCorners(pxPoints,radius);
+    ctx.beginPath();
+    if(!corners.length) return;
+    if(!radius){
+      pxPoints.forEach(([x,y],i) => i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y));
+      ctx.closePath();
+      return;
+    }
+    ctx.moveTo(corners[0].start[0],corners[0].start[1]);
+    corners.forEach((c,i) => {
+      if(i>0) ctx.lineTo(c.start[0],c.start[1]);
+      ctx.quadraticCurveTo(c.point[0],c.point[1],c.end[0],c.end[1]);
+    });
+    ctx.closePath();
+  }
+
+  function canvasToBlob(canvas,type="image/png",quality){
+    return new Promise((resolve,reject) => {
+      canvas.toBlob(
+        blob => blob ? resolve(blob) : reject(new Error(tr.exportBlobError)),
+        type,
+        quality
+      );
+    });
+  }
+
+  function formatBytes(bytes){
+    if(bytes < 1024) return `${bytes} B`;
+    if(bytes < 1024*1024) return `${(bytes/1024).toFixed(0)} KB`;
+    return `${(bytes/(1024*1024)).toFixed(1)} MB`;
+  }
+
+  function downloadBlob(blob,fileName){
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    link.rel = "noopener";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url),1500);
+  }
+
+  function closeExportModal(){
+    exportModal.hidden = true;
+  }
+
+  function showExportPreview(pngBlob,jpgBlob,pngFileName,jpgFileName,outW,outH){
+    if(currentExportUrl) URL.revokeObjectURL(currentExportUrl);
+    currentExportUrl = URL.createObjectURL(pngBlob);
+    currentExportFile = new File([pngBlob],pngFileName,{type:"image/png"});
+    currentExportJpgFile = new File([jpgBlob],jpgFileName,{type:"image/jpeg"});
+    exportPreview.src = currentExportUrl;
+    exportMeta.textContent = `${outW} × ${outH} px · PNG ${formatBytes(pngBlob.size)} · JPG ${formatBytes(jpgBlob.size)}`;
+    downloadExport.querySelector(".btn-label").textContent = "PNG";
+    downloadJpg.querySelector(".btn-label").textContent = "JPG";
+    exportModal.hidden = false;
+  }
+
+  async function exportImage(){
+    try{
+      exportBtn.disabled = true;
+      exportBtn.querySelector(".btn-label").textContent = tr.exporting;
+      const rects = currentRects();
+      const polygons = currentPolygons();
+      const circle = currentCircleSlot();
+      const outW = +exportSize.value;
+      const outH = Math.round(outW/state.aspect);
+      const canvas = document.createElement("canvas");
+      canvas.width = outW;
+      canvas.height = outH;
+      const ctx = canvas.getContext("2d");
+
+      ctx.fillStyle = state.bg;
+      ctx.fillRect(0,0,outW,outH);
+
+      const editorW = stage.clientWidth || 1;
+      const scale = outW/editorW;
+      const exportGap = state.gap*scale;
+      const exportRadius = state.radius*scale;
+
+      for(let i=0;i<rects.length;i++){
+        const s = state.slots[i];
+        ctx.save();
+
+        if(circle && i===circle.index){
+          const m=circleSlotMetrics(circle,outW,outH,exportGap);
+          ctx.restore();
+          ctx.save();
+          ctx.fillStyle=state.bg;
+          ctx.beginPath();
+          ctx.arc(m.cx,m.cy,m.outerRadius+exportGap/2,0,Math.PI*2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(m.cx,m.cy,m.innerRadius,0,Math.PI*2);
+          ctx.clip();
+          if(s?.img){
+            const cover=getCoverSize(s.img,m.size,m.size,s.zoom);
+            const dx=m.cx+s.offsetX*scale-cover.w/2;
+            const dy=m.cy+s.offsetY*scale-cover.h/2;
+            ctx.drawImage(s.img,dx,dy,cover.w,cover.h);
+          } else {
+            ctx.fillStyle="#e7eaf0";
+            ctx.fillRect(m.cx-m.innerRadius,m.cy-m.innerRadius,m.size,m.size);
+          }
+        } else if(polygons){
+          const poly = insetPolygon(polygons[i],outW,outH,exportGap);
+          polygonPath(ctx,poly,outW,outH,exportRadius);
+          ctx.clip();
+          if(s?.img){
+            const bounds = polygonPixelBounds(polygons[i],outW,outH,exportGap);
+            const extra = shapePanOverscan(i,outW,outH,exportGap);
+            const viewport={...bounds,extraX:extra.x,extraY:extra.y};
+            const cover = coverForViewport(s.img,viewport,s.zoom);
+            const dx = bounds.x+bounds.w/2 + s.offsetX*scale - cover.w/2;
+            const dy = bounds.y+bounds.h/2 + s.offsetY*scale - cover.h/2;
+            ctx.drawImage(s.img,dx,dy,cover.w,cover.h);
+          } else {
+            ctx.fillStyle = "#e7eaf0";
+            ctx.fillRect(0,0,outW,outH);
+          }
+        } else {
+          const rect = slotPixelRect(rects[i],outW,outH,exportGap);
+          roundedRectPath(ctx,rect.x,rect.y,rect.w,rect.h,exportRadius);
+          ctx.clip();
+          if(s?.img){
+            const cover = getCoverSize(s.img,rect.w,rect.h,s.zoom);
+            const dx = rect.x+rect.w/2 + s.offsetX*scale - cover.w/2;
+            const dy = rect.y+rect.h/2 + s.offsetY*scale - cover.h/2;
+            ctx.drawImage(s.img,dx,dy,cover.w,cover.h);
+          } else {
+            ctx.fillStyle = "#e7eaf0";
+            ctx.fillRect(rect.x,rect.y,rect.w,rect.h);
+          }
+        }
+        ctx.restore();
+      }
+
+      drawCustomGapOverlayOnCanvas(ctx,outW,outH,exportGap,scale);
+
+      const [pngBlob,jpgBlob] = await Promise.all([
+        canvasToBlob(canvas,"image/png"),
+        canvasToBlob(canvas,"image/jpeg",.84)
+      ]);
+      const datePart = new Date().toISOString().slice(0,10);
+      const pngFileName = `${tr.fileBase}-${datePart}.png`;
+      const jpgFileName = `${tr.fileBase}-${datePart}-${tr.optimizedSuffix}.jpg`;
+      showExportPreview(pngBlob,jpgBlob,pngFileName,jpgFileName,outW,outH);
+      status.textContent = tr.exportReady(outW,outH);
+    } catch(err){
+      console.error(err);
+      status.textContent = tr.exportFailed;
+      alert(`${tr.exportFailed} ${err?.message || tr.unknownError}`);
+    } finally {
+      exportBtn.disabled = false;
+      exportBtn.querySelector(".btn-label").textContent = tr.export;
+    }
+  }
+
+  downloadExport.addEventListener("click",() => {
+    if(!currentExportFile) return;
+    downloadBlob(currentExportFile,currentExportFile.name);
+    status.textContent = tr.pngStarted(currentExportFile.name);
+  });
+
+  downloadJpg.addEventListener("click",() => {
+    if(!currentExportJpgFile) return;
+    downloadBlob(currentExportJpgFile,currentExportJpgFile.name);
+    status.textContent = tr.jpgStarted(currentExportJpgFile.name);
+  });
+
+  openExport.addEventListener("click",() => {
+    if(!currentExportUrl) return;
+    const opened = window.open(currentExportUrl,"_blank");
+    if(opened) opened.opener = null;
+    else status.textContent = tr.popupBlocked;
+  });
+
+  function openHelpModal(){ helpModal.hidden = false; }
+  function closeHelpModal(){ helpModal.hidden = true; }
+  openHelp.addEventListener("click",openHelpModal);
+  closeHelp.addEventListener("click",closeHelpModal);
+  helpModal.addEventListener("click",e => { if(e.target === helpModal) closeHelpModal(); });
+
+  closeExport.addEventListener("click",closeExportModal);
+  exportModal.addEventListener("click",e => { if(e.target === exportModal) closeExportModal(); });
+  document.addEventListener("keydown",e => {
+    if(e.key !== "Escape") return;
+    if(!helpModal.hidden) closeHelpModal();
+    if(!exportModal.hidden) closeExportModal();
+  });
+
+  exportBtn.addEventListener("click",exportImage);
+
+  window.addEventListener("resize",() => { updateStageGeometry(); refreshAllImages(); });
+
+  applyStaticTranslations();
+  renderLayoutButtons();
+  applyStageAspect();
+  renderStage();
+})();
+</script>
+</body>
+</html>

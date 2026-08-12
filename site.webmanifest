@@ -1,0 +1,24 @@
+{
+  "name": "Collage Studio",
+  "short_name": "Collage Studio",
+    "id": "/collage-studio/",
+    "start_url": "/collage-studio/",
+    "scope": "/collage-studio/",
+  "icons": [
+    {
+      "src": "/collage-studio/assets/images/web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/collage-studio/assets/images/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
+  "display": "standalone"
+}
