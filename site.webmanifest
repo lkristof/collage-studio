@@ -1,9 +1,9 @@
 {
   "name": "Collage Studio",
   "short_name": "Collage Studio",
-    "id": "/collage-studio/",
-    "start_url": "/collage-studio/",
-    "scope": "/collage-studio/",
+  "id": "/collage-studio/",
+  "start_url": "/collage-studio/",
+  "scope": "/collage-studio/",
   "icons": [
     {
       "src": "/collage-studio/assets/images/web-app-manifest-192x192.png",
