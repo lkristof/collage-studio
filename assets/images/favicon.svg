@@ -1,11 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 42 42" fill="none"><defs>
-    <linearGradient id="logoGradient" x1="5" y1="4" x2="37" y2="38" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#6757E8"></stop>
-      <stop offset="1" stop-color="#8B5CF6"></stop>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 64 64" fill="none" role="img" aria-label="Collage Studio">
+  <defs>
+    <linearGradient id="logoGradient" x1="7.62" y1="6.10" x2="56.38" y2="57.90" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6757E8"/>
+      <stop offset="1" stop-color="#8B5CF6"/>
     </linearGradient>
-  </defs><rect width="42" height="42" rx="13" fill="url(#logoGradient)"></rect><g fill="#FFFFFF" transform="translate(21 21) scale(0.8464) translate(-21 -21)">
-    <rect x="6" y="7" width="12" height="12" rx="1.8"></rect>
-    <rect x="22" y="7" width="14" height="8" rx="1.8"></rect>
-    <rect x="22" y="19" width="14" height="16" rx="1.8"></rect>
-    <rect x="6" y="23" width="12" height="12" rx="1.8"></rect>
-  </g></svg>
+  </defs>
+  <path d="M32 0C17.6 0 10.4 0 5.2 5.2C0 10.4 0 17.6 0 32C0 46.4 0 53.6 5.2 58.8C10.4 64 17.6 64 32 64C46.4 64 53.6 64 58.8 58.8C64 53.6 64 46.4 64 32C64 17.6 64 10.4 58.8 5.2C53.6 0 46.4 0 32 0Z" fill="url(#logoGradient)"/>
+  <g fill="#FFFFFF" transform="scale(1.5238095238)">
+    <g transform="translate(21 21) scale(0.8464) translate(-21 -21)">
+      <rect x="6" y="7" width="12" height="12" rx="1.8"/>
+      <rect x="22" y="7" width="14" height="8" rx="1.8"/>
+      <rect x="22" y="19" width="14" height="16" rx="1.8"/>
+      <rect x="6" y="23" width="12" height="12" rx="1.8"/>
+    </g>
+  </g>
+</svg>
