@@ -471,10 +471,14 @@
     .help-modal[hidden]{display:none}
     .help-card{width:min(480px,100%);background:#fff;border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:0 30px 90px rgba(0,0,0,.28)}
     .help-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+    .help-head-icon{width:36px;height:36px;flex:0 0 36px;padding:8px;border-radius:11px;background:var(--accent-soft);color:var(--accent)}
     .help-head h3{margin:0 0 3px;font-size:17px}
     .help-head p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}
     .help-list{display:grid;gap:8px}
     .help-item{padding:10px 11px;border:1px solid var(--line);border-radius:13px;background:#fafbfc;font-size:12px;line-height:1.5;color:var(--muted)}
+    .help-item.has-icon{display:grid;grid-template-columns:17px minmax(0,1fr);align-items:start;gap:9px}
+    .help-item-icon{width:17px;height:17px;flex:0 0 17px;color:var(--accent);margin-top:1px}
+    .help-item-copy{min-width:0}
     .help-item strong{color:#3f485b}
     .status{min-height:22px;font-size:12px;color:var(--muted);padding:0 4px 4px;text-align:center}
     .right-actions{display:grid;gap:8px}
@@ -699,6 +703,16 @@
       .splitter.vertical::before{height:50px}
       .splitter.horizontal::before{width:50px}
       .brand-mark{width:40px;height:40px;flex-basis:40px}
+      .help-modal{
+        padding:max(12px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+        min-height:100dvh;
+      }
+      .help-card{
+        max-height:calc(100dvh - max(24px,env(safe-area-inset-top)) - max(24px,env(safe-area-inset-bottom)));
+        overflow-y:auto;
+        overscroll-behavior:contain;
+        -webkit-overflow-scrolling:touch;
+      }
       .export-modal{
         padding:max(12px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
         place-items:center;
@@ -820,6 +834,7 @@
 <div class="help-modal" id="helpModal" hidden>
   <div class="help-card" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
     <div class="help-head">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-question-mark help-head-icon" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
       <div>
         <h3 id="helpTitle">Súgó</h3>
         <p>Röviden, hogyan működik.</p>
@@ -960,6 +975,15 @@
     }
   };
   const tr = I18N[uiLang];
+
+  const HELP_ICONS = [
+    `<svg class="icon help-item-icon lucide lucide-move" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20"/><path d="m15 19-3 3-3-3"/><path d="m19 9 3 3-3 3"/><path d="M2 12h20"/><path d="m5 9-3 3 3 3"/><path d="m9 5 3-3 3 3"/></svg>`,
+    `<svg class="icon help-item-icon lucide lucide-arrow-left-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>`,
+    `<svg class="icon help-item-icon lucide lucide-image" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>`,
+    `<svg class="icon help-item-icon lucide lucide-zoom-in" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6"/><path d="M8 11h6"/></svg>`,
+    `<svg class="icon help-item-icon lucide lucide-split" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>`,
+    `<svg class="icon help-item-icon lucide lucide-pencil-line" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`
+  ];
 
   function circlePolygon(cx,cy,r,aspect=1,segments=56){
     const safeAspect=Math.max(.01,aspect || 1);
@@ -1469,7 +1493,7 @@
     document.querySelector(".help-head p").textContent = tr.helpIntro;
     closeHelp.setAttribute("aria-label",tr.close);
     document.querySelector(".help-list").innerHTML = [tr.helpMove,tr.helpSwap,tr.helpLoaded,tr.helpZoom,tr.helpDividers,tr.helpCustom]
-      .map(item=>`<div class="help-item">${item}</div>`).join("");
+      .map((item,index)=>`<div class="help-item has-icon">${HELP_ICONS[index]}<div class="help-item-copy">${item}</div></div>`).join("");
 
     document.getElementById("exportTitle").textContent = tr.exportTitle;
     exportMeta.textContent = tr.exportChoose;
