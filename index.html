@@ -111,21 +111,28 @@
       width:42px;height:42px;
       display:block;
       filter:drop-shadow(0 10px 12px rgba(103,87,232,.24));
-      transition:transform .22s ease,filter .22s ease;
+      transform-origin:center;
+      will-change:transform;
+      -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation;
     }
     .brand-mark img{
       width:100%;
       height:100%;
       display:block;
-      transition:transform .22s ease;
-      transform-origin:center;
     }
-    .brand-mark:hover{
-      transform: scale(1.2);
-      filter:drop-shadow(0 14px 18px rgba(103,87,232,.34));
+    @keyframes logo-pulse{
+      0%,100%{transform:scale(1)}
+      34%{transform:scale(1.10)}
+      58%{transform:scale(1.035)}
+      78%{transform:scale(1.075)}
     }
-    .brand-mark:hover img{
-      transform:rotate(-4deg);
+    @media (hover:hover) and (pointer:fine){
+      .brand-mark:hover{animation:logo-pulse .58s ease-out}
+    }
+    .logo-tap-animate{animation:logo-pulse .58s ease-out}
+    @media (prefers-reduced-motion:reduce){
+      .brand-mark,.logo-tap-animate{animation:none!important;transform:none!important}
     }
     .brand-copy{min-width:0}
     .brand-help{
@@ -4960,6 +4967,24 @@
   });
 
   exportBtn.addEventListener("click",exportImage);
+
+  const brandMark = document.querySelector(".brand-mark");
+  if(brandMark){
+    brandMark.addEventListener("pointerdown",event => {
+      if(event.pointerType === "mouse") return;
+      if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+      brandMark.classList.remove("logo-tap-animate");
+      void brandMark.getBoundingClientRect();
+      brandMark.classList.add("logo-tap-animate");
+    },{passive:true});
+
+    brandMark.addEventListener("animationend",event => {
+      if(event.animationName === "logo-pulse"){
+        brandMark.classList.remove("logo-tap-animate");
+      }
+    });
+  }
 
   window.addEventListener("resize",() => { updateStageGeometry(); refreshAllImages(); });
 
