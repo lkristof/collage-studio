@@ -54,9 +54,6 @@
       --danger:#c23b4a;
       --radius:22px;
       --shadow:0 18px 55px rgba(35,45,75,.10);
-      --scroll-thumb:rgba(103,87,232,.24);
-      --scroll-thumb-hover:rgba(103,87,232,.42);
-      --scroll-track:transparent;
     }
     *{box-sizing:border-box}
     html{background:var(--bg2)}
@@ -97,6 +94,18 @@
       align-self:start;
     }
     .brand{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+    .left{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+    .left>.brand,.left>.left-fixed{flex:0 0 auto}
+    .left-fixed{min-width:0}
+    .left-scroll{
+      flex:1 1 auto;
+      min-height:0;
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      margin-right:-12px;
+      padding-right:12px;
+    }
     .brand-mark{
       flex:0 0 42px;
       width:42px;height:42px;
@@ -135,7 +144,9 @@
       text-transform:uppercase;
       color:var(--muted);
     }
-    .right>div h2{margin-top:0!important;padding-bottom:9px;border-bottom:1px solid var(--line)}
+    .right{align-self:start;display:grid;gap:12px}
+    .right>div h2{margin-top:0;padding-bottom:9px;border-bottom:1px solid var(--line)}
+    .right .panel > .control:last-child{margin-bottom:0}
     .sub{font-size:13px;color:var(--muted);line-height:1.5;margin:0}
 
     .layouts{
@@ -252,7 +263,6 @@
       overflow-x:auto;
       padding:2px 2px 4px;
       overscroll-behavior-x:contain;
-      scrollbar-width:thin;
       -webkit-mask-image:linear-gradient(90deg,#000 0,#000 100%);
       mask-image:linear-gradient(90deg,#000 0,#000 100%);
       transition:-webkit-mask-image .18s ease,mask-image .18s ease;
@@ -588,15 +598,18 @@
         position:sticky;
         top:20px;
         max-height:calc(100vh - 40px);
-        overflow-y:auto;
-        overscroll-behavior:contain;
+        max-height:calc(100dvh - 40px);
       }
     }
 
     @media(max-width:1120px){
       .app{grid-template-columns:250px minmax(0,1fr)}
-      .right{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-      .right h2:first-child{margin-top:0}
+      .right{grid-column:2;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;min-width:0}
+    }
+
+    @media(min-width:761px) and (max-width:1120px){
+      .right{align-items:stretch}
+      .right > .panel{align-self:stretch;height:100%}
     }
 
     @media(min-width:761px) and (max-width:1120px) and (orientation:portrait){
@@ -609,9 +622,13 @@
     @media(max-width:760px){
       .app{grid-template-columns:1fr;padding:10px;gap:12px}
       .left,.right{grid-column:auto}
-      .right{display:block}
+      .right{grid-template-columns:1fr;gap:12px}
       .panel{border-radius:18px;padding:14px}
-      .left{overflow:hidden}
+      .left{
+        max-height:calc(100vh - 20px);
+        max-height:calc(100dvh - 20px);
+      }
+      .left-scroll{margin-right:-8px;padding-right:8px}
       .left h2{margin:14px 0 8px}
       .layouts{
         display:flex;
@@ -624,14 +641,8 @@
         padding:2px 2px 7px;
         overscroll-behavior-x:contain;
         scroll-snap-type:x proximity;
-        scrollbar-width:thin;
-        scrollbar-color:var(--scroll-thumb) var(--scroll-track);
         -webkit-overflow-scrolling:touch;
       }
-      .layouts::-webkit-scrollbar{height:6px}
-      .layouts::-webkit-scrollbar-track{background:var(--scroll-track)}
-      .layouts::-webkit-scrollbar-thumb{background:var(--scroll-thumb);border-radius:999px}
-      .layouts::-webkit-scrollbar-thumb:hover{background:var(--scroll-thumb-hover)}
       .layout-btn{
         flex:0 0 82px;
         width:82px;
@@ -677,11 +688,9 @@
         overflow-y:hidden;
         overscroll-behavior-x:contain;
         -webkit-overflow-scrolling:touch;
-        scrollbar-width:none;
         touch-action:pan-x;
         padding-right:10px;
       }
-      .media-thumbs::-webkit-scrollbar{display:none}
       .media-thumb{
         flex-basis:46px;
         width:46px;
@@ -757,11 +766,12 @@
       </div>
       <button class="brand-help" id="openHelp" type="button" aria-label="Használati súgó megnyitása" title="Használati súgó">?</button>
     </div>
-    <p class="sub">A te elrendezésed. Egyedi kollázs pár mozdulattal.</p>
-
-    <h2>Elrendezés</h2>
+    <div class="left-fixed">
+      <p class="sub">A te elrendezésed. Egyedi kollázs pár mozdulattal.</p>
+      <h2>Elrendezés</h2>
+      </div>
+    <div class="left-scroll">
     <div id="layouts" class="layouts"></div>
-
     <h2>Képarány</h2>
     <select id="aspect">
       <option value="1">1:1 – négyzet</option>
@@ -769,6 +779,7 @@
       <option value="1.5">3:2 – fekvő</option>
       <option value="1.7777777778">16:9 – széles</option>
     </select>
+    </div>
 
   </aside>
 
@@ -801,8 +812,8 @@
     </div>
   </main>
 
-  <aside class="panel right">
-    <div>
+  <aside class="right">
+    <div class="panel">
       <h2 style="margin-top:0">Kijelölt kép</h2>
       <div class="control">
         <label>Nagyítás <span id="zoomValue" class="value">100%</span></label>
@@ -814,7 +825,7 @@
       </div>
     </div>
 
-    <div>
+    <div class="panel">
       <h2>Kollázs</h2>
       <div class="control">
         <label>Hézag <span id="gapValue" class="value">8 px</span></label>
@@ -830,7 +841,7 @@
       </div>
     </div>
 
-    <div>
+    <div class="panel">
       <h2>Export</h2>
       <div class="control">
         <label>Szélesség</label>
@@ -1454,7 +1465,7 @@
     openHelp.setAttribute("aria-label",tr.helpOpen);
     openHelp.title = tr.helpTitleAttr;
 
-    const leftHeadings = document.querySelectorAll(".left > h2");
+    const leftHeadings = document.querySelectorAll(".left h2");
     if(leftHeadings[0]) leftHeadings[0].textContent = tr.layoutHeading;
     if(leftHeadings[1]) leftHeadings[1].textContent = tr.aspectHeading;
     const aspectOptions = aspect.options;
