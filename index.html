@@ -302,14 +302,18 @@
       border-color:rgba(103,87,232,.82);
       box-shadow:0 0 0 2px rgba(103,87,232,.14),0 7px 16px rgba(55,52,110,.12);
     }
+    .media-thumb.swap-source{
+      border-color:rgba(103,87,232,.92);
+      box-shadow:0 0 0 3px rgba(103,87,232,.18),0 7px 16px rgba(55,52,110,.12);
+    }
     .media-thumb.dragging{opacity:.34;transform:scale(.94)}
-    .media-thumb.drop-target{
+    .media-thumb.drop-target,.media-thumb.swap-target{
       transform:scale(1.07);
       border-color:var(--accent);
       box-shadow:0 0 0 3px rgba(103,87,232,.22),0 10px 24px rgba(55,52,110,.22);
       z-index:3;
     }
-    .media-thumb.drop-target .media-thumb-index{
+    .media-thumb.drop-target .media-thumb-index,.media-thumb.swap-target .media-thumb-index{
       background:var(--accent);
       color:#fff;
       transform:scale(1.08);
@@ -2896,11 +2900,11 @@
 
   function clearMediaDropIndicators(){
     mediaThumbs?.querySelectorAll(".media-thumb").forEach(el => {
-      el.classList.remove("dragging","drop-before","drop-after","drop-target");
+      el.classList.remove("dragging","drop-before","drop-after","drop-target","swap-source","swap-target");
     });
     document.querySelector(".media-drag-ghost")?.remove();
     clearSwapGuide();
-    stage.querySelectorAll(".slot").forEach(el => el.classList.remove("swap-target"));
+    stage.querySelectorAll(".slot").forEach(el => el.classList.remove("swap-source","swap-target"));
   }
 
   function reorderLoadedImages(sourceIndex,targetIndex,insertAfter){
@@ -2956,7 +2960,8 @@
       dragging=true;
       touchScrolling=false;
       clearLongPress();
-      btn.classList.add("dragging");
+      if(index<currentRects().length) selectSlot(index);
+      btn.classList.add("dragging","swap-source");
       ghost=document.createElement("div");
       ghost.className="media-drag-ghost";
       const img=document.createElement("img");
@@ -3000,12 +3005,16 @@
 
       clearSwapGuide();
       stage.querySelectorAll(".slot").forEach(el => el.classList.remove("swap-target"));
+      mediaThumbs?.querySelectorAll(".media-thumb").forEach(el => el.classList.remove("swap-target"));
       const under=document.elementFromPoint(x,y)?.closest?.(".media-thumb");
       if(under && mediaThumbs.contains(under) && Number(under.dataset.index)!==index){
         thumbTarget=Number(under.dataset.index);
         const r=under.getBoundingClientRect();
         insertAfter=x>(r.left+r.width/2);
-        under.classList.add("drop-target",insertAfter ? "drop-after" : "drop-before");
+        under.classList.add("drop-target","swap-target",insertAfter ? "drop-after" : "drop-before");
+        showSwapTarget(thumbTarget,index);
+      } else {
+        showSwapTarget(null,index);
       }
     };
 
@@ -3552,7 +3561,13 @@
 
   function showSwapTarget(index,sourceIndex){
     stage.querySelectorAll(".slot").forEach((el,idx) => {
+      el.classList.toggle("swap-source",idx===sourceIndex);
       el.classList.toggle("swap-target",idx===index && idx!==sourceIndex);
+    });
+    mediaThumbs?.querySelectorAll(".media-thumb").forEach(el => {
+      const thumbIndex=Number(el.dataset.index);
+      el.classList.toggle("swap-source",thumbIndex===sourceIndex);
+      el.classList.toggle("swap-target",thumbIndex===index && thumbIndex!==sourceIndex);
     });
     clearSwapGuide();
 
@@ -3623,6 +3638,9 @@
 
     const clearSwapClasses = () => {
       stage.querySelectorAll(".slot").forEach(el => {
+        el.classList.remove("swap-source","swap-target");
+      });
+      mediaThumbs?.querySelectorAll(".media-thumb").forEach(el => {
         el.classList.remove("swap-source","swap-target");
       });
       clearSwapGuide();
