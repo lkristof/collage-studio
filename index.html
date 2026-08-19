@@ -708,7 +708,13 @@
         max-height:calc(100vh - 20px);
         max-height:calc(100dvh - 20px);
       }
-      .left-scroll{margin-right:-8px;padding-right:8px}
+      .left-scroll{
+        margin-right:-8px;
+        padding-right:8px;
+        overflow-y:visible;
+        overscroll-behavior-y:auto;
+        -webkit-overflow-scrolling:auto;
+      }
       .left h2{margin:14px 0 8px}
       .layouts{
         display:flex;
@@ -875,7 +881,7 @@
       <button class="btn" id="customDrawToggle" type="button" hidden><svg class="icon lucide lucide-pencil-line" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span class="btn-label">Rajzolás</span></button>
       <button class="btn" id="customUndo" type="button" hidden><svg class="icon lucide lucide-undo-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg><span class="btn-label">Vissza</span></button>
       <div class="spacer"></div>
-      <button class="btn danger" id="clearAll" title="Minden kép törlése" aria-label="Minden kép törlése"><svg class="icon lucide lucide-trash-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg><span class="btn-label">Törlés</span></button>
+      <button class="btn danger" id="clearAll" title="Minden kép törlése" aria-label="Minden kép törlése" disabled><svg class="icon lucide lucide-trash-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg><span class="btn-label">Törlés</span></button>
       <button class="btn primary" id="exportBtn" title="Export / mentés" aria-label="Export / mentés"><svg class="icon lucide lucide-download" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg><span class="btn-label">Export</span></button>
     </div>
 
@@ -3270,6 +3276,7 @@
 
     mediaTray.classList.add("visible");
     mediaTray.classList.toggle("empty",loaded.length===0);
+    clearAll.disabled = loaded.length===0;
     mediaTray.title = loaded.length===0 ? tr.trayAddTitle : "";
     mediaTrayCount.textContent = `(${loaded.length})`;
     mediaThumbs.innerHTML = "";
