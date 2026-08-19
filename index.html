@@ -770,6 +770,11 @@
         touch-action:pan-x;
         padding-right:10px;
       }
+      .media-tray.empty,
+      .media-tray.empty .media-thumbs,
+      .media-tray.empty .media-empty-add{
+        touch-action:pan-y;
+      }
       .media-thumb{
         flex-basis:46px;
         width:46px;
@@ -3265,6 +3270,7 @@
 
     mediaTray.classList.add("visible");
     mediaTray.classList.toggle("empty",loaded.length===0);
+    mediaTray.title = loaded.length===0 ? tr.trayAddTitle : "";
     mediaTrayCount.textContent = `(${loaded.length})`;
     mediaThumbs.innerHTML = "";
 
@@ -4850,6 +4856,33 @@
     return added;
   }
 
+  async function loadFilesIntoCollageThenTray(files){
+    const visibleCount = currentRects().length;
+    let nextVisibleIndex = 0;
+    let addedToCollage = 0;
+    let addedToTray = 0;
+
+    for(const file of files){
+      if(!file.type.startsWith("image/")) continue;
+
+      while(nextVisibleIndex < visibleCount && state.slots[nextVisibleIndex]?.img){
+        nextVisibleIndex++;
+      }
+
+      if(nextVisibleIndex < visibleCount){
+        await setSlotImage(nextVisibleIndex,file);
+        addedToCollage++;
+        nextVisibleIndex++;
+      } else {
+        await setSlotImage(nextEmptyParkedIndex(),file);
+        addedToTray++;
+      }
+    }
+
+    renderStage();
+    return {addedToCollage,addedToTray};
+  }
+
   let imagePickerTarget="collage";
   let imagePickerSlotIndex=null;
   function openImagePicker({target="collage",slotIndex=null}={}){
@@ -4933,9 +4966,7 @@
       const added=await loadFilesIntoTray(files);
       if(added) status.textContent=tr.imagesAdded(added);
     } else {
-      const visibleCount = currentRects().length;
-      const firstEmpty = Array.from({length:visibleCount},(_,i)=>i).find(i => !state.slots[i].img);
-      await loadFilesIntoSlots(files,firstEmpty ?? state.selected,false);
+      await loadFilesIntoCollageThenTray(files);
     }
 
     fileInput.value = "";
@@ -4943,6 +4974,7 @@
 
   mediaTray?.addEventListener("click",e => {
     if(Date.now()<state.suppressClickUntil) return;
+    if(!mediaTray.classList.contains("empty")) return;
     if(e.target.closest?.(".media-thumb")) return;
     openImagePicker({target:"tray"});
   });
