@@ -245,10 +245,11 @@
     .file-input{display:none}
 
     .media-tray{
-      display:none;
+      display:flex;
       align-items:center;
       gap:10px;
       min-width:0;
+      min-height:70px;
       padding:8px 10px;
       border-radius:16px;
       background:rgba(255,255,255,.58);
@@ -257,9 +258,13 @@
       backdrop-filter:blur(14px);
       -webkit-backdrop-filter:blur(14px);
       overflow:hidden;
+      transition:border-color .16s ease,background .16s ease,box-shadow .16s ease;
     }
     .media-tray.visible{display:flex}
-    .media-tray.remove-drop-target{
+    .media-tray.empty{border-style:dashed;cursor:pointer}
+    .media-tray.remove-drop-target,
+    .media-tray.file-drop-target{
+      border-style:solid;
       border-color:rgba(103,87,232,.62);
       background:rgba(103,87,232,.10);
       box-shadow:0 0 0 3px rgba(103,87,232,.12),0 12px 30px rgba(75,61,190,.16);
@@ -286,6 +291,30 @@
       mask-image:linear-gradient(90deg,#000 0,#000 100%);
       transition:-webkit-mask-image .18s ease,mask-image .18s ease;
     }
+    .media-tray.empty .media-thumbs{
+      justify-content:center;
+      overflow:hidden;
+      padding:2px 8px;
+      -webkit-mask-image:none;
+      mask-image:none;
+    }
+    .media-empty-add{
+      min-width:0;
+      border:0;
+      background:transparent;
+      color:var(--muted);
+      padding:8px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      text-align:center;
+      font-size:11.5px;
+      font-weight:750;
+      line-height:1.35;
+    }
+    .media-empty-add .icon{color:var(--accent);width:18px;height:18px;flex-basis:18px}
+    .media-tray.empty:hover .media-empty-add{color:var(--accent)}
     .media-tray.can-scroll-left .media-thumbs{
       -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 34px,#000 100%);
       mask-image:linear-gradient(90deg,transparent 0,#000 34px,#000 100%);
@@ -983,14 +1012,14 @@
       addImages:"Képek", addImagesFull:"Képek hozzáadása", replace:"Csere", replaceFull:"Kijelölt kép cseréje",
       dividers:"Elválasztók", dividersFull:"Elválasztók visszaállítása", delete:"Törlés", deleteFull:"Minden kép törlése · egy kép végleges törléséhez húzd ide",
       customDraw:"Rajzol\u00e1s", customDrawOn:"Rajzol\u00e1s bekapcsolva \u2013 h\u00fazz \u00faj elv\u00e1laszt\u00f3t, vagy fogj meg egy megl\u00e9v\u0151t \u00e9s mozgasd. Kattints vagy koppints egy metsz\u00e9sek k\u00f6zti szakaszra: t\u00f6r\u00f6lheted vagy lev\u00e1laszthatod. Shift: 15\u00b0-os illeszt\u00e9s.", customDrawOff:"Rajzol\u00e1s kikapcsolva \u2013 most a k\u00e9peket szerkesztheted.", customUndo:"Vissza", customReset:"\u00dajrakezd\u00e9s",
-      export:"Export", exportFull:"Export / mentés", loadedImages:"Betöltött képek", stageLabel:"Kollázs szerkesztő",
+      export:"Export", exportFull:"Export / mentés", loadedImages:"Betöltött képek", trayEmptyAdd:"Húzz ide képeket, vagy kattints a hozzáadáshoz.", trayAddTitle:"Képek hozzáadása a Betöltött képek sávhoz", trayFileDropHint:"Engedd el itt a képeket a hozzáadáshoz.", imagesAdded:n=>`${n} kép hozzáadva a Betöltött képekhez.`, stageLabel:"Kollázs szerkesztő",
       initialTip:"Tipp: az elválasztók méretét elrendezésenként külön megjegyzi.",
       selectedImage:"Kijelölt kép", zoom:"Nagyítás", center:"Középre igazít", removeImage:"Kép eltávolítása",
       collage:"Kollázs", gap:"Hézag", radius:"Sarokkerekítés", background:"Háttérszín", width:"Szélesség",
       quickHelp:"Súgó", helpIntro:"Röviden, hogyan működik.", close:"Bezárás",
       helpMove:"<strong>Kép mozgatása:</strong> húzd a képet. Ha a Betöltött képek sávra húzod és ott engeded el, lekerül a kollázsról, de betöltve marad. Ha közvetlenül a Törlés gombra húzod, végleg törlődik.",
       helpSwap:"<strong>Képcsere:</strong> tartsd nyomva, majd húzd egy másik mezőre.",
-      helpLoaded:"<strong>Betöltött képek:</strong> húzd őket a kollázsra, rendezd át fent, vagy húzd a Törlés gombra a végleges törléshez.",
+      helpLoaded:"<strong>Betöltött képek:</strong> kattints az üres részére vagy húzz rá fájlokat új képek hozzáadásához; a betöltött képeket húzd a kollázsra, rendezd át fent, vagy húzd a Törlés gombra a végleges törléshez.",
       helpZoom:"<strong>Nagyítás:</strong> mobilon két ujjal, gépen Ctrl/⌘ + görgetéssel vagy a csúszkával.",
       helpDividers:"<strong>Elválasztók:</strong> húzd a fogantyút. Dupla kattintás vagy koppintás visszaállítja.",
       helpCustom:"<strong>Egyedi elrendezés:</strong> h\u00fazz egyenes elv\u00e1laszt\u00f3kat a v\u00e1sznon. <strong>Meglev\u0151 elv\u00e1laszt\u00f3 mozgat\u00e1sa:</strong> Rajzol\u00e1s m\u00f3dban fogd meg a vonalat \u00e9s h\u00fazd arr\u00e9bb; a d\u0151l\u00e9ssz\u00f6ge megmarad. <strong>Szakasz m\u0171veletek:</strong> ahol elv\u00e1laszt\u00f3k metszik egym\u00e1st, kattints vagy koppints a metsz\u00e9sek k\u00f6zti vonaldarabra. A Szakasz t\u00f6rl\u00e9se csak azt a r\u00e9szt t\u00f6rli, a Szakasz lev\u00e1laszt\u00e1sa pedig k\u00fcl\u00f6n elv\u00e1laszt\u00f3kk\u00e1 bontja az addig \u00f6sszetartoz\u00f3 r\u00e9szeket, \u00edgy ut\u00e1na egym\u00e1st\u00f3l f\u00fcggetlen\u00fcl mozgathat\u00f3k. <strong>Shift:</strong> \u00faj vonaln\u00e1l 15\u00b0-os l\u00e9p\u00e9sekre pattint. A Vissza gomb az utols\u00f3 egyedi m\u00f3dos\u00edt\u00e1st vonja vissza.",
@@ -1031,14 +1060,14 @@
       addImages:"Images", addImagesFull:"Add images", replace:"Replace", replaceFull:"Replace selected image",
       dividers:"Dividers", dividersFull:"Reset dividers", delete:"Delete", deleteFull:"Delete all images · drag one here to remove it permanently",
       customDraw:"Draw", customDrawOn:"Drawing enabled \u2013 drag a new divider, or grab an existing one and move it. Click or tap a segment between intersections to delete or detach it. Shift: 15\u00b0 snapping.", customDrawOff:"Drawing disabled \u2013 you can edit images now.", customUndo:"Undo", customReset:"Start over",
-      export:"Export", exportFull:"Export / save", loadedImages:"Loaded images", stageLabel:"Collage editor",
+      export:"Export", exportFull:"Export / save", loadedImages:"Loaded images", trayEmptyAdd:"Drop images here, or click to add them.", trayAddTitle:"Add images to the Loaded images strip", trayFileDropHint:"Release here to add the images.", imagesAdded:n=>`${n} image${n===1?"":"s"} added to Loaded images.`, stageLabel:"Collage editor",
       initialTip:"Tip: divider positions are remembered separately for each layout.",
       selectedImage:"Selected image", zoom:"Zoom", center:"Center image", removeImage:"Remove image",
       collage:"Collage", gap:"Gap", radius:"Corner radius", background:"Background color", width:"Width",
       quickHelp:"Help", helpIntro:"A quick guide to the basics.", close:"Close",
       helpMove:"<strong>Move image:</strong> drag the image. Drop it on the Loaded images strip to remove it from the collage while keeping it loaded. Drag it directly onto Delete to remove it permanently.",
       helpSwap:"<strong>Swap images:</strong> press and hold, then drag to another slot.",
-      helpLoaded:"<strong>Loaded images:</strong> drag them onto the collage, reorder them above, or drag one onto Delete to remove it permanently.",
+      helpLoaded:"<strong>Loaded images:</strong> click its empty area or drop image files onto it to add more; drag loaded images onto the collage, reorder them above, or drag one onto Delete to remove it permanently.",
       helpZoom:"<strong>Zoom:</strong> use two fingers on mobile, or Ctrl/⌘ + scroll or the slider on desktop.",
       helpDividers:"<strong>Dividers:</strong> drag the handle. Double-click or double-tap to reset it.",
       helpCustom:"<strong>Custom layout:</strong> drag straight dividers across the canvas. <strong>Move an existing divider:</strong> while Draw is enabled, grab a divider and drag it; its angle stays fixed. <strong>Segment actions:</strong> where dividers intersect, click or tap the piece between intersections. Delete segment removes only that piece, while Detach segment splits the previously linked divider pieces so they can be moved independently. <strong>Shift:</strong> snaps new lines to 15\u00b0 increments. Undo restores the last custom change.",
@@ -1567,6 +1596,7 @@
     setButton(openExport,tr.openImage);
 
     mediaTray.setAttribute("aria-label",tr.loadedImages);
+    mediaTray.title = tr.trayAddTitle;
     document.querySelector(".media-tray-title").textContent = tr.loadedImages;
     stage.setAttribute("aria-label",tr.stageLabel);
     status.textContent = tr.initialTip;
@@ -3238,9 +3268,21 @@
       .map((slot,index) => ({slot,index}))
       .filter(item => item.slot?.img && item.slot?.url);
 
-    mediaTray.classList.toggle("visible",loaded.length>0);
-    mediaTrayCount.textContent = loaded.length ? `(${loaded.length})` : "";
+    mediaTray.classList.add("visible");
+    mediaTray.classList.toggle("empty",loaded.length===0);
+    mediaTrayCount.textContent = `(${loaded.length})`;
     mediaThumbs.innerHTML = "";
+
+    if(!loaded.length){
+      const empty=document.createElement("button");
+      empty.type="button";
+      empty.className="media-empty-add";
+      empty.setAttribute("aria-label",tr.trayAddTitle);
+      empty.innerHTML=`<svg class="icon lucide lucide-image-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5h6"/><path d="M19 2v6"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7.5"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/><circle cx="9" cy="9" r="2"/></svg><span>${tr.trayEmptyAdd}</span>`;
+      mediaThumbs.appendChild(empty);
+      requestAnimationFrame(updateMediaTrayScrollHints);
+      return;
+    }
 
     const visibleCount=currentRects().length;
     loaded.forEach(({slot,index}) => {
@@ -3270,20 +3312,21 @@
     requestAnimationFrame(updateMediaTrayScrollHints);
   }
 
+  function nextEmptyParkedIndex(){
+    for(let i=maxSlots;i<state.slots.length;i++){
+      if(!state.slots[i]?.img) return i;
+    }
+    const parkedIndex=Math.max(maxSlots,state.slots.length);
+    while(state.slots.length<=parkedIndex) state.slots.push(makeSlotState());
+    return parkedIndex;
+  }
+
   function moveImageOffCollage(index){
     const visibleCount=currentRects().length;
     const source=state.slots[index];
     if(index<0 || index>=visibleCount || !source?.img) return false;
 
-    let parkedIndex=-1;
-    for(let i=maxSlots;i<state.slots.length;i++){
-      if(!state.slots[i]?.img){ parkedIndex=i; break; }
-    }
-    if(parkedIndex<0){
-      parkedIndex=Math.max(maxSlots,state.slots.length);
-      while(state.slots.length<=parkedIndex) state.slots.push(makeSlotState());
-    }
-
+    const parkedIndex=nextEmptyParkedIndex();
     state.slots[parkedIndex]=source;
     state.slots[index]=makeSlotState();
     return true;
@@ -4713,7 +4756,8 @@
   }
 
   async function setSlotImage(index,file){
-    if(index<0 || index>=state.slots.length) return;
+    if(index<0) return;
+    while(state.slots.length<=index) state.slots.push(makeSlotState());
     const loaded = await readImageFile(file);
     const old = state.slots[index];
     if(old?.url) URL.revokeObjectURL(old.url);
@@ -4748,8 +4792,21 @@
     renderStage();
   }
 
-  function openImagePicker({replace=false}={}){
+  async function loadFilesIntoTray(files){
+    let added=0;
+    for(const file of files){
+      if(!file.type.startsWith("image/")) continue;
+      await setSlotImage(nextEmptyParkedIndex(),file);
+      added++;
+    }
+    renderStage();
+    return added;
+  }
+
+  let imagePickerTarget="collage";
+  function openImagePicker({replace=false,target="collage"}={}){
     state.replaceMode = replace;
+    imagePickerTarget = replace ? "collage" : target;
     fileInput.multiple = !replace;
     fileInput.value = "";
     fileInput.click();
@@ -4828,6 +4885,9 @@
 
     if(state.replaceMode){
       await loadFilesIntoSlots([files[0]],state.selected,true);
+    } else if(imagePickerTarget==="tray"){
+      const added=await loadFilesIntoTray(files);
+      if(added) status.textContent=tr.imagesAdded(added);
     } else {
       const visibleCount = currentRects().length;
       const firstEmpty = Array.from({length:visibleCount},(_,i)=>i).find(i => !state.slots[i].img);
@@ -4835,6 +4895,50 @@
     }
 
     fileInput.value = "";
+  });
+
+  mediaTray?.addEventListener("click",e => {
+    if(Date.now()<state.suppressClickUntil) return;
+    if(e.target.closest?.(".media-thumb")) return;
+    openImagePicker({replace:false,target:"tray"});
+  });
+
+  let trayFileDragDepth=0;
+  const hasDraggedFiles = dataTransfer =>
+    [...(dataTransfer?.types || [])].includes("Files") ||
+    [...(dataTransfer?.items || [])].some(item => item.kind==="file");
+
+  mediaTray?.addEventListener("dragenter",e => {
+    if(!hasDraggedFiles(e.dataTransfer)) return;
+    e.preventDefault();
+    trayFileDragDepth++;
+    mediaTray.classList.add("file-drop-target");
+    status.textContent=tr.trayFileDropHint;
+  });
+
+  mediaTray?.addEventListener("dragover",e => {
+    if(!hasDraggedFiles(e.dataTransfer)) return;
+    e.preventDefault();
+    if(e.dataTransfer) e.dataTransfer.dropEffect="copy";
+    mediaTray.classList.add("file-drop-target");
+    status.textContent=tr.trayFileDropHint;
+  });
+
+  mediaTray?.addEventListener("dragleave",e => {
+    e.preventDefault();
+    trayFileDragDepth=Math.max(0,trayFileDragDepth-1);
+    if(trayFileDragDepth===0) mediaTray.classList.remove("file-drop-target");
+  });
+
+  mediaTray?.addEventListener("drop",async e => {
+    if(!hasDraggedFiles(e.dataTransfer)) return;
+    e.preventDefault();
+    trayFileDragDepth=0;
+    mediaTray.classList.remove("file-drop-target");
+    const files=[...(e.dataTransfer?.files || [])].filter(file => file.type?.startsWith("image/"));
+    if(!files.length) return;
+    const added=await loadFilesIntoTray(files);
+    if(added) status.textContent=tr.imagesAdded(added);
   });
 
   zoom.addEventListener("input",() => {
