@@ -755,7 +755,6 @@
         -webkit-tap-highlight-color:transparent;
       }
       .topbar .spacer{display:none}
-      .topbar #resetDividers{grid-column:1/-1}
       .topbar .primary{font-size:12px;padding:10px 8px}
       .media-tray{
         padding:7px 8px;
@@ -4738,17 +4737,69 @@
     }
   });
 
-  function readImageFile(file){
+  const MAX_LOADED_IMAGE_WIDTH = 1600;
+
+  function loadImageFromUrl(url){
     return new Promise((resolve,reject) => {
-      const url = URL.createObjectURL(file);
       const img = new Image();
-      img.onload = () => resolve({url,img,fileName:file.name});
-      img.onerror = () => {
-        URL.revokeObjectURL(url);
-        reject(new Error(tr.imageLoadError));
-      };
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error(tr.imageLoadError));
       img.src = url;
     });
+  }
+
+  function canvasToBlob(canvas,type,quality){
+    return new Promise((resolve,reject) => {
+      canvas.toBlob(blob => {
+        if(blob) resolve(blob);
+        else reject(new Error(tr.imageLoadError));
+      },type,quality);
+    });
+  }
+
+  async function readImageFile(file){
+    const sourceUrl = URL.createObjectURL(file);
+    let sourceUrlActive = true;
+
+    try{
+      const sourceImg = await loadImageFromUrl(sourceUrl);
+      if(sourceImg.naturalWidth <= MAX_LOADED_IMAGE_WIDTH){
+        return {url:sourceUrl,img:sourceImg,fileName:file.name};
+      }
+
+      const scale = MAX_LOADED_IMAGE_WIDTH / sourceImg.naturalWidth;
+      const targetWidth = MAX_LOADED_IMAGE_WIDTH;
+      const targetHeight = Math.max(1,Math.round(sourceImg.naturalHeight * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+      const ctx = canvas.getContext("2d");
+      if(!ctx) throw new Error(tr.imageLoadError);
+
+      ctx.drawImage(sourceImg,0,0,targetWidth,targetHeight);
+
+      const supportedTypes = new Set(["image/jpeg","image/png","image/webp"]);
+      const outputType = supportedTypes.has(file.type) ? file.type : "image/png";
+      const quality = outputType === "image/jpeg" || outputType === "image/webp" ? .92 : undefined;
+      const resizedBlob = await canvasToBlob(canvas,outputType,quality);
+
+      canvas.width = 1;
+      canvas.height = 1;
+      URL.revokeObjectURL(sourceUrl);
+      sourceUrlActive = false;
+
+      const resizedUrl = URL.createObjectURL(resizedBlob);
+      try{
+        const resizedImg = await loadImageFromUrl(resizedUrl);
+        return {url:resizedUrl,img:resizedImg,fileName:file.name};
+      }catch(error){
+        URL.revokeObjectURL(resizedUrl);
+        throw error;
+      }
+    }catch(error){
+      if(sourceUrlActive) URL.revokeObjectURL(sourceUrl);
+      throw error;
+    }
   }
 
   async function setSlotImage(index,file){
