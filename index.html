@@ -235,6 +235,12 @@
     .btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;border-color:transparent;box-shadow:0 9px 20px rgba(103,87,232,.23)}
     .btn.toggle-active{background:var(--accent-soft);color:var(--accent);border-color:rgba(103,87,232,.42);box-shadow:0 0 0 2px rgba(103,87,232,.10)}
     .btn.danger{color:var(--danger)}
+    .btn.danger.delete-drop-target{
+      border-color:var(--danger);
+      background:rgba(194,59,74,.10);
+      box-shadow:0 0 0 3px rgba(194,59,74,.14),0 10px 24px rgba(194,59,74,.18);
+      transform:scale(1.035);
+    }
     .spacer{flex:1}
     .file-input{display:none}
 
@@ -253,6 +259,11 @@
       overflow:hidden;
     }
     .media-tray.visible{display:flex}
+    .media-tray.remove-drop-target{
+      border-color:rgba(103,87,232,.62);
+      background:rgba(103,87,232,.10);
+      box-shadow:0 0 0 3px rgba(103,87,232,.12),0 12px 30px rgba(75,61,190,.16);
+    }
     .media-tray-head{
       flex:0 0 auto;
       display:flex;
@@ -527,6 +538,23 @@
     .right-actions{display:grid;gap:8px}
     .right-actions .btn{width:100%}
 
+    .confirm-modal{
+      position:fixed;inset:0;z-index:1200;display:grid;place-items:center;padding:18px;background:rgba(19,25,40,.60);
+      backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    }
+    .confirm-modal[hidden]{display:none}
+    .confirm-card{
+      width:min(430px,100%);background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px;
+      box-shadow:0 30px 90px rgba(0,0,0,.30)
+    }
+    .confirm-head{display:flex;align-items:flex-start;gap:12px}
+    .confirm-icon{width:38px;height:38px;flex:0 0 38px;padding:9px;border-radius:12px;background:rgba(194,59,74,.10);color:var(--danger)}
+    .confirm-copy{min-width:0}
+    .confirm-copy h3{margin:1px 0 5px;font-size:17px}
+    .confirm-copy p{margin:0;color:var(--muted);font-size:12.5px;line-height:1.5}
+    .confirm-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;flex-wrap:wrap}
+    .confirm-actions .btn{min-width:112px}
+
     .export-modal{
       position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:18px;background:rgba(19,25,40,.62);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)
     }
@@ -577,6 +605,7 @@
       .layout-btn.active .mini-stop-end{stop-color:#4e477f}
       .btn{background:rgba(255,255,255,.055)}
       .btn:hover:not(:disabled){box-shadow:0 8px 18px rgba(0,0,0,.20)}
+      .btn.danger.delete-drop-target{background:rgba(255,125,138,.12);box-shadow:0 0 0 3px rgba(255,125,138,.14),0 10px 24px rgba(0,0,0,.24)}
       .media-tray{background:rgba(24,28,39,.62);border-color:rgba(255,255,255,.07);box-shadow:0 8px 24px rgba(0,0,0,.16)}
       .media-thumb,.media-drag-ghost{background:#2a303d;border-color:rgba(255,255,255,.10)}
       .media-thumb.drop-before::before,.media-thumb.drop-after::after{box-shadow:0 0 0 2px rgba(24,28,39,.96),0 3px 12px rgba(139,124,246,.52)}
@@ -606,7 +635,7 @@
         background-color:rgba(255,255,255,.055);
         background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23aeb7c8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
       }
-      .help-card,.export-card{background:#1b202c;color:var(--text)}
+      .help-card,.export-card,.confirm-card{background:#1b202c;color:var(--text)}
       .custom-segment-action button{background:rgba(28,33,45,.97);border-color:rgba(255,125,138,.28)}
       .custom-segment-action button.detach{border-color:rgba(139,124,246,.34)}
       .help-item{background:#202633}
@@ -843,7 +872,7 @@
       </div>
       <div class="right-actions">
         <button class="btn" id="centerBtn"><svg class="icon lucide lucide-focus" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/></svg><span class="btn-label">Középre igazít</span></button>
-        <button class="btn" id="removeBtn"><svg class="icon lucide lucide-image-off" viewBox="0 0 24 24" aria-hidden="true"><path d="m2 2 20 20"/><path d="M10.41 10.41a2 2 0 1 0 2.83 2.83"/><path d="M13.5 15 6 22"/><path d="m18 12 3 3"/><path d="M3.59 3.59A2 2 0 0 0 3 5v14a2 2 0 0 0 2 2h14c.55 0 1.05-.22 1.41-.59"/><path d="M21 15V5a2 2 0 0 0-2-2H9"/></svg><span class="btn-label">Kép eltávolítása</span></button>
+        <button class="btn" id="removeBtn"><svg class="icon lucide lucide-image-off" viewBox="0 0 24 24" aria-hidden="true"><line x1="2" x2="22" y1="2" y2="22"/><path d="M10.41 10.41a2 2 0 1 1-2.83-2.83"/><line x1="13.5" x2="6" y1="13.5" y2="21"/><line x1="18" x2="21" y1="12" y2="15"/><path d="M3.59 3.59A1.99 1.99 0 0 0 3 5v14a2 2 0 0 0 2 2h14c.55 0 1.052-.22 1.41-.59"/><path d="M21 15V5a2 2 0 0 0-2-2H9"/></svg><span class="btn-label">Kép eltávolítása</span></button>
       </div>
     </div>
 
@@ -898,6 +927,22 @@
   </div>
 </div>
 
+<div class="confirm-modal" id="clearConfirmModal" hidden>
+  <div class="confirm-card" role="dialog" aria-modal="true" aria-labelledby="clearConfirmTitle" aria-describedby="clearConfirmText">
+    <div class="confirm-head">
+      <svg class="icon confirm-icon lucide lucide-trash-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+      <div class="confirm-copy">
+        <h3 id="clearConfirmTitle">Összes kép törlése?</h3>
+        <p id="clearConfirmText">Biztosan törlöd az összes betöltött képet? Ez a művelet nem vonható vissza.</p>
+      </div>
+    </div>
+    <div class="confirm-actions">
+      <button class="btn" id="cancelClearAll" type="button"><span class="btn-label">Mégse</span></button>
+      <button class="btn danger" id="confirmClearAll" type="button"><svg class="icon lucide lucide-trash-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg><span class="btn-label">Összes kép törlése</span></button>
+    </div>
+  </div>
+</div>
+
 <div class="export-modal" id="exportModal" hidden>
   <div class="export-card" role="dialog" aria-modal="true" aria-labelledby="exportTitle">
     <div class="export-head">
@@ -936,19 +981,20 @@
       layoutHeading:"Elrendezés", aspectHeading:"Képarány",
       aspectSquare:"1:1 – négyzet", aspectPortrait:"4:5 – álló", aspectLandscape:"3:2 – fekvő", aspectWide:"16:9 – széles",
       addImages:"Képek", addImagesFull:"Képek hozzáadása", replace:"Csere", replaceFull:"Kijelölt kép cseréje",
-      dividers:"Elválasztók", dividersFull:"Elválasztók visszaállítása", delete:"Törlés", deleteFull:"Minden kép törlése",
+      dividers:"Elválasztók", dividersFull:"Elválasztók visszaállítása", delete:"Törlés", deleteFull:"Minden kép törlése · egy kép végleges törléséhez húzd ide",
       customDraw:"Rajzol\u00e1s", customDrawOn:"Rajzol\u00e1s bekapcsolva \u2013 h\u00fazz \u00faj elv\u00e1laszt\u00f3t, vagy fogj meg egy megl\u00e9v\u0151t \u00e9s mozgasd. Kattints vagy koppints egy metsz\u00e9sek k\u00f6zti szakaszra: t\u00f6r\u00f6lheted vagy lev\u00e1laszthatod. Shift: 15\u00b0-os illeszt\u00e9s.", customDrawOff:"Rajzol\u00e1s kikapcsolva \u2013 most a k\u00e9peket szerkesztheted.", customUndo:"Vissza", customReset:"\u00dajrakezd\u00e9s",
       export:"Export", exportFull:"Export / mentés", loadedImages:"Betöltött képek", stageLabel:"Kollázs szerkesztő",
       initialTip:"Tipp: az elválasztók méretét elrendezésenként külön megjegyzi.",
       selectedImage:"Kijelölt kép", zoom:"Nagyítás", center:"Középre igazít", removeImage:"Kép eltávolítása",
       collage:"Kollázs", gap:"Hézag", radius:"Sarokkerekítés", background:"Háttérszín", width:"Szélesség",
       quickHelp:"Súgó", helpIntro:"Röviden, hogyan működik.", close:"Bezárás",
-      helpMove:"<strong>Kép mozgatása:</strong> húzd a képet.",
+      helpMove:"<strong>Kép mozgatása:</strong> húzd a képet. Ha a Betöltött képek sávra húzod és ott engeded el, lekerül a kollázsról, de betöltve marad. Ha közvetlenül a Törlés gombra húzod, végleg törlődik.",
       helpSwap:"<strong>Képcsere:</strong> tartsd nyomva, majd húzd egy másik mezőre.",
-      helpLoaded:"<strong>Betöltött képek:</strong> húzd őket a kollázsra, vagy rendezd át fent.",
+      helpLoaded:"<strong>Betöltött képek:</strong> húzd őket a kollázsra, rendezd át fent, vagy húzd a Törlés gombra a végleges törléshez.",
       helpZoom:"<strong>Nagyítás:</strong> mobilon két ujjal, gépen Ctrl/⌘ + görgetéssel vagy a csúszkával.",
       helpDividers:"<strong>Elválasztók:</strong> húzd a fogantyút. Dupla kattintás vagy koppintás visszaállítja.",
       helpCustom:"<strong>Egyedi elrendezés:</strong> h\u00fazz egyenes elv\u00e1laszt\u00f3kat a v\u00e1sznon. <strong>Meglev\u0151 elv\u00e1laszt\u00f3 mozgat\u00e1sa:</strong> Rajzol\u00e1s m\u00f3dban fogd meg a vonalat \u00e9s h\u00fazd arr\u00e9bb; a d\u0151l\u00e9ssz\u00f6ge megmarad. <strong>Szakasz m\u0171veletek:</strong> ahol elv\u00e1laszt\u00f3k metszik egym\u00e1st, kattints vagy koppints a metsz\u00e9sek k\u00f6zti vonaldarabra. A Szakasz t\u00f6rl\u00e9se csak azt a r\u00e9szt t\u00f6rli, a Szakasz lev\u00e1laszt\u00e1sa pedig k\u00fcl\u00f6n elv\u00e1laszt\u00f3kk\u00e1 bontja az addig \u00f6sszetartoz\u00f3 r\u00e9szeket, \u00edgy ut\u00e1na egym\u00e1st\u00f3l f\u00fcggetlen\u00fcl mozgathat\u00f3k. <strong>Shift:</strong> \u00faj vonaln\u00e1l 15\u00b0-os l\u00e9p\u00e9sekre pattint. A Vissza gomb az utols\u00f3 egyedi m\u00f3dos\u00edt\u00e1st vonja vissza.",
+      clearConfirmTitle:"Összes kép törlése?", clearConfirmText:"Biztosan törlöd az összes betöltött képet? Ez a művelet nem vonható vissza.", clearConfirmCancel:"Mégse", clearConfirmAction:"Összes kép törlése",
       exportTitle:"Kollázs exportálása", exportChoose:"Válaszd ki a kívánt formátumot.", exportPreviewAlt:"Az exportált kollázs előnézete",
       openImage:"Kép megnyitása", dropImage:"Ide engedd a képet",
       layoutNames:{"custom-draw":"Egyedi",single:"1 kép","two-cols":"2 oszlop","two-rows":"2 sor","diagonal-2":"2 átlós","feature-3":"3 kiemelt","diagonal-3":"3 átlós","diagonal-4":"4 átlós","pinwheel-4":"4 forgó","panorama-4":"4 panoráma","grid-4":"4 rács","offset-4":"4 magazin","diagonal-5":"5 átlós","center-band-5":"5 középsáv","center-focus-5":"5 középső","mosaic-5":"5 mozaik","feature-5":"5 aszimmetrikus","masonry-6":"6 téglafal","grid-6":"6 rács","hero-6":"6 kiemelt","gallery-7":"7 galéria","circle-focus-5":"5 körfókusz"},
@@ -959,10 +1005,11 @@
       customCutAdded:n=>`Új elválasztó hozzáadva. ${n} mező van a kollázsban.`, customCutIgnored:"Ez a vonal nem hozott létre használható új mezőt.", customTooMany:n=>`Legfeljebb ${n} egyedi mező hozható létre.`, customUndoDone:"Az utolsó egyedi módosítás visszavonva.", customUndoEmpty:"Nincs több visszavonható egyedi módosítás.", customResetDone:"Az egyedi elrendezés újra egyetlen mezőből áll.", customDividerMoveStart:"Elválasztó mozgatása – húzd párhuzamosan bárhová. A megmaradó szakasz a csatlakozó elválasztónál követi a metszéspontot. Ha teljesen lehúzod a vászonról, törlődik.", customDividerMoved:"Az elválasztó új helyre került.", customDividerDeleted:"Az elválasztó törölve, mert teljesen a vásznon kívülre húztad.", customDividerDeleteHint:"Elengedéskor az elválasztó törlődik.", customDividerMoveInvalid:"Ezen a helyen nem sikerült stabilan újraszámolni az egyedi mezőket. Próbáld néhány pixellel arrébb.", customSegmentDelete:"Szakasz törlése", customSegmentDetach:"Szakasz leválasztása", customSegmentSelected:"Szakasz kijelölve – törölheted, leválaszthatod, vagy húzással továbbra is mozgathatod az egész elválasztót.", customSegmentDeleted:"A kijelölt elválasztószakasz törölve. A megmaradó rész továbbra is mozgatható.", customSegmentDeleteInvalid:"Ezt a szakaszt ezen a topológián nem sikerült biztonságosan törölni.", customSegmentDetached:"A szakasz leválasztva. Az eddig összetartozó részek most külön mozgathatók.", customSegmentDetachInvalid:"Ezt a szakaszt ezen a topológián nem sikerült biztonságosan leválasztani.",
       layoutChanged:"Az elrendezés megváltozott, a korábban feltöltött képek megmaradtak.",
       dragTray:"Húzd a képet egy kollázsmezőre, vagy rendezd át a felső képsávban.",
-      movedToSlot:n=>`A kép a(z) ${n}. kollázsmezőre került.`, trayReordered:"A betöltött képek sorrendje frissült.", moveCancelled:"A kép áthelyezése megszakítva.",
-      imageSelected:n=>`${n}. kép kijelölve.`, imageHidden:n=>`${n}. kép megmaradt, de az aktuális elrendezésben nincs látható mezője.`,
-      imageWord:"Kép", loadedImage:"betöltött kép", thumbTitle:(name,n)=>`${name || `Kép ${n}`} · húzd a kollázsba vagy rendezd át`,
-      thumbAria:(name,n)=>`${n}. kép: ${name || "betöltött kép"}. Húzható.`, swapLabel:"Húzd egy másik mezőre",
+      movedToSlot:n=>`A kép a(z) ${n}. kollázsmezőre került.`, moveCancelled:"A kép áthelyezése megszakítva.",
+      removedFromCollage:n=>`A(z) ${n}. kép lekerült a kollázsról, de a betöltött képek között megmaradt.`, trayRemoveHint:"Engedd el a Betöltött képek sávon, és a kép lekerül a kollázsról.", deleteDropHint:"Engedd el a Törlés gombon a kép végleges törléséhez.", imageDeleted:n=>`A(z) ${n}. kép törölve a betöltött képek közül.`, hiddenImageDeleted:name=>`${name || "A kép"} törölve a betöltött képek közül.`,
+      imageSelected:n=>`${n}. kép kijelölve.`, imageMoveActive:n=>`A(z) ${n}. kép mozgatása.`, imageHidden:"A kép megmaradt a betöltött képek között, de jelenleg nincs a kollázson.",
+      imageWord:"Kép", loadedImage:"betöltött kép", thumbTitle:(name,n)=>`${name || `Kép ${n}`} · húzd a kollázsba vagy rendezd át`, hiddenThumbTitle:name=>`${name || "Betöltött kép"} · húzd a kollázsba vagy rendezd át`,
+      thumbAria:(name,n)=>`${n}. kép: ${name || "betöltött kép"}. Húzható.`, hiddenThumbAria:name=>`${name || "Betöltött kép"}. Jelenleg nincs a kollázson. Húzható.`, swapLabel:"Húzd egy másik mezőre",
       swapMode:"Csere mód: húzd a képet arra a mezőre, amellyel fel szeretnéd cserélni.", pinchActive:"Kétujjas nagyítás aktív.",
       imagesSwapped:(a,b)=>`A(z) ${a}. és ${b}. kép helyet cserélt.`, swapCancelled:"A képcsere megszakítva.",
       dividerResetTitle:"Dupla kattintás: elválasztó alaphelyzetbe", diagonalAdjusted:"Átlós elválasztó módosítva.", pointAdjusted:"A ferde osztások középpontja módosítva.", circleAdjusted:"A középső kör mérete módosítva.", dividerAdjusted:"Elválasztó mérete módosítva.", dividerReset:"Az elválasztó visszaállt az alaphelyzetébe.",
@@ -982,19 +1029,20 @@
       layoutHeading:"Layout", aspectHeading:"Aspect ratio",
       aspectSquare:"1:1 – square", aspectPortrait:"4:5 – portrait", aspectLandscape:"3:2 – landscape", aspectWide:"16:9 – wide",
       addImages:"Images", addImagesFull:"Add images", replace:"Replace", replaceFull:"Replace selected image",
-      dividers:"Dividers", dividersFull:"Reset dividers", delete:"Delete", deleteFull:"Delete all images",
+      dividers:"Dividers", dividersFull:"Reset dividers", delete:"Delete", deleteFull:"Delete all images · drag one here to remove it permanently",
       customDraw:"Draw", customDrawOn:"Drawing enabled \u2013 drag a new divider, or grab an existing one and move it. Click or tap a segment between intersections to delete or detach it. Shift: 15\u00b0 snapping.", customDrawOff:"Drawing disabled \u2013 you can edit images now.", customUndo:"Undo", customReset:"Start over",
       export:"Export", exportFull:"Export / save", loadedImages:"Loaded images", stageLabel:"Collage editor",
       initialTip:"Tip: divider positions are remembered separately for each layout.",
       selectedImage:"Selected image", zoom:"Zoom", center:"Center image", removeImage:"Remove image",
       collage:"Collage", gap:"Gap", radius:"Corner radius", background:"Background color", width:"Width",
       quickHelp:"Help", helpIntro:"A quick guide to the basics.", close:"Close",
-      helpMove:"<strong>Move image:</strong> drag the image.",
+      helpMove:"<strong>Move image:</strong> drag the image. Drop it on the Loaded images strip to remove it from the collage while keeping it loaded. Drag it directly onto Delete to remove it permanently.",
       helpSwap:"<strong>Swap images:</strong> press and hold, then drag to another slot.",
-      helpLoaded:"<strong>Loaded images:</strong> drag them onto the collage or reorder them above.",
+      helpLoaded:"<strong>Loaded images:</strong> drag them onto the collage, reorder them above, or drag one onto Delete to remove it permanently.",
       helpZoom:"<strong>Zoom:</strong> use two fingers on mobile, or Ctrl/⌘ + scroll or the slider on desktop.",
       helpDividers:"<strong>Dividers:</strong> drag the handle. Double-click or double-tap to reset it.",
       helpCustom:"<strong>Custom layout:</strong> drag straight dividers across the canvas. <strong>Move an existing divider:</strong> while Draw is enabled, grab a divider and drag it; its angle stays fixed. <strong>Segment actions:</strong> where dividers intersect, click or tap the piece between intersections. Delete segment removes only that piece, while Detach segment splits the previously linked divider pieces so they can be moved independently. <strong>Shift:</strong> snaps new lines to 15\u00b0 increments. Undo restores the last custom change.",
+      clearConfirmTitle:"Delete all images?", clearConfirmText:"Are you sure you want to delete all loaded images? This action cannot be undone.", clearConfirmCancel:"Cancel", clearConfirmAction:"Delete all images",
       exportTitle:"Export collage", exportChoose:"Choose your preferred format.", exportPreviewAlt:"Preview of the exported collage",
       openImage:"Open image", dropImage:"Drop image here",
       layoutNames:{"custom-draw":"Custom",single:"1 image","two-cols":"2 columns","two-rows":"2 rows","diagonal-2":"2 diagonal","feature-3":"3 featured","diagonal-3":"3 diagonal","diagonal-4":"4 diagonal","pinwheel-4":"4 pinwheel","panorama-4":"4 panorama","grid-4":"4 grid","offset-4":"4 magazine","diagonal-5":"5 diagonal","center-band-5":"5 center strip","center-focus-5":"5 centered","mosaic-5":"5 mosaic","feature-5":"5 asymmetric","masonry-6":"6 masonry","grid-6":"6 grid","hero-6":"6 featured","gallery-7":"7 gallery","circle-focus-5":"5 circle focus"},
@@ -1005,10 +1053,11 @@
       customCutAdded:n=>`Divider added. The collage now has ${n} slots.`, customCutIgnored:"That line did not create a usable new slot.", customTooMany:n=>`A custom layout can contain up to ${n} slots.`, customUndoDone:"The last custom change was undone.", customUndoEmpty:"There are no more custom changes to undo.", customResetDone:"The custom layout is back to one slot.", customDividerMoveStart:"Moving divider – drag it parallel anywhere. A remaining trimmed segment keeps following its junction with the connected divider. Drag it fully off the canvas to delete it.", customDividerMoved:"Divider moved.", customDividerDeleted:"Divider deleted because it was dragged completely off the canvas.", customDividerDeleteHint:"Release to delete this divider.", customDividerMoveInvalid:"The custom slots could not be recalculated reliably at this exact position. Try moving the divider a few pixels.", customSegmentDelete:"Delete segment", customSegmentDetach:"Detach segment", customSegmentSelected:"Segment selected – delete it, detach it, or keep dragging to move the whole divider.", customSegmentDeleted:"The selected divider segment was deleted. The remaining part stays movable.", customSegmentDeleteInvalid:"This segment could not be safely removed from the current topology.", customSegmentDetached:"Segment detached. The divider pieces can now be moved independently.", customSegmentDetachInvalid:"This segment could not be safely detached from the current topology.",
       layoutChanged:"Layout changed. Your previously loaded images have been kept.",
       dragTray:"Drag the image onto a collage slot, or reorder it in the image strip.",
-      movedToSlot:n=>`Image moved to collage slot ${n}.`, trayReordered:"Loaded image order updated.", moveCancelled:"Image move cancelled.",
-      imageSelected:n=>`Image ${n} selected.`, imageHidden:n=>`Image ${n} is kept, but has no visible slot in the current layout.`,
-      imageWord:"Image", loadedImage:"loaded image", thumbTitle:(name,n)=>`${name || `Image ${n}`} · drag onto collage or reorder`,
-      thumbAria:(name,n)=>`Image ${n}: ${name || "loaded image"}. Draggable.`, swapLabel:"Drag onto another slot",
+      movedToSlot:n=>`Image moved to collage slot ${n}.`, moveCancelled:"Image move cancelled.",
+      removedFromCollage:n=>`Image ${n} was removed from the collage but kept in the loaded images.`, trayRemoveHint:"Release over the Loaded images strip to remove this image from the collage.", deleteDropHint:"Release over Delete to permanently remove this image.", imageDeleted:n=>`Image ${n} was removed from the loaded images.`, hiddenImageDeleted:name=>`${name || "The image"} was removed from the loaded images.`,
+      imageSelected:n=>`Image ${n} selected.`, imageMoveActive:n=>`Moving image ${n}.`, imageHidden:"The image is still loaded, but is not currently on the collage.",
+      imageWord:"Image", loadedImage:"loaded image", thumbTitle:(name,n)=>`${name || `Image ${n}`} · drag onto collage or reorder`, hiddenThumbTitle:name=>`${name || "Loaded image"} · drag onto collage or reorder`,
+      thumbAria:(name,n)=>`Image ${n}: ${name || "loaded image"}. Draggable.`, hiddenThumbAria:name=>`${name || "Loaded image"}. Not currently on the collage. Draggable.`, swapLabel:"Drag onto another slot",
       swapMode:"Swap mode: drag the image onto the slot you want to swap it with.", pinchActive:"Pinch zoom active.",
       imagesSwapped:(a,b)=>`Images ${a} and ${b} were swapped.`, swapCancelled:"Image swap cancelled.",
       dividerResetTitle:"Double-click: reset divider", diagonalAdjusted:"Diagonal divider adjusted.", pointAdjusted:"Diagonal meeting point adjusted.", circleAdjusted:"Center circle resized.", dividerAdjusted:"Divider adjusted.", dividerReset:"Divider reset to its default position.",
@@ -1469,6 +1518,11 @@
   const helpModal = document.getElementById("helpModal");
   const openHelp = document.getElementById("openHelp");
   const closeHelp = document.getElementById("closeHelp");
+  const clearConfirmModal = document.getElementById("clearConfirmModal");
+  const clearConfirmTitle = document.getElementById("clearConfirmTitle");
+  const clearConfirmText = document.getElementById("clearConfirmText");
+  const cancelClearAll = document.getElementById("cancelClearAll");
+  const confirmClearAll = document.getElementById("confirmClearAll");
   const exportModal = document.getElementById("exportModal");
   const exportPreview = document.getElementById("exportPreview");
   const exportMeta = document.getElementById("exportMeta");
@@ -1541,6 +1595,11 @@
     closeHelp.setAttribute("aria-label",tr.close);
     document.querySelector(".help-list").innerHTML = [tr.helpMove,tr.helpSwap,tr.helpLoaded,tr.helpZoom,tr.helpDividers,tr.helpCustom]
       .map((item,index)=>`<div class="help-item has-icon">${HELP_ICONS[index]}<div class="help-item-copy">${item}</div></div>`).join("");
+
+    clearConfirmTitle.textContent = tr.clearConfirmTitle;
+    clearConfirmText.textContent = tr.clearConfirmText;
+    cancelClearAll.querySelector(".btn-label").textContent = tr.clearConfirmCancel;
+    confirmClearAll.querySelector(".btn-label").textContent = tr.clearConfirmAction;
 
     document.getElementById("exportTitle").textContent = tr.exportTitle;
     exportMeta.textContent = tr.exportChoose;
@@ -2913,22 +2972,8 @@
     document.querySelector(".media-drag-ghost")?.remove();
     clearSwapGuide();
     stage.querySelectorAll(".slot").forEach(el => el.classList.remove("swap-source","swap-target"));
-  }
-
-  function reorderLoadedImages(sourceIndex,targetIndex,insertAfter){
-    const indices = loadedSlotIndices();
-    const sourcePos = indices.indexOf(sourceIndex);
-    const targetPos = indices.indexOf(targetIndex);
-    if(sourcePos<0 || targetPos<0 || sourcePos===targetPos) return sourceIndex;
-
-    const images = indices.map(i => state.slots[i]);
-    const [moved] = images.splice(sourcePos,1);
-    let insertPos = targetPos + (insertAfter ? 1 : 0);
-    if(sourcePos < insertPos) insertPos--;
-    insertPos = clamp(insertPos,0,images.length);
-    images.splice(insertPos,0,moved);
-    indices.forEach((slotIndex,pos) => { state.slots[slotIndex] = images[pos]; });
-    return indices[insertPos];
+    clearAll?.classList.remove("delete-drop-target");
+    mediaTray?.classList.remove("remove-drop-target");
   }
 
   function makeMediaThumbInteraction(btn,index,slotData){
@@ -2938,7 +2983,7 @@
     let ghost=null;
     let stageTarget=null;
     let thumbTarget=null;
-    let insertAfter=false;
+    let deleteTarget=false;
     let longPressTimer=null;
     let touchMoved=false;
     let touchScrolling=false;
@@ -3002,7 +3047,19 @@
     const detectTarget = (x,y) => {
       stageTarget=null;
       thumbTarget=null;
+      deleteTarget=false;
       mediaThumbs?.querySelectorAll(".media-thumb").forEach(el => el.classList.remove("drop-before","drop-after","drop-target"));
+      clearAll?.classList.remove("delete-drop-target");
+
+      const deleteRect=clearAll?.getBoundingClientRect();
+      if(deleteRect && x>=deleteRect.left && x<=deleteRect.right && y>=deleteRect.top && y<=deleteRect.bottom){
+        deleteTarget=true;
+        clearAll.classList.add("delete-drop-target");
+        clearSwapGuide();
+        stage.querySelectorAll(".slot").forEach(el => el.classList.remove("swap-target"));
+        status.textContent=tr.deleteDropHint;
+        return;
+      }
 
       const stageRect=stage.getBoundingClientRect();
       if(x>=stageRect.left && x<=stageRect.right && y>=stageRect.top && y<=stageRect.bottom){
@@ -3017,9 +3074,7 @@
       const under=document.elementFromPoint(x,y)?.closest?.(".media-thumb");
       if(under && mediaThumbs.contains(under) && Number(under.dataset.index)!==index){
         thumbTarget=Number(under.dataset.index);
-        const r=under.getBoundingClientRect();
-        insertAfter=x>(r.left+r.width/2);
-        under.classList.add("drop-target","swap-target",insertAfter ? "drop-after" : "drop-before");
+        under.classList.add("drop-target","swap-target");
         showSwapTarget(thumbTarget,index);
       } else {
         showSwapTarget(null,index);
@@ -3088,7 +3143,17 @@
 
       if(dragging){
         detectTarget(e.clientX,e.clientY);
-        if(stageTarget!==null && stageTarget!==index){
+        if(deleteTarget){
+          const deleted=state.slots[index];
+          if(deleted?.url) URL.revokeObjectURL(deleted.url);
+          state.slots[index]=makeSlotState();
+          while(state.slots.length>maxSlots && !state.slots[state.slots.length-1]?.img) state.slots.pop();
+          if(state.selected===index) state.selected=clamp(state.selected,0,Math.max(0,currentRects().length-1));
+          const visibleCount=currentRects().length;
+          status.textContent=index<visibleCount ? tr.imageDeleted(index+1) : tr.hiddenImageDeleted(slotData.fileName);
+          clearMediaDropIndicators();
+          renderStage();
+        } else if(stageTarget!==null && stageTarget!==index){
           const tmp=state.slots[index];
           state.slots[index]=state.slots[stageTarget];
           state.slots[stageTarget]=tmp;
@@ -3097,9 +3162,22 @@
           clearMediaDropIndicators();
           renderStage();
         } else if(thumbTarget!==null){
-          const selectedIndex=reorderLoadedImages(index,thumbTarget,insertAfter);
-          state.selected=selectedIndex;
-          status.textContent=tr.trayReordered;
+          const tmp=state.slots[index];
+          state.slots[index]=state.slots[thumbTarget];
+          state.slots[thumbTarget]=tmp;
+          const visibleCount=currentRects().length;
+          if(index<visibleCount && thumbTarget<visibleCount){
+          state.selected=thumbTarget;
+          status.textContent=tr.imagesSwapped(index+1,thumbTarget+1);
+          } else if(index>=visibleCount && thumbTarget<visibleCount){
+            state.selected=thumbTarget;
+            status.textContent=tr.movedToSlot(thumbTarget+1);
+          } else if(index<visibleCount && thumbTarget>=visibleCount){
+            state.selected=index;
+            status.textContent=tr.movedToSlot(index+1);
+          } else {
+            status.textContent=tr.imageHidden;
+          }
           clearMediaDropIndicators();
           renderStage();
         } else {
@@ -3112,7 +3190,7 @@
           selectSlot(index);
           status.textContent=tr.imageSelected(index+1);
         } else {
-          status.textContent=tr.imageHidden(index+1);
+          status.textContent=tr.imageHidden;
         }
       }
 
@@ -3164,27 +3242,51 @@
     mediaTrayCount.textContent = loaded.length ? `(${loaded.length})` : "";
     mediaThumbs.innerHTML = "";
 
+    const visibleCount=currentRects().length;
     loaded.forEach(({slot,index}) => {
+      const isVisible=index<visibleCount;
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.className = "media-thumb" + (index===state.selected ? " selected" : "");
+      btn.className = "media-thumb" + (isVisible && index===state.selected ? " selected" : "");
       btn.dataset.index = index;
-      btn.title = tr.thumbTitle(slot.fileName,index+1);
-      btn.setAttribute("aria-label", tr.thumbAria(slot.fileName,index+1));
+      btn.title = isVisible ? tr.thumbTitle(slot.fileName,index+1) : tr.hiddenThumbTitle(slot.fileName);
+      btn.setAttribute("aria-label", isVisible ? tr.thumbAria(slot.fileName,index+1) : tr.hiddenThumbAria(slot.fileName));
 
       const img = document.createElement("img");
       img.src = slot.url;
       img.alt = "";
+      btn.appendChild(img);
 
+      if(isVisible){
       const badge = document.createElement("span");
       badge.className = "media-thumb-index";
       badge.textContent = index+1;
+        btn.appendChild(badge);
+      }
 
-      btn.append(img,badge);
       makeMediaThumbInteraction(btn,index,slot);
       mediaThumbs.appendChild(btn);
     });
     requestAnimationFrame(updateMediaTrayScrollHints);
+  }
+
+  function moveImageOffCollage(index){
+    const visibleCount=currentRects().length;
+    const source=state.slots[index];
+    if(index<0 || index>=visibleCount || !source?.img) return false;
+
+    let parkedIndex=-1;
+    for(let i=maxSlots;i<state.slots.length;i++){
+      if(!state.slots[i]?.img){ parkedIndex=i; break; }
+    }
+    if(parkedIndex<0){
+      parkedIndex=Math.max(maxSlots,state.slots.length);
+      while(state.slots.length<=parkedIndex) state.slots.push(makeSlotState());
+    }
+
+    state.slots[parkedIndex]=source;
+    state.slots[index]=makeSlotState();
+    return true;
   }
 
   function syncControls(){
@@ -3636,6 +3738,42 @@
     let pinchStartDistance = 0;
     let pinchStartZoom = 1;
     let swapTarget = null;
+    let trayRemoveTarget = false;
+    let deleteDropTarget = false;
+
+    const isOverMediaTray = (x,y) => {
+      if(!mediaTray?.classList.contains("visible")) return false;
+      const r=mediaTray.getBoundingClientRect();
+      return x>=r.left && x<=r.right && y>=r.top && y<=r.bottom;
+    };
+
+    const isOverDeleteButton = (x,y) => {
+      if(!clearAll || clearAll.disabled) return false;
+      const r=clearAll.getBoundingClientRect();
+      return x>=r.left && x<=r.right && y>=r.top && y<=r.bottom;
+    };
+
+    const setTrayRemoveTarget = active => {
+      const wasActive=trayRemoveTarget;
+      trayRemoveTarget=!!active;
+      mediaTray?.classList.toggle("remove-drop-target",trayRemoveTarget);
+      if(trayRemoveTarget){
+        status.textContent=tr.trayRemoveHint;
+      } else if(wasActive){
+        status.textContent = gestureMode === "swap" ? tr.swapMode : tr.imageMoveActive(i+1);
+      }
+    };
+
+    const setDeleteDropTarget = active => {
+      const wasActive=deleteDropTarget;
+      deleteDropTarget=!!active;
+      clearAll?.classList.toggle("delete-drop-target",deleteDropTarget);
+      if(deleteDropTarget){
+        status.textContent=tr.deleteDropHint;
+      } else if(wasActive){
+        status.textContent = gestureMode === "swap" ? tr.swapMode : tr.imageMoveActive(i+1);
+      }
+    };
 
     const clearLongPress = () => {
       if(longPressTimer){
@@ -3652,6 +3790,10 @@
         el.classList.remove("swap-source","swap-target");
       });
       clearSwapGuide();
+      trayRemoveTarget=false;
+      mediaTray?.classList.remove("remove-drop-target");
+      deleteDropTarget=false;
+      clearAll?.classList.remove("delete-drop-target");
     };
 
     const beginSwap = () => {
@@ -3713,6 +3855,36 @@
       const dxFromStart = e.clientX-startX;
       const dyFromStart = e.clientY-startY;
       const moved = Math.hypot(dxFromStart,dyFromStart);
+      const overDelete = isOverDeleteButton(e.clientX,e.clientY);
+      const overTray = isOverMediaTray(e.clientX,e.clientY);
+
+      if(overDelete && (gestureMode === "swap" || gestureMode === "pan" || (gestureMode === "pending" && moved > 8))){
+        clearLongPress();
+        if(gestureMode === "pending") gestureMode = "pan";
+        setTrayRemoveTarget(false);
+        setDeleteDropTarget(true);
+        swapTarget=null;
+        lastX=e.clientX;
+        lastY=e.clientY;
+        showSwapTarget(null,i);
+        e.preventDefault();
+        return;
+      }
+      if(deleteDropTarget) setDeleteDropTarget(false);
+
+      if(overTray && (gestureMode === "swap" || gestureMode === "pan" || (gestureMode === "pending" && moved > 8))){
+        clearLongPress();
+        if(gestureMode === "pending") gestureMode = "pan";
+        setDeleteDropTarget(false);
+        setTrayRemoveTarget(true);
+        swapTarget=null;
+        lastX=e.clientX;
+        lastY=e.clientY;
+        showSwapTarget(null,i);
+        e.preventDefault();
+        return;
+      }
+      if(trayRemoveTarget) setTrayRemoveTarget(false);
 
       if(gestureMode === "swap"){
         const target = findSlotAtPoint(e.clientX,e.clientY);
@@ -3740,12 +3912,42 @@
       }
     });
 
-    const endPointer = e => {
+    const endPointer = (e,cancelled=false) => {
       if(!pointers.has(e.pointerId)) return;
       pointers.delete(e.pointerId);
       clearLongPress();
 
+      if(!cancelled && isOverDeleteButton(e.clientX,e.clientY) && (gestureMode === "swap" || gestureMode === "pan")){
+        const deleted=state.slots[i];
+        if(deleted?.url) URL.revokeObjectURL(deleted.url);
+        state.slots[i]=makeSlotState();
+        clearSwapClasses();
+        state.suppressClickUntil = Date.now()+800;
+        renderStage();
+        status.textContent = tr.imageDeleted(i+1);
+        return;
+      }
+
+      if(!cancelled && isOverMediaTray(e.clientX,e.clientY) && (gestureMode === "swap" || gestureMode === "pan")){
+        clearSwapClasses();
+        if(moveImageOffCollage(i)){
+          state.suppressClickUntil = Date.now()+800;
+          renderStage();
+          status.textContent = tr.removedFromCollage(i+1);
+          return;
+        }
+      }
+      setDeleteDropTarget(false);
+      setTrayRemoveTarget(false);
+
       if(gestureMode === "swap"){
+        if(cancelled){
+          clearSwapClasses();
+          status.textContent = tr.swapCancelled;
+          gestureMode = pointers.size ? "pending" : null;
+          pinchStartDistance = 0;
+          return;
+        }
         const target = findSlotAtPoint(e.clientX,e.clientY);
         if(target !== null && target !== i){
           const tmp = state.slots[i];
@@ -3775,8 +3977,12 @@
       }
     };
 
-    slot.addEventListener("pointerup",endPointer);
-    slot.addEventListener("pointercancel",endPointer);
+    slot.addEventListener("pointerup",e => endPointer(e,false));
+    slot.addEventListener("pointercancel",e => {
+      setDeleteDropTarget(false);
+      setTrayRemoveTarget(false);
+      endPointer(e,true);
+    });
 
     slot.addEventListener("wheel",e => {
       const s = state.slots[i];
@@ -4650,18 +4856,38 @@
   });
 
   removeBtn.addEventListener("click",() => {
-    const s = state.slots[state.selected];
-    if(s?.url) URL.revokeObjectURL(s.url);
-    state.slots[state.selected] = makeSlotState();
+    const removedIndex=state.selected;
+    if(!moveImageOffCollage(removedIndex)) return;
     renderStage();
+    status.textContent=tr.removedFromCollage(removedIndex+1);
   });
 
-  clearAll.addEventListener("click",() => {
+  function closeClearConfirm(){
+    clearConfirmModal.hidden = true;
+  }
+
+  function openClearConfirm(){
+    if(Date.now() < state.suppressClickUntil) return;
+    if(!state.slots.some(s => s?.url)) return;
+    clearConfirmModal.hidden = false;
+    requestAnimationFrame(() => cancelClearAll.focus());
+  }
+
+  function deleteAllImages(){
     state.slots.forEach(s => s.url && URL.revokeObjectURL(s.url));
     state.slots = Array.from({length:maxSlots},makeSlotState);
     state.selected = 0;
+    closeClearConfirm();
     renderStage();
     status.textContent = tr.allCleared;
+    clearAll.focus();
+  }
+
+  clearAll.addEventListener("click",openClearConfirm);
+  cancelClearAll.addEventListener("click",() => { closeClearConfirm(); clearAll.focus(); });
+  confirmClearAll.addEventListener("click",deleteAllImages);
+  clearConfirmModal.addEventListener("click",e => {
+    if(e.target === clearConfirmModal){ closeClearConfirm(); clearAll.focus(); }
   });
 
   customDrawToggle.addEventListener("click",() => {
@@ -4752,11 +4978,10 @@
   document.addEventListener("keydown",e => {
     if((e.key==="Delete" || e.key==="Backspace") &&
        !["INPUT","SELECT","TEXTAREA"].includes(document.activeElement.tagName)){
-      const s = state.slots[state.selected];
-      if(s?.img){
-        if(s.url) URL.revokeObjectURL(s.url);
-        state.slots[state.selected] = makeSlotState();
+      const removedIndex=state.selected;
+      if(moveImageOffCollage(removedIndex)){
         renderStage();
+        status.textContent=tr.removedFromCollage(removedIndex+1);
       }
     }
   });
@@ -4963,6 +5188,7 @@
   exportModal.addEventListener("click",e => { if(e.target === exportModal) closeExportModal(); });
   document.addEventListener("keydown",e => {
     if(e.key !== "Escape") return;
+    if(!clearConfirmModal.hidden){ closeClearConfirm(); clearAll.focus(); return; }
     if(!helpModal.hidden) closeHelpModal();
     if(!exportModal.hidden) closeExportModal();
   });
