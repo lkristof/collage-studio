@@ -867,7 +867,6 @@
     <div class="topbar">
       <button class="btn" id="addFiles" title="Képek hozzáadása" aria-label="Képek hozzáadása"><svg class="icon lucide lucide-image-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5h6"/><path d="M19 2v6"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7.5"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/><circle cx="9" cy="9" r="2"/></svg><span class="btn-label">Képek</span></button>
       <input class="file-input" id="fileInput" type="file" accept="image/*" multiple>
-      <button class="btn" id="replaceBtn" title="Kijelölt kép cseréje" aria-label="Kijelölt kép cseréje"><svg class="icon lucide lucide-refresh-cw" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 0 0-15-6.7L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 15 6.7l3-2.7"/><path d="M21 21v-5h-5"/></svg><span class="btn-label">Csere</span></button>
       <button class="btn" id="resetDividers" title="Elválasztók visszaállítása" aria-label="Elválasztók visszaállítása"><svg class="icon lucide lucide-rotate-ccw" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span class="btn-label">Elválasztók</span></button>
       <button class="btn" id="customDrawToggle" type="button" hidden><svg class="icon lucide lucide-pencil-line" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span class="btn-label">Rajzolás</span></button>
       <button class="btn" id="customUndo" type="button" hidden><svg class="icon lucide lucide-undo-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg><span class="btn-label">Vissza</span></button>
@@ -1009,7 +1008,7 @@
       helpOpen:"Használati súgó megnyitása", helpTitleAttr:"Használati súgó",
       layoutHeading:"Elrendezés", aspectHeading:"Képarány",
       aspectSquare:"1:1 – négyzet", aspectPortrait:"4:5 – álló", aspectLandscape:"3:2 – fekvő", aspectWide:"16:9 – széles",
-      addImages:"Képek", addImagesFull:"Képek hozzáadása", replace:"Csere", replaceFull:"Kijelölt kép cseréje",
+      addImages:"Képek", addImagesFull:"Képek hozzáadása",
       dividers:"Elválasztók", dividersFull:"Elválasztók visszaállítása", delete:"Törlés", deleteFull:"Minden kép törlése · egy kép végleges törléséhez húzd ide",
       customDraw:"Rajzol\u00e1s", customDrawOn:"Rajzol\u00e1s bekapcsolva \u2013 h\u00fazz \u00faj elv\u00e1laszt\u00f3t, vagy fogj meg egy megl\u00e9v\u0151t \u00e9s mozgasd. Kattints vagy koppints egy metsz\u00e9sek k\u00f6zti szakaszra: t\u00f6r\u00f6lheted vagy lev\u00e1laszthatod. Shift: 15\u00b0-os illeszt\u00e9s.", customDrawOff:"Rajzol\u00e1s kikapcsolva \u2013 most a k\u00e9peket szerkesztheted.", customUndo:"Vissza", customReset:"\u00dajrakezd\u00e9s",
       export:"Export", exportFull:"Export / mentés", loadedImages:"Betöltött képek", trayEmptyAdd:"Húzz ide képeket, vagy kattints a hozzáadáshoz.", trayAddTitle:"Képek hozzáadása a Betöltött képek sávhoz", trayFileDropHint:"Engedd el itt a képeket a hozzáadáshoz.", imagesAdded:n=>`${n} kép hozzáadva a Betöltött képekhez.`, stageLabel:"Kollázs szerkesztő",
@@ -1057,7 +1056,7 @@
       helpOpen:"Open quick guide", helpTitleAttr:"Help",
       layoutHeading:"Layout", aspectHeading:"Aspect ratio",
       aspectSquare:"1:1 – square", aspectPortrait:"4:5 – portrait", aspectLandscape:"3:2 – landscape", aspectWide:"16:9 – wide",
-      addImages:"Images", addImagesFull:"Add images", replace:"Replace", replaceFull:"Replace selected image",
+      addImages:"Images", addImagesFull:"Add images",
       dividers:"Dividers", dividersFull:"Reset dividers", delete:"Delete", deleteFull:"Delete all images · drag one here to remove it permanently",
       customDraw:"Draw", customDrawOn:"Drawing enabled \u2013 drag a new divider, or grab an existing one and move it. Click or tap a segment between intersections to delete or detach it. Shift: 15\u00b0 snapping.", customDrawOff:"Drawing disabled \u2013 you can edit images now.", customUndo:"Undo", customReset:"Start over",
       export:"Export", exportFull:"Export / save", loadedImages:"Loaded images", trayEmptyAdd:"Drop images here, or click to add them.", trayAddTitle:"Add images to the Loaded images strip", trayFileDropHint:"Release here to add the images.", imagesAdded:n=>`${n} image${n===1?"":"s"} added to Loaded images.`, stageLabel:"Collage editor",
@@ -1512,7 +1511,6 @@
     bg:colorSchemeQuery.matches ? "#000000" : "#ffffff",
     bgManuallySet:false,
     aspect:1,
-    replaceMode:false,
     customDrawActive:false,
     suppressClickUntil:0
   };
@@ -1522,7 +1520,6 @@
   const layoutBox = document.getElementById("layouts");
   const fileInput = document.getElementById("fileInput");
   const addFiles = document.getElementById("addFiles");
-  const replaceBtn = document.getElementById("replaceBtn");
   const exportBtn = document.getElementById("exportBtn");
   const clearAll = document.getElementById("clearAll");
   const resetDividers = document.getElementById("resetDividers");
@@ -1585,7 +1582,6 @@
       el.setAttribute("aria-label",title);
     };
     setButton(addFiles,tr.addImages,tr.addImagesFull);
-    setButton(replaceBtn,tr.replace,tr.replaceFull);
     setButton(resetDividers,tr.dividers,tr.dividersFull);
     setButton(customDrawToggle,tr.customDraw,tr.customDrawOn);
     setButton(customUndo,tr.customUndo);
@@ -4264,7 +4260,7 @@
         if(Date.now() < state.suppressClickUntil) return;
         selectSlot(i);
         if(!state.slots[i].img && e.detail === 1){
-          openImagePicker({replace:true});
+          openImagePicker({target:"slot",slotIndex:i});
         }
       });
 
@@ -4804,10 +4800,11 @@
   }
 
   let imagePickerTarget="collage";
-  function openImagePicker({replace=false,target="collage"}={}){
-    state.replaceMode = replace;
-    imagePickerTarget = replace ? "collage" : target;
-    fileInput.multiple = !replace;
+  let imagePickerSlotIndex=null;
+  function openImagePicker({target="collage",slotIndex=null}={}){
+    imagePickerTarget = target;
+    imagePickerSlotIndex = Number.isInteger(slotIndex) ? slotIndex : null;
+    fileInput.multiple = target !== "slot";
     fileInput.value = "";
     fileInput.click();
   }
@@ -4872,19 +4869,15 @@
   },true);
 
   addFiles.addEventListener("click",() => {
-    openImagePicker({replace:false});
-  });
-
-  replaceBtn.addEventListener("click",() => {
-    openImagePicker({replace:true});
+    openImagePicker();
   });
 
   fileInput.addEventListener("change",async() => {
     const files = [...fileInput.files];
     if(!files.length) return;
 
-    if(state.replaceMode){
-      await loadFilesIntoSlots([files[0]],state.selected,true);
+    if(imagePickerTarget==="slot" && imagePickerSlotIndex!==null){
+      await loadFilesIntoSlots([files[0]],imagePickerSlotIndex,true);
     } else if(imagePickerTarget==="tray"){
       const added=await loadFilesIntoTray(files);
       if(added) status.textContent=tr.imagesAdded(added);
@@ -4900,7 +4893,7 @@
   mediaTray?.addEventListener("click",e => {
     if(Date.now()<state.suppressClickUntil) return;
     if(e.target.closest?.(".media-thumb")) return;
-    openImagePicker({replace:false,target:"tray"});
+    openImagePicker({target:"tray"});
   });
 
   let trayFileDragDepth=0;
