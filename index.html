@@ -8,8 +8,7 @@
   <meta name="description" content="Rendezd a képeidet egyedi kollázsokba, szabd személyre az elrendezést, majd exportáld a kész kompozíciót." />
   <link rel="canonical" href="https://lkristof.github.io/collage-studio/" />
 
-  <meta name="theme-color" content="#eef2ff" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#11131b" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" id="themeColorMeta" content="#eef2ff" />
 
   <link rel="manifest" href="/collage-studio/site.webmanifest" />
   <meta name="apple-mobile-web-app-title" content="Collage Studio" />
@@ -51,9 +50,17 @@
       --accent:#6757e8;
       --accent-2:#8b5cf6;
       --accent-soft:#ede9fe;
+      --accent-hover:color-mix(in srgb,var(--accent) 92%,var(--text) 8%);
+      --accent-active:color-mix(in srgb,var(--accent) 82%,var(--text) 18%);
+      --accent-ink:color-mix(in srgb,var(--accent) 82%,var(--text));
       --danger:#c23b4a;
+      --white:#ffffff;
+      --black:#000000;
       --radius:22px;
       --shadow:0 18px 55px rgba(35,45,75,.10);
+      --toggle-off:#c8d0dc;
+      --ring:color-mix(in srgb,var(--accent) 22%,transparent);
+      --control-hover-border:color-mix(in srgb,var(--accent) 48%,var(--line));
     }
     *{box-sizing:border-box}
     html{background:var(--bg2)}
@@ -62,7 +69,7 @@
       min-height:100vh;
       font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       background:
-        radial-gradient(circle at 15% 0%,rgba(139,92,246,.15),transparent 32rem),
+        radial-gradient(circle at 15% 0%,color-mix(in srgb,var(--accent-2) 15%,transparent),transparent 32rem),
         radial-gradient(circle at 100% 18%,rgba(59,130,246,.10),transparent 28rem),
         linear-gradient(145deg,var(--bg),var(--bg2) 48%,#f7f8fc);
       color:var(--text);
@@ -110,7 +117,7 @@
       flex:0 0 42px;
       width:42px;height:42px;
       display:block;
-      filter:drop-shadow(0 10px 12px rgba(103,87,232,.24));
+      filter:drop-shadow(0 10px 12px color-mix(in srgb,var(--accent) 24%,transparent));
       transform-origin:center;
       will-change:transform;
       -webkit-tap-highlight-color:transparent;
@@ -140,7 +147,7 @@
       border-radius:11px;background:rgba(255,255,255,.72);color:#687187;display:grid;place-items:center;
       font-size:15px;font-weight:850;line-height:1;transition:transform .14s ease,border-color .14s ease,color .14s ease,box-shadow .14s ease;
     }
-    .brand-help:hover{color:var(--accent);border-color:rgba(103,87,232,.42);box-shadow:0 8px 18px rgba(35,45,75,.08)}
+    .brand-help:hover{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 42%,transparent);box-shadow:0 8px 18px rgba(35,45,75,.08)}
     .eyebrow{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);font-weight:800;margin-bottom:2px}
     h1{font-size:20px;line-height:1.15;margin:0;letter-spacing:-.02em}
     h2{
@@ -171,8 +178,8 @@
       transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease,background .16s ease;
       color:var(--text);
     }
-    .layout-btn:hover{border-color:rgba(103,87,232,.5);box-shadow:0 10px 22px rgba(75,73,120,.10)}
-    .layout-btn.active{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(103,87,232,.12),0 12px 24px rgba(75,73,120,.10)}
+    .layout-btn:hover{border-color:color-mix(in srgb,var(--accent) 50%,transparent);box-shadow:0 10px 22px color-mix(in srgb,var(--accent) 10%,transparent)}
+    .layout-btn.active{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 12%,transparent),0 12px 24px color-mix(in srgb,var(--accent) 10%,transparent)}
     .mini{
       position:relative;
       width:100%;
@@ -231,14 +238,41 @@
       .topbar .icon{width:14px;height:14px;flex-basis:14px}
     }
     .export-close .icon{width:17px;height:17px;flex-basis:17px}
-    .btn:hover:not(:disabled){border-color:rgba(103,87,232,.42);box-shadow:0 8px 18px rgba(35,45,75,.08)}
-    .btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;border-color:transparent;box-shadow:0 9px 20px rgba(103,87,232,.23)}
-    .btn.toggle-active{background:var(--accent-soft);color:var(--accent);border-color:rgba(103,87,232,.42);box-shadow:0 0 0 2px rgba(103,87,232,.10)}
-    .btn.danger{color:var(--danger)}
-    .btn.danger.delete-drop-target{
-      border-color:var(--danger);
-      background:rgba(194,59,74,.10);
-      box-shadow:0 0 0 3px rgba(194,59,74,.14),0 10px 24px rgba(194,59,74,.18);
+    .btn:hover:not(:disabled){border-color:var(--control-hover-border);box-shadow:0 8px 18px rgba(35,45,75,.08)}
+    .btn.primary{
+      color:var(--white);
+      border-color:color-mix(in srgb,var(--accent) 88%,var(--black));
+      background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 88%,var(--white)) 0%,color-mix(in srgb,var(--accent) 90%,var(--black)) 100%);
+      box-shadow:0 6px 16px color-mix(in srgb,var(--accent) 22%,transparent);
+    }
+    .btn.primary:hover:not(:disabled){
+      color:var(--white);
+      border-color:color-mix(in srgb,var(--accent) 82%,var(--black));
+      background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 82%,var(--white)) 0%,color-mix(in srgb,var(--accent) 86%,var(--black)) 100%);
+      box-shadow:0 8px 20px color-mix(in srgb,var(--accent) 28%,transparent);
+    }
+    .btn.primary:active:not(:disabled){
+      background:linear-gradient(135deg,var(--accent-active),color-mix(in srgb,var(--accent-active) 88%,var(--black)) 100%);
+    }
+    .btn.toggle-active{background:var(--accent-soft);color:var(--accent);border-color:color-mix(in srgb,var(--accent) 42%,transparent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 10%,transparent)}
+    .btn.danger{
+      box-shadow:none;
+      border-color:rgba(217,45,32,.15);
+      background:rgba(255,246,246,.86);
+      color:#c92a20;
+    }
+    .btn.danger:hover:not(:disabled){
+      border-color:#dc9f9f;
+      background:#fff0f0;
+      color:#a91f1f;
+      box-shadow:none;
+    }
+    .btn.danger.delete-drop-target,
+    .btn.danger.delete-drop-target:hover:not(:disabled){
+      border-color:#d92d20;
+      background:rgba(217,45,32,.12);
+      color:#b42318;
+      box-shadow:0 0 0 3px rgba(217,45,32,.14),0 10px 24px rgba(217,45,32,.18);
       transform:scale(1.035);
     }
     .spacer{flex:1}
@@ -265,9 +299,9 @@
     .media-tray.remove-drop-target,
     .media-tray.file-drop-target{
       border-style:solid;
-      border-color:rgba(103,87,232,.62);
-      background:rgba(103,87,232,.10);
-      box-shadow:0 0 0 3px rgba(103,87,232,.12),0 12px 30px rgba(75,61,190,.16);
+      border-color:color-mix(in srgb,var(--accent) 62%,transparent);
+      background:color-mix(in srgb,var(--accent) 10%,transparent);
+      box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 12%,transparent),0 12px 30px color-mix(in srgb,var(--accent) 16%,transparent);
     }
     .media-tray-head{
       flex:0 0 auto;
@@ -343,22 +377,22 @@
     }
     .media-thumb:active{cursor:grabbing}
     .media-thumb:hover{
-      border-color:rgba(103,87,232,.5);
-      box-shadow:0 7px 16px rgba(55,52,110,.13);
+      border-color:color-mix(in srgb,var(--accent) 50%,transparent);
+      box-shadow:0 7px 16px color-mix(in srgb,var(--accent) 13%,transparent);
     }
     .media-thumb.selected{
-      border-color:rgba(103,87,232,.82);
-      box-shadow:0 0 0 2px rgba(103,87,232,.14),0 7px 16px rgba(55,52,110,.12);
+      border-color:color-mix(in srgb,var(--accent) 82%,transparent);
+      box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 14%,transparent),0 7px 16px color-mix(in srgb,var(--accent) 12%,transparent);
     }
     .media-thumb.swap-source{
-      border-color:rgba(103,87,232,.92);
-      box-shadow:0 0 0 3px rgba(103,87,232,.18),0 7px 16px rgba(55,52,110,.12);
+      border-color:color-mix(in srgb,var(--accent) 92%,transparent);
+      box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent),0 7px 16px color-mix(in srgb,var(--accent) 12%,transparent);
     }
     .media-thumb.dragging{opacity:.34;transform:scale(.94)}
     .media-thumb.drop-target,.media-thumb.swap-target{
       transform:scale(1.07);
       border-color:var(--accent);
-      box-shadow:0 0 0 3px rgba(103,87,232,.22),0 10px 24px rgba(55,52,110,.22);
+      box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent),0 10px 24px color-mix(in srgb,var(--accent) 22%,transparent);
       z-index:3;
     }
     .media-thumb.drop-target .media-thumb-index,.media-thumb.swap-target .media-thumb-index{
@@ -367,7 +401,7 @@
       transform:scale(1.08);
     }
     .media-thumb.drop-before::before,.media-thumb.drop-after::after{
-      content:"";position:absolute;top:2px;bottom:2px;width:4px;border-radius:999px;background:var(--accent);z-index:6;box-shadow:0 0 0 2px rgba(255,255,255,.96),0 3px 12px rgba(103,87,232,.45)
+      content:"";position:absolute;top:2px;bottom:2px;width:4px;border-radius:999px;background:var(--accent);z-index:6;box-shadow:0 0 0 2px rgba(255,255,255,.96),0 3px 12px color-mix(in srgb,var(--accent) 45%,transparent)
     }
     .media-thumb.drop-before::before{left:-5px}
     .media-thumb.drop-after::after{right:-5px}
@@ -413,7 +447,7 @@
       position:absolute;
       overflow:hidden;
       background:#e7eaf0;
-      outline:0 solid rgba(103,87,232,.95);
+      outline:0 solid color-mix(in srgb,var(--accent) 95%,transparent);
       transition:outline-width .08s ease,filter .12s ease;
       touch-action:none;
     }
@@ -425,11 +459,11 @@
     .selection-guide,.swap-guide{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
     .selection-guide{z-index:24}
     .selection-guide .selection-halo{fill:none;stroke:rgba(255,255,255,.78);stroke-width:4;stroke-linejoin:round;vector-effect:non-scaling-stroke}
-    .selection-guide .selection-line{fill:none;stroke:rgba(103,87,232,.58);stroke-width:1.7;stroke-linejoin:round;vector-effect:non-scaling-stroke;filter:drop-shadow(0 1px 2px rgba(52,45,135,.18))}
+    .selection-guide .selection-line{fill:none;stroke:color-mix(in srgb,var(--accent) 58%,transparent);stroke-width:1.7;stroke-linejoin:round;vector-effect:non-scaling-stroke;filter:drop-shadow(0 1px 2px color-mix(in srgb,var(--accent) 18%,transparent))}
     .swap-guide{z-index:28}
     .swap-guide polygon,.swap-guide path{stroke-width:3;stroke-dasharray:8 6;stroke-linejoin:round;vector-effect:non-scaling-stroke}
     .swap-guide polygon.source,.swap-guide path.source,
-    .swap-guide polygon.target,.swap-guide path.target{fill:rgba(103,87,232,.10);stroke:rgba(103,87,232,.98);filter:drop-shadow(0 3px 8px rgba(75,61,190,.24))}
+    .swap-guide polygon.target,.swap-guide path.target{fill:color-mix(in srgb,var(--accent) 10%,transparent);stroke:color-mix(in srgb,var(--accent) 98%,transparent);filter:drop-shadow(0 3px 8px color-mix(in srgb,var(--accent) 24%,transparent))}
     .swap-label{position:absolute;z-index:29;pointer-events:none;box-sizing:border-box;padding:7px 10px;border-radius:12px;background:rgba(25,31,48,.86);color:#fff;font-size:11px;font-weight:800;line-height:1.22;text-align:center;box-shadow:0 5px 18px rgba(0,0,0,.22);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transform:translate(-50%,-50%);white-space:normal;overflow-wrap:normal;word-break:normal}
     .swap-label.compact{padding:5px 7px;border-radius:10px;font-size:10px;line-height:1.18}
     .drop-guide{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:28}
@@ -442,7 +476,7 @@
     #stage.custom-draw-active.custom-divider-hover,#stage.custom-draw-active.custom-divider-hover .slot{cursor:grab}
     #stage.custom-divider-moving,#stage.custom-divider-moving .slot{cursor:grabbing!important}
     .custom-draw-guide{position:absolute;inset:0;width:100%;height:100%;z-index:80;pointer-events:none;overflow:visible}
-    .custom-draw-guide line{stroke:var(--accent);stroke-width:3;stroke-dasharray:9 7;vector-effect:non-scaling-stroke;filter:drop-shadow(0 2px 4px rgba(55,45,145,.24))}
+    .custom-draw-guide line{stroke:var(--accent);stroke-width:3;stroke-dasharray:9 7;vector-effect:non-scaling-stroke;filter:drop-shadow(0 2px 4px color-mix(in srgb,var(--accent) 24%,transparent))}
     .custom-draw-guide.divider-hover line{stroke-width:2.2;stroke-dasharray:6 5;opacity:.78}
     .custom-draw-guide.divider-move line{stroke-width:4;stroke-dasharray:12 6}
     .custom-draw-guide.segment-selected line{stroke:var(--danger);stroke-width:4;stroke-dasharray:none;opacity:.95}
@@ -450,8 +484,8 @@
     .custom-segment-action.below{transform:translate(-50%,10px)}
     .custom-segment-action button{border:1px solid rgba(194,59,74,.24);background:rgba(255,255,255,.96);color:var(--danger);border-radius:999px;padding:8px 11px;font:inherit;font-size:11px;font-weight:850;line-height:1;white-space:nowrap;box-shadow:0 8px 24px rgba(25,31,48,.18);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
     .custom-segment-action button:hover{border-color:rgba(194,59,74,.46);box-shadow:0 10px 28px rgba(25,31,48,.22)}
-    .custom-segment-action button.detach{color:var(--accent);border-color:rgba(103,87,232,.28)}
-    .custom-segment-action button.detach:hover{border-color:rgba(103,87,232,.52);box-shadow:0 10px 28px rgba(75,61,190,.18)}
+    .custom-segment-action button.detach{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 28%,transparent)}
+    .custom-segment-action button.detach:hover{border-color:color-mix(in srgb,var(--accent) 52%,transparent);box-shadow:0 10px 28px color-mix(in srgb,var(--accent) 18%,transparent)}
     .custom-gap-overlay{position:absolute;inset:0;width:100%;height:100%;z-index:12;pointer-events:none;overflow:visible;color:#fff}
     .custom-gap-overlay line{stroke:currentColor;stroke-linecap:butt;stroke-linejoin:round;shape-rendering:geometricPrecision}
     .custom-gap-overlay circle{fill:currentColor;shape-rendering:geometricPrecision}
@@ -470,7 +504,7 @@
     .slot.empty{cursor:pointer}
     .slot.empty .placeholder{transition:filter .16s ease,background-color .16s ease}
     .slot.empty:hover .placeholder{filter:brightness(.985)}
-    .slot.empty:hover .placeholder>span{transform:translate(-50%,-50%) scale(1.035);background:#fff;color:var(--accent);box-shadow:0 10px 24px rgba(103,87,232,.18),0 0 0 1px rgba(103,87,232,.16)}
+    .slot.empty:hover .placeholder>span{transform:translate(-50%,-50%) scale(1.035);background:#fff;color:var(--accent);box-shadow:0 10px 24px color-mix(in srgb,var(--accent) 18%,transparent),0 0 0 1px color-mix(in srgb,var(--accent) 16%,transparent)}
     .slot.empty:active .placeholder>span{transform:translate(-50%,-50%) scale(.99)}
 
     .splitter{position:absolute;z-index:30;touch-action:none;background:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
@@ -584,22 +618,58 @@
     .confirm-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;flex-wrap:wrap}
     .confirm-actions .btn{min-width:112px}
 
+    .visually-hidden{
+      position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important
+    }
     .export-modal{
       position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:18px;background:rgba(19,25,40,.62);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)
     }
     .export-modal[hidden]{display:none}
-    .export-card{width:min(680px,100%);max-height:92vh;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:0 30px 90px rgba(0,0,0,.30)}
-    .export-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
-    .export-head h3{margin:0 0 3px;font-size:17px}
-    .export-head p{margin:0;color:var(--muted);font-size:12px}
-    .export-close{margin-left:auto;border:0;background:#f1f3f7;width:34px;height:34px;border-radius:10px;color:#596274;display:grid;place-items:center;cursor:pointer}
-    .export-preview-wrap{display:grid;place-items:center;background:#edf0f5;border-radius:16px;padding:10px;min-height:180px;overflow:hidden}
-    .export-preview-wrap img{display:block;max-width:100%;max-height:58vh;object-fit:contain;box-shadow:0 10px 30px rgba(35,45,75,.14)}
-    .export-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-    .export-actions .btn{flex:1 1 140px;text-align:center}
+    .export-card{
+      width:min(760px,100%);max-height:92vh;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:24px;padding:0;box-shadow:0 30px 90px rgba(0,0,0,.30)
+    }
+    .export-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:14px;padding:18px 18px 14px;border-bottom:1px solid var(--line)}
+    .export-head h3{margin:0 0 4px;font-size:18px;line-height:1.25}
+    .export-head p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}
+    .export-close{margin-left:auto;border:0;background:transparent;width:36px;height:36px;border-radius:10px;color:var(--muted);display:grid;place-items:center;cursor:pointer;transition:background .16s ease,color .16s ease}
+    .export-close:hover{background:color-mix(in srgb,var(--text) 8%,transparent);color:var(--text)}
+    .export-close:focus-visible{outline:3px solid var(--ring);outline-offset:1px}
+    .export-body{display:grid;gap:14px;padding:16px 18px 18px}
+    .export-preview-shell{display:grid;gap:8px;min-width:0}
+    .export-preview-wrap{display:grid;place-items:center;background:#edf0f5;border:1px solid color-mix(in srgb,var(--line) 72%,transparent);border-radius:16px;padding:10px;min-height:190px;overflow:hidden}
+    .export-preview-wrap img{display:block;max-width:100%;max-height:48vh;object-fit:contain;box-shadow:0 10px 30px rgba(35,45,75,.14)}
+    .export-preview-meta{display:flex;align-items:center;justify-content:center;min-height:28px;padding:5px 10px;border-radius:10px;background:color-mix(in srgb,var(--accent) 6%,transparent);color:var(--muted);font-size:11.5px;font-weight:700;line-height:1.35;text-align:center;font-variant-numeric:tabular-nums}
+    .export-controls{display:grid;gap:12px;min-width:0}
+    .export-format-fieldset{min-width:0;margin:0;padding:0;border:0}
+    .export-section-label{display:block;margin:0 0 8px;color:var(--text);font-size:12px;font-weight:850;line-height:1.2}
+    .export-format-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+    .export-format-option{min-width:0;cursor:pointer}
+    .export-format-card{display:grid;gap:4px;min-height:68px;padding:11px 12px;border:1px solid var(--line);border-radius:13px;background:color-mix(in srgb,var(--panel-solid) 88%,var(--bg));box-shadow:0 1px 2px rgba(16,24,40,.025);transition:border-color .16s ease,background .16s ease,box-shadow .16s ease}
+    .export-format-option:hover .export-format-card{border-color:var(--control-hover-border);background:color-mix(in srgb,var(--accent) 4%,var(--panel-solid))}
+    .export-format-radio:focus-visible + .export-format-card{outline:3px solid var(--ring);outline-offset:2px}
+    .export-format-radio:checked + .export-format-card{border-color:color-mix(in srgb,var(--accent) 72%,var(--line));background:color-mix(in srgb,var(--accent) 9%,var(--panel-solid));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 18%,transparent)}
+    .export-format-option.is-disabled{cursor:not-allowed}
+    .export-format-option.is-disabled .export-format-card{opacity:.48;filter:saturate(.6);box-shadow:none}
+    .export-format-option.is-disabled:hover .export-format-card{border-color:var(--line);background:color-mix(in srgb,var(--panel-solid) 88%,var(--bg))}
+    .export-format-name{color:var(--text);font-size:14px;font-weight:900;line-height:1.1;letter-spacing:.025em}
+    .export-format-help{color:var(--muted);font-size:10.5px;font-weight:650;line-height:1.3}
+    .export-quality-section{display:grid;gap:9px;padding:12px 13px;border:1px solid var(--line);border-radius:14px;background:color-mix(in srgb,var(--bg) 48%,var(--panel-solid));transition:opacity .16s ease,filter .16s ease}
+    .export-quality-section.is-disabled{opacity:.50;filter:saturate(.7)}
+    .export-quality-heading{display:flex;align-items:start;justify-content:space-between;gap:14px}
+    .export-quality-heading .export-section-label{margin-bottom:3px}
+    .export-quality-help{margin:0;color:var(--muted);font-size:10.5px;line-height:1.35}
+    .export-quality-value{min-width:56px;padding:6px 8px;border:1px solid color-mix(in srgb,var(--accent) 18%,var(--line));border-radius:999px;background:color-mix(in srgb,var(--accent) 8%,var(--panel-solid));color:var(--accent-ink);font-size:11.5px;font-weight:850;line-height:1;text-align:center;font-variant-numeric:tabular-nums}
+    #exportQualityRange{width:100%;min-width:0;accent-color:var(--accent)}
+    .export-quality-scale{display:flex;justify-content:space-between;gap:10px;margin-top:-4px;color:var(--muted);font-size:9.5px;font-weight:650}
+    .export-quality-presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+    .export-quality-preset{min-width:0;min-height:34px;padding:6px 7px;border:1px solid var(--line);border-radius:9px;background:var(--panel-solid);color:var(--muted);font:inherit;font-size:10.5px;font-weight:750;cursor:pointer;transition:border-color .16s ease,background .16s ease,color .16s ease}
+    .export-quality-preset:hover:not(:disabled){border-color:var(--control-hover-border);color:var(--text)}
+    .export-quality-preset[aria-pressed="true"]{border-color:color-mix(in srgb,var(--accent) 58%,var(--line));background:color-mix(in srgb,var(--accent) 9%,var(--panel-solid));color:var(--accent-ink)}
+    .export-quality-preset:focus-visible{outline:3px solid var(--ring);outline-offset:1px}
+    .export-actions{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:9px;padding:14px 18px;border-top:1px solid var(--line);background:color-mix(in srgb,var(--bg) 58%,var(--panel))}
+    .export-actions .btn{width:100%;min-height:44px;text-align:center}
 
-    @media(prefers-color-scheme:dark){
-      :root{
+    :root[data-theme="dark"]{
         color-scheme:dark;
         --bg:#0f1118;
         --bg2:#151923;
@@ -610,38 +680,70 @@
         --line:rgba(148,163,184,.22);
         --accent:#8b7cf6;
         --accent-2:#a78bfa;
-        --accent-soft:rgba(139,124,246,.16);
+      --accent-soft:color-mix(in srgb,var(--accent) 16%,transparent);
         --danger:#ff7d8a;
         --shadow:0 18px 55px rgba(0,0,0,.26);
+      --toggle-off:#526073;
       }
-      html{background:var(--bg2)}
-      body{
+    :root[data-theme="dark"]{background:var(--bg2)}
+    :root[data-theme="dark"] body{
         background:
-          radial-gradient(circle at 15% 0%,rgba(139,92,246,.16),transparent 32rem),
+        radial-gradient(circle at 15% 0%,color-mix(in srgb,var(--accent-2) 16%,transparent),transparent 32rem),
           radial-gradient(circle at 100% 18%,rgba(59,130,246,.10),transparent 28rem),
           linear-gradient(145deg,var(--bg),var(--bg2) 48%,#11151e);
       }
-      .panel,.topbar{border-color:rgba(255,255,255,.07)}
-      .brand-help{background:rgba(255,255,255,.055);color:#aeb7c8}
-      .layout-btn{background:rgba(255,255,255,.045)}
-      .layout-btn:hover{box-shadow:0 10px 22px rgba(0,0,0,.22)}
-      .layout-btn.active{background:rgba(139,124,246,.10);box-shadow:0 0 0 3px rgba(139,124,246,.12),0 12px 24px rgba(0,0,0,.20)}
-      .mini{background:linear-gradient(145deg,#252a35,#202530)}
-      .mini-shape{stroke:rgba(20,24,32,.94)}
-      .mini-stop-start{stop-color:#3a4252}
-      .mini-stop-end{stop-color:#2f3746}
-      .layout-btn.active .mini-stop-start{stop-color:#6257a8}
-      .layout-btn.active .mini-stop-end{stop-color:#4e477f}
-      .btn{background:rgba(255,255,255,.055)}
-      .btn:hover:not(:disabled){box-shadow:0 8px 18px rgba(0,0,0,.20)}
-      .btn.danger.delete-drop-target{background:rgba(255,125,138,.12);box-shadow:0 0 0 3px rgba(255,125,138,.14),0 10px 24px rgba(0,0,0,.24)}
-      .media-tray{background:rgba(24,28,39,.62);border-color:rgba(255,255,255,.07);box-shadow:0 8px 24px rgba(0,0,0,.16)}
-      .media-thumb,.media-drag-ghost{background:#2a303d;border-color:rgba(255,255,255,.10)}
-      .media-thumb.drop-before::before,.media-thumb.drop-after::after{box-shadow:0 0 0 2px rgba(24,28,39,.96),0 3px 12px rgba(139,124,246,.52)}
-      .stage-wrap{background:rgba(24,28,39,.38);border-color:rgba(255,255,255,.06)}
-      .selection-guide .selection-halo{stroke:rgba(255,255,255,.82)}
-      .slot{background:#202631}
-      .placeholder{
+    :root[data-theme="dark"] .panel,:root[data-theme="dark"] .topbar{border-color:rgba(255,255,255,.07)}
+    :root[data-theme="dark"] .brand-help{background:rgba(255,255,255,.055);color:#aeb7c8}
+    :root[data-theme="dark"] .layout-btn{background:rgba(255,255,255,.045)}
+    :root[data-theme="dark"] .layout-btn:hover{box-shadow:0 10px 22px rgba(0,0,0,.22)}
+    :root[data-theme="dark"] .layout-btn.active{background:color-mix(in srgb,var(--accent) 10%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 12%,transparent),0 12px 24px rgba(0,0,0,.20)}
+    :root[data-theme="dark"] .mini{background:linear-gradient(145deg,#252a35,#202530)}
+    :root[data-theme="dark"] .mini-shape{stroke:rgba(20,24,32,.94)}
+    :root[data-theme="dark"] .mini-stop-start{stop-color:#3a4252}
+    :root[data-theme="dark"] .mini-stop-end{stop-color:#2f3746}
+    :root[data-theme="dark"] .layout-btn.active .mini-stop-start{stop-color:color-mix(in srgb,var(--accent) 62%,#252a35)}
+    :root[data-theme="dark"] .layout-btn.active .mini-stop-end{stop-color:color-mix(in srgb,var(--accent) 48%,#202530)}
+    :root[data-theme="dark"] .btn{background:rgba(255,255,255,.055)}
+    :root[data-theme="dark"] .btn:hover:not(:disabled){box-shadow:0 8px 18px rgba(0,0,0,.20)}
+    :root[data-theme="dark"] .btn.primary{
+      color:var(--white);
+      border-color:color-mix(in srgb,var(--accent) 76%,var(--black));
+      background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 92%,var(--black)) 0%,color-mix(in srgb,var(--accent) 76%,var(--black)) 100%);
+      box-shadow:0 6px 16px color-mix(in srgb,var(--accent) 20%,transparent);
+    }
+    :root[data-theme="dark"] .btn.primary:hover:not(:disabled){
+      color:var(--white);
+      border-color:color-mix(in srgb,var(--accent) 84%,var(--black));
+      background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 96%,var(--black)) 0%,color-mix(in srgb,var(--accent) 82%,var(--black)) 100%);
+      box-shadow:0 8px 20px color-mix(in srgb,var(--accent) 26%,transparent);
+    }
+    :root[data-theme="dark"] .btn.danger{
+      border-color:#633d43;
+      background:#2b1d22;
+      color:#ff9b9b;
+      box-shadow:none;
+    }
+    :root[data-theme="dark"] .btn.danger:hover:not(:disabled){
+      border-color:#8a5058;
+      background:#3a242a;
+      color:#ffc0c0;
+      box-shadow:none;
+    }
+    :root[data-theme="dark"] .btn.danger.delete-drop-target,
+    :root[data-theme="dark"] .btn.danger.delete-drop-target:hover:not(:disabled){
+      border-color:#e05252;
+      background:rgba(224,82,82,.15);
+      color:#ffc0c0;
+      box-shadow:0 0 0 3px rgba(255,125,138,.14),0 10px 24px rgba(0,0,0,.24);
+      transform:scale(1.035);
+    }
+    :root[data-theme="dark"] .media-tray{background:rgba(24,28,39,.62);border-color:rgba(255,255,255,.07);box-shadow:0 8px 24px rgba(0,0,0,.16)}
+    :root[data-theme="dark"] .media-thumb,:root[data-theme="dark"] .media-drag-ghost{background:#2a303d;border-color:rgba(255,255,255,.10)}
+    :root[data-theme="dark"] .media-thumb.drop-before::before,:root[data-theme="dark"] .media-thumb.drop-after::after{box-shadow:0 0 0 2px rgba(24,28,39,.96),0 3px 12px color-mix(in srgb,var(--accent) 52%,transparent)}
+    :root[data-theme="dark"] .stage-wrap{background:rgba(24,28,39,.38);border-color:rgba(255,255,255,.06)}
+    :root[data-theme="dark"] .selection-guide .selection-halo{stroke:rgba(255,255,255,.82)}
+    :root[data-theme="dark"] .slot{background:#202631}
+    :root[data-theme="dark"] .placeholder{
         color:#929cac;
         background:
           linear-gradient(135deg,rgba(255,255,255,.018),transparent),
@@ -657,21 +759,25 @@
         calc(var(--checker-x,0px) + 13px) calc(var(--checker-y,0px) - 13px),
         calc(var(--checker-x,0px) - 13px) var(--checker-y,0px);
       }
-      .placeholder>span{background:rgba(28,33,45,.94);box-shadow:0 5px 16px rgba(0,0,0,.22)}
-      .slot.empty:hover .placeholder>span{background:#242a37;box-shadow:0 10px 24px rgba(0,0,0,.28),0 0 0 1px rgba(139,124,246,.24)}
-      input[type="color"]{background:#202633;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
-      select{
+    :root[data-theme="dark"] .placeholder>span{background:rgba(28,33,45,.94);box-shadow:0 5px 16px rgba(0,0,0,.22)}
+    :root[data-theme="dark"] .slot.empty:hover .placeholder>span{background:#242a37;box-shadow:0 10px 24px rgba(0,0,0,.28),0 0 0 1px color-mix(in srgb,var(--accent) 24%,transparent)}
+    :root[data-theme="dark"] input[type="color"]{background:#202633;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+    :root[data-theme="dark"] select{
         background-color:rgba(255,255,255,.055);
         background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23aeb7c8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
       }
-      .help-card,.export-card,.confirm-card{background:#1b202c;color:var(--text)}
-      .custom-segment-action button{background:rgba(28,33,45,.97);border-color:rgba(255,125,138,.28)}
-      .custom-segment-action button.detach{border-color:rgba(139,124,246,.34)}
-      .help-item{background:#202633}
-      .help-item strong{color:#dce2ec}
-      .export-close{background:#252b38;color:#b8c1d0}
-      .export-preview-wrap{background:#121620}
-    }
+    :root[data-theme="dark"] .help-card,:root[data-theme="dark"] .export-card,:root[data-theme="dark"] .confirm-card{background:#1b202c;color:var(--text)}
+    :root[data-theme="dark"] .export-format-card,:root[data-theme="dark"] .export-quality-preset{background:#202633}
+    :root[data-theme="dark"] .export-quality-section{background:rgba(255,255,255,.035)}
+    :root[data-theme="dark"] .export-format-radio:checked + .export-format-card{background:color-mix(in srgb,var(--accent) 12%,#202633)}
+    :root[data-theme="dark"] .export-preview-meta{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+    :root[data-theme="dark"] .custom-segment-action button{background:rgba(28,33,45,.97);border-color:rgba(255,125,138,.28)}
+    :root[data-theme="dark"] .custom-segment-action button.detach{border-color:color-mix(in srgb,var(--accent) 34%,transparent)}
+    :root[data-theme="dark"] .help-item{background:#202633}
+    :root[data-theme="dark"] .help-item strong{color:#dce2ec}
+    :root[data-theme="dark"] .export-close{background:#252b38;color:#b8c1d0}
+    :root[data-theme="dark"] .export-preview-wrap{background:#121620}
+
 
     @media(min-width:761px){
       .left{
@@ -793,8 +899,8 @@
       }
       .media-thumb.hold-ready{
         transform:scale(.94);
-        border-color:rgba(103,87,232,.72);
-        box-shadow:0 0 0 2px rgba(103,87,232,.14),0 7px 16px rgba(55,52,110,.12);
+        border-color:color-mix(in srgb,var(--accent) 72%,transparent);
+        box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 14%,transparent),0 7px 16px color-mix(in srgb,var(--accent) 12%,transparent);
       }
       .workspace{width:100%;min-width:0}
       .stage-wrap{
@@ -832,32 +938,302 @@
         min-height:100dvh;
       }
       .export-card{
-        width:min(100%,680px);
-        max-height:min(90dvh,760px);
+        width:min(100%,760px);
+        max-height:min(92dvh,820px);
         border-radius:20px;
       }
-      .export-preview-wrap img{max-height:46dvh}
-      .export-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-      .export-actions .btn{width:100%;min-width:0;flex:none}
-      .export-actions .btn:last-child{grid-column:1/-1}
+      .export-head{padding:14px 14px 12px}
+      .export-body{padding:12px 14px 14px;gap:12px}
+      .export-preview-wrap{min-height:150px;padding:8px}
+      .export-preview-wrap img{max-height:34dvh}
+      .export-format-card{min-height:64px;padding:10px 9px}
+      .export-format-name{font-size:13px}
+      .export-format-help{font-size:9.5px}
+      .export-quality-section{padding:11px}
+      .export-actions{grid-template-columns:1fr;gap:8px;padding:12px 14px}
+      .export-actions .btn{width:100%;min-width:0}
     }
+    :root{
+      --header-line:rgba(23,32,51,.10);
+      --header-shadow:0 1px 2px rgba(16,24,40,.03),0 10px 28px rgba(16,24,40,.055);
+      --brand-purple:var(--accent);
+      --brand-violet:var(--accent-2);
+      --brand-blue:#5d78ef;
+    }
+    body{
+      background:
+        radial-gradient(circle at 8% -5%,color-mix(in srgb,var(--accent-2) 9%,transparent),transparent 26rem),
+        radial-gradient(circle at 92% 2%,rgba(93,120,239,.08),transparent 30rem),
+        #f6f7fb;
+      background-attachment:fixed;
+    }
+    .app{
+      width:min(1880px,calc(100% - 32px));
+      margin:0 auto;
+      grid-template-columns:300px minmax(0,1fr) 300px;
+      column-gap:20px;
+      row-gap:14px;
+      padding:18px 0 30px;
+    }
+    .site-header{
+      grid-column:1 / -1;
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      align-items:center;
+      gap:24px;
+      min-width:0;
+      padding:14px 16px;
+      border:1px solid var(--header-line);
+      border-radius:22px;
+      background:color-mix(in srgb,var(--panel) 92%,transparent);
+      box-shadow:var(--header-shadow);
+      backdrop-filter:blur(18px) saturate(1.2);
+      -webkit-backdrop-filter:blur(18px) saturate(1.2);
+    }
+    .brand-lockup{
+      --brand-shell-size:48px;
+      display:grid;
+      grid-template-columns:auto minmax(0,1fr);
+      align-items:center;
+      gap:10px;
+      min-width:0;
+      min-height:58px;
+      position:relative;
+    }
+    .brand-mark{
+      position:relative;
+      isolation:isolate;
+      flex:0 0 48px;
+      width:48px;height:48px;
+      display:grid;place-items:center;
+      overflow:hidden;
+      border:1px solid color-mix(in srgb,var(--accent) 15%,transparent);
+      border-radius:15px;
+      background:linear-gradient(145deg,color-mix(in srgb,var(--accent-2) 11%,transparent),rgba(93,120,239,.04)),rgba(255,255,255,.74);
+      box-shadow:0 7px 18px rgba(82,68,185,.08);
+      filter:none;
+    }
+    .brand-mark::before{
+      content:"";position:absolute;z-index:2;top:-35%;bottom:-35%;left:-52%;width:24%;pointer-events:none;opacity:0;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,.78),transparent);
+      transform:translateX(-180%) rotate(18deg);filter:blur(.4px);
+    }
+    .brand-mark img{position:relative;z-index:1;width:90%;height:90%;object-fit:contain}
+    @media (hover:hover) and (pointer:fine){
+      .brand-mark:hover::before{animation:collage-logo-shimmer 720ms ease-out}
+    }
+    .brand-mark.logo-tap-animate::before{animation:collage-logo-shimmer 720ms ease-out}
+    @keyframes collage-logo-shimmer{
+      0%{opacity:0;transform:translateX(-180%) rotate(18deg)}
+      18%{opacity:.72}
+      100%{opacity:0;transform:translateX(620%) rotate(18deg)}
+    }
+    .brand-copy{display:grid;align-content:center;min-width:0;padding-top:0;gap:3px}
+    .site-brand-name{
+      width:max-content;max-width:100%;margin:0;padding-right:.06em;
+      color:var(--text);font-size:1.82rem;font-weight:800;line-height:.95;letter-spacing:-.05em;white-space:nowrap;
+    }
+    .site-brand-accent{
+      display:inline-block;margin-left:.17em;padding-right:.08em;margin-right:-.08em;
+      color:var(--brand-purple);
+      background:none;
+      -webkit-text-fill-color:currentColor;
+    }
+    .site-subtitle{
+      max-width:620px;margin:0;color:#778195;font-size:.80rem;font-weight:500;line-height:1.42;text-wrap:pretty;
+    }
+    .site-header-controls{display:flex;align-items:center;justify-content:flex-end;gap:7px;min-width:0}
+    .appearance-controls{display:inline-flex;align-items:center;gap:7px;flex:0 0 auto}
+    .language-switch,.theme-switch{
+      display:inline-flex;align-items:center;justify-content:center;width:102px;min-width:102px;max-width:102px;flex:0 0 102px;
+      gap:6px;min-height:38px;padding:5px 7px;border:1px solid var(--header-line);border-radius:999px;background:rgba(255,255,255,.70);
+      color:var(--muted);box-shadow:0 1px 2px rgba(16,24,40,.025);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      user-select:none;-webkit-user-select:none;touch-action:manipulation;transition:border-color .16s ease,box-shadow .16s ease,background .16s ease;
+    }
+    .language-switch{cursor:pointer}
+    .language-switch:hover,.theme-switch:hover,.brand-help:hover{border-color:var(--control-hover-border);transform:none}
+    .language-switch:focus-visible,.theme-switch:focus-within,.brand-help:focus-visible{outline:3px solid var(--ring);outline-offset:2px}
+    .language-switch-label{width:16px;flex:0 0 16px;color:var(--muted);font-size:.68rem;font-weight:850;line-height:1;text-align:center;opacity:.5;transition:color .11s linear,opacity .11s linear}
+    .language-switch-track,.theme-switch-track{position:relative;width:42px;height:24px;flex:0 0 auto;border-radius:999px;background:var(--toggle-off);box-shadow:inset 0 0 0 1px rgba(16,24,40,.08);transition:background-color .11s linear,box-shadow .11s linear}
+    .language-switch-track{--language-thumb-x:0px;overflow:hidden}
+    .language-switch-thumb{position:absolute;top:3px;left:3px;width:18px;height:18px;overflow:hidden;border:1px solid rgba(255,255,255,.16);border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.35);transform:translateX(var(--language-thumb-x));transition:transform .11s ease-out}
+    .language-flag{position:absolute;inset:0;display:block;width:100%;height:100%;opacity:0;transform:scale(.86);transform-origin:center;transition:opacity .1s linear,transform .11s ease-out}
+    :root[lang="hu"] .language-flag-hu,:root[lang="en"] .language-flag-en{opacity:1;transform:scale(1)}
+    :root[lang="en"] .language-switch-track{--language-thumb-x:18px}
+    :root[lang="hu"] .language-switch-label-hu,:root[lang="en"] .language-switch-label-en{color:var(--accent);opacity:1}
+    .theme-switch{cursor:pointer}
+    .theme-switch-icon{width:16px;height:16px;flex:0 0 auto;stroke-width:2;transition:color .1s linear,opacity .1s linear}
+    .theme-switch input{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;opacity:0;pointer-events:none}
+    .theme-switch-track::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(16,24,40,.28);transition:transform .11s ease-out}
+    .theme-switch input:checked + .theme-switch-track{background:var(--accent)}
+    .theme-switch input:checked + .theme-switch-track::after{transform:translateX(18px)}
+    :root[data-theme="light"] .theme-switch-icon-sun,:root[data-theme="dark"] .theme-switch-icon-moon{color:var(--accent);opacity:1}
+    :root[data-theme="light"] .theme-switch-icon-moon,:root[data-theme="dark"] .theme-switch-icon-sun{opacity:.5}
+    .brand-help{
+      margin:0;
+      display:inline-grid;
+      place-items:center;
+      width:42px;
+      min-width:42px;
+      height:38px;
+      flex:0 0 42px;
+      padding:0;
+      border:1px solid var(--header-line);
+      border-radius:999px;
+      background:rgba(255,255,255,.70);
+      color:var(--muted);
+      box-shadow:0 1px 2px rgba(16,24,40,.025);
+      touch-action:manipulation;
+      transition:border-color .16s ease,color .16s ease,background .16s ease,box-shadow .16s ease;
+    }
+    .brand-help .icon{width:18px;height:18px}
+    .brand-help:hover{color:var(--muted);border-color:var(--control-hover-border);background:rgba(255,255,255,.70);box-shadow:0 1px 2px rgba(16,24,40,.025);transform:none}
+    .panel,.topbar{
+      border-color:var(--header-line);
+      box-shadow:0 1px 2px rgba(16,24,40,.025),0 8px 24px rgba(16,24,40,.045);
+      backdrop-filter:blur(16px) saturate(1.15);
+      -webkit-backdrop-filter:blur(16px) saturate(1.15);
+    }
+    .panel{border-radius:20px}
+    .left>.left-fixed{flex:0 0 auto}
+    .left .left-fixed h2{margin-top:0}
+    .topbar{border-radius:18px}
+    .media-tray{border-color:var(--header-line);box-shadow:0 1px 2px rgba(16,24,40,.02),0 7px 20px rgba(16,24,40,.035)}
+    .media-tray.remove-drop-target,
+    .media-tray.file-drop-target{
+      border-style:solid;
+      border-color:color-mix(in srgb,var(--accent) 62%,transparent);
+      background:color-mix(in srgb,var(--accent) 10%,rgba(255,255,255,.58));
+      box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 12%,transparent),0 12px 30px color-mix(in srgb,var(--accent) 16%,transparent);
+    }
+    .stage-wrap{border-color:var(--header-line);background:rgba(255,255,255,.42)}
+
+    :root[data-theme="dark"] body{background:radial-gradient(circle at 8% -5%,color-mix(in srgb,var(--accent) 11%,transparent),transparent 26rem),radial-gradient(circle at 92% 2%,rgba(93,120,239,.08),transparent 30rem),#0d1219}
+    :root[data-theme="dark"] .site-header{border-color:var(--line);background:rgba(24,28,39,.86);box-shadow:0 1px 2px rgba(0,0,0,.18),0 10px 28px rgba(0,0,0,.18)}
+    :root[data-theme="dark"] .brand-mark{border-color:color-mix(in srgb,var(--accent) 22%,transparent);background:linear-gradient(145deg,color-mix(in srgb,var(--accent) 13%,transparent),rgba(93,120,239,.05)),rgba(32,38,51,.90);box-shadow:none}
+    :root[data-theme="dark"] .site-subtitle{color:#9aa4b6}
+    :root[data-theme="dark"] .language-switch,:root[data-theme="dark"] .theme-switch,:root[data-theme="dark"] .brand-help{border-color:var(--line);background:rgba(255,255,255,.055);box-shadow:0 4px 14px rgba(0,0,0,.18)}
+    :root[data-theme="dark"] .language-switch-track,:root[data-theme="dark"] .theme-switch-track{box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
+    :root[data-theme="dark"] .language-switch:hover,:root[data-theme="dark"] .theme-switch:hover,:root[data-theme="dark"] .brand-help:hover{border-color:var(--control-hover-border)}
+    :root[data-theme="dark"] .brand-help:hover{color:var(--muted);background:rgba(255,255,255,.055);box-shadow:0 4px 14px rgba(0,0,0,.18)}
+    :root[data-theme="dark"] .panel,:root[data-theme="dark"] .topbar,:root[data-theme="dark"] .media-tray,:root[data-theme="dark"] .stage-wrap{border-color:var(--line)}
+    :root[data-theme="dark"] .media-tray.remove-drop-target,
+    :root[data-theme="dark"] .media-tray.file-drop-target{
+      border-color:color-mix(in srgb,var(--accent) 68%,transparent);
+      background:color-mix(in srgb,var(--accent) 15%,rgba(24,28,39,.78));
+      box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 16%,transparent),0 12px 30px color-mix(in srgb,var(--accent) 22%,transparent);
+    }
+    :root[data-theme="dark"] .stage-wrap{background:rgba(24,28,39,.38)}
+
+
+    @media(max-width:1120px){
+      .app{grid-template-columns:250px minmax(0,1fr)}
+    }
+    @media(max-width:760px){
+      body{background-attachment:scroll}
+      .app{width:min(100% - 18px,1880px);grid-template-columns:1fr;gap:12px;padding:9px 0 20px}
+      .site-header{
+        grid-column:auto;
+        grid-template-columns:minmax(0,1fr);
+        grid-template-rows:auto auto;
+        align-items:start;
+        gap:9px;
+        padding:10px;
+        border-radius:18px;
+      }
+      .site-header-controls{
+        display:flex;
+        grid-column:1;
+        grid-row:1;
+        width:100%;
+        min-width:0;
+        align-items:center;
+        justify-content:flex-end;
+        gap:7px;
+        flex-wrap:nowrap;
+      }
+      .appearance-controls{display:contents}
+      .language-switch{order:1}
+      .theme-switch{order:2}
+      .brand-help{order:3}
+      .language-switch,.theme-switch,.brand-help{
+        grid-column:auto;
+        grid-row:auto;
+        justify-self:auto;
+        align-self:auto;
+        margin:0;
+      }
+      .brand-lockup{
+        grid-column:1;
+        grid-row:2;
+        width:100%;
+        min-height:64px;
+        align-items:center;
+      }
+      .brand-copy{
+        align-self:center;
+        height:auto;
+        min-height:0;
+        grid-template-rows:none;
+        align-content:center;
+      }
+      .site-brand-name,.site-subtitle{align-self:auto}
+      .site-subtitle{margin-top:0}
+      .panel{border-radius:18px}
+      .left{max-height:none}
+    }
+    @media(max-width:430px){
+      .brand-lockup{--brand-shell-size:44px}
+      .brand-mark{width:44px;height:44px;flex-basis:44px;border-radius:14px}
+      .site-brand-name{font-size:1.58rem}
+      .site-subtitle{font-size:.75rem}
+      .site-header{gap:9px 8px}
+      .site-header-controls{gap:7px}
+      .language-switch,.theme-switch{width:94px;min-width:94px;max-width:94px;flex-basis:94px}
+      .brand-help{width:38px;min-width:38px;flex-basis:38px}
+    }
+
   </style>
 </head>
 <body>
 <div class="app">
-  <aside class="panel left">
-    <div class="brand">
+  <header class="site-header">
+    <div class="brand-lockup">
       <div class="brand-mark" aria-hidden="true">
         <img src="assets/images/favicon.svg" alt="">
       </div>
       <div class="brand-copy">
-        <div class="eyebrow">Collage Studio</div>
-        <h1>Kollázs készítő</h1>
+        <h1 class="site-brand-name" aria-label="Collage Studio"><span class="site-brand-base">Collage</span><span class="site-brand-accent">Studio</span></h1>
+        <p class="sub site-subtitle">A te elrendezésed. Egyedi kollázs pár mozdulattal.</p>
       </div>
-      <button class="brand-help" id="openHelp" type="button" aria-label="Használati súgó megnyitása" title="Használati súgó">?</button>
+      </div>
+    <div class="site-header-controls">
+      <div class="appearance-controls">
+        <button class="language-switch" id="languageSwitch" type="button" role="switch" aria-checked="false" aria-label="Váltás angol nyelvre" title="Váltás angol nyelvre">
+          <span class="language-switch-label language-switch-label-hu" aria-hidden="true">HU</span>
+          <span class="language-switch-track" aria-hidden="true">
+            <span class="language-switch-thumb">
+              <svg class="language-flag language-flag-hu" viewBox="0 0 300 300" preserveAspectRatio="xMidYMid slice" focusable="false"><rect width="300" height="300" fill="#fff"/><rect width="300" height="100" y="0" fill="#ce2939"/><rect width="300" height="100" y="200" fill="#477050"/></svg>
+              <svg class="language-flag language-flag-en" viewBox="0 0 300 300" preserveAspectRatio="xMidYMid slice" focusable="false"><rect width="300" height="300" fill="#012169"/><path d="M0 0 300 300M300 0 0 300" stroke="#fff" stroke-width="60"/><path d="m-14 0 150 150 160-160M0 314l164-164 150 150" fill="none" stroke="#c8102e" stroke-width="20"/><path d="M150 0v300M0 150h300" stroke="#fff" stroke-width="100"/><path d="M150 0v300M0 150h300" stroke="#c8102e" stroke-width="60"/></svg>
+            </span>
+          </span>
+          <span class="language-switch-label language-switch-label-en" aria-hidden="true">EN</span>
+        </button>
+        <label class="theme-switch" for="themeToggle" title="Megjelenési téma váltása">
+          <svg class="theme-switch-icon theme-switch-icon-sun lucide lucide-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          <input id="themeToggle" type="checkbox" role="switch" aria-label="Sötét téma bekapcsolása" />
+          <span class="theme-switch-track" aria-hidden="true"></span>
+          <svg class="theme-switch-icon theme-switch-icon-moon lucide lucide-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        </label>
+      </div>
+      <button class="brand-help" id="openHelp" type="button" aria-label="Használati súgó megnyitása" title="Használati súgó">
+        <svg class="icon lucide lucide-circle-question-mark" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+      </button>
     </div>
+  </header>
+
+  <aside class="panel left">
     <div class="left-fixed">
-      <p class="sub">A te elrendezésed. Egyedi kollázs pár mozdulattal.</p>
       <h2>Elrendezés</h2>
       </div>
     <div class="left-scroll">
@@ -982,21 +1358,60 @@
 </div>
 
 <div class="export-modal" id="exportModal" hidden>
-  <div class="export-card" role="dialog" aria-modal="true" aria-labelledby="exportTitle">
+  <div class="export-card" role="dialog" aria-modal="true" aria-labelledby="exportTitle" aria-describedby="exportDescription">
     <div class="export-head">
       <div>
         <h3 id="exportTitle">Kollázs exportálása</h3>
-        <p id="exportMeta">Válaszd ki a kívánt formátumot.</p>
+        <p id="exportDescription">Válassz formátumot és minőséget. Az előnézet a kiválasztott exportot mutatja.</p>
       </div>
       <button class="export-close" id="closeExport" type="button" aria-label="Bezárás"><svg class="icon lucide lucide-x" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
     </div>
+    <div class="export-body">
+      <div class="export-preview-shell">
     <div class="export-preview-wrap">
       <img id="exportPreview" alt="Az exportált kollázs előnézete">
     </div>
+        <div class="export-preview-meta" id="exportMeta" aria-live="polite">Előnézet készítése…</div>
+      </div>
+      <div class="export-controls">
+        <fieldset class="export-format-fieldset">
+          <legend class="export-section-label" id="exportFormatLegend">Formátum</legend>
+          <div class="export-format-options">
+            <label class="export-format-option">
+              <input class="visually-hidden export-format-radio" type="radio" name="exportFormat" value="png">
+              <span class="export-format-card"><strong class="export-format-name">PNG</strong><span class="export-format-help" data-format-help="png">Veszteségmentes</span></span>
+            </label>
+            <label class="export-format-option">
+              <input class="visually-hidden export-format-radio" type="radio" name="exportFormat" value="jpg" checked>
+              <span class="export-format-card"><strong class="export-format-name">JPG</strong><span class="export-format-help" data-format-help="jpg">Fotókhoz</span></span>
+            </label>
+            <label class="export-format-option">
+              <input class="visually-hidden export-format-radio" type="radio" name="exportFormat" value="webp">
+              <span class="export-format-card"><strong class="export-format-name">WebP</strong><span class="export-format-help" data-format-help="webp">Modern, kisebb fájl</span></span>
+            </label>
+          </div>
+        </fieldset>
+        <section class="export-quality-section" id="exportQualitySection" aria-labelledby="exportQualityLabel">
+          <div class="export-quality-heading">
+            <div>
+              <label class="export-section-label" id="exportQualityLabel" for="exportQualityRange">Minőség</label>
+              <p class="export-quality-help" id="exportQualityHelp">JPG és WebP tömörítési minősége.</p>
+            </div>
+            <output class="export-quality-value" id="exportQualityValue" for="exportQualityRange">90%</output>
+          </div>
+          <input id="exportQualityRange" type="range" min="40" max="100" step="1" value="90" aria-describedby="exportQualityHelp">
+          <div class="export-quality-scale" aria-hidden="true"><span id="exportQualitySmaller">Kisebb fájl</span><span id="exportQualityBetter">Jobb minőség</span></div>
+          <div class="export-quality-presets" id="exportQualityPresets" aria-label="Minőségi gyorsbeállítások">
+            <button class="export-quality-preset" type="button" data-quality="70">Kisebb fájl</button>
+            <button class="export-quality-preset" type="button" data-quality="90">Ajánlott</button>
+            <button class="export-quality-preset" type="button" data-quality="100">Maximum</button>
+          </div>
+        </section>
+      </div>
+    </div>
     <div class="export-actions">
-      <button class="btn primary" id="downloadExport" type="button"><svg class="icon lucide lucide-download" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg><span class="btn-label">PNG</span></button>
-      <button class="btn primary" id="downloadJpg" type="button"><svg class="icon lucide lucide-download" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg><span class="btn-label">JPG</span></button>
       <button class="btn" id="openExport" type="button"><svg class="icon lucide lucide-external-link" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg><span class="btn-label">Kép megnyitása</span></button>
+      <button class="btn primary" id="downloadExport" type="button"><svg class="icon lucide lucide-download" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg><span class="btn-label">Mentés JPG-ként</span></button>
     </div>
   </div>
 </div>
@@ -1006,22 +1421,49 @@
   const clamp = (v,min,max) => Math.max(min,Math.min(max,v));
   const clone = obj => JSON.parse(JSON.stringify(obj));
 
-  const browserLanguage = (navigator.languages?.[0] || navigator.language || "en").toLowerCase();
-  const uiLang = browserLanguage.startsWith("hu") ? "hu" : "en";
-  document.documentElement.lang = uiLang;
+  const THEME_STORAGE_KEY = "collage-studio-theme";
+  const LANGUAGE_STORAGE_KEY = "collage-studio-language";
+  const EXPORT_FORMAT_STORAGE_KEY = "collage-studio-export-format";
+  const EXPORT_QUALITY_STORAGE_KEY = "collage-studio-export-quality";
+
+  function readStoredPreference(key,allowed){
+    try {
+      const value = localStorage.getItem(key);
+      return allowed.includes(value) ? value : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  const storedTheme = readStoredPreference(THEME_STORAGE_KEY,["light","dark"]);
+  const storedLanguage = readStoredPreference(LANGUAGE_STORAGE_KEY,["hu","en"]);
+  const systemTheme = window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  const browserLanguage = String(navigator.languages?.[0] || navigator.language || "en").toLowerCase();
+  const initialTheme = storedTheme || systemTheme;
+  const initialLanguage = storedLanguage || (browserLanguage.startsWith("hu") ? "hu" : "en");
+
+  document.documentElement.dataset.theme = initialTheme;
+  document.documentElement.dataset.language = initialLanguage;
+  document.documentElement.lang = initialLanguage;
+  document.documentElement.style.colorScheme = initialTheme;
+  const initialThemeColorMeta = document.getElementById("themeColorMeta");
+  if(initialThemeColorMeta) initialThemeColorMeta.content = initialTheme === "dark" ? "#11131b" : "#eef2ff";
+
+  let uiLang = initialLanguage;
 
   const I18N = {
     hu:{
       pageTitle:"Collage Studio - Készíts egyedi kollázst",
-      appTitle:"Kollázs készítő",
+      appTitle:"Collage Studio",
       tagline:"A te elrendezésed. Egyedi kollázs pár mozdulattal.",
+      languageSwitch:"Váltás angol nyelvre", themeSwitch:"Megjelenési téma váltása", themeEnableDark:"Sötét téma bekapcsolása", themeEnableLight:"Világos téma bekapcsolása",
       helpOpen:"Használati súgó megnyitása", helpTitleAttr:"Használati súgó",
       layoutHeading:"Elrendezés", aspectHeading:"Képarány",
       aspectSquare:"1:1 – négyzet", aspectPortrait:"4:5 – álló", aspectLandscape:"3:2 – fekvő", aspectWide:"16:9 – széles",
       addImages:"Képek", addImagesFull:"Képek hozzáadása",
       dividers:"Elválasztók", dividersFull:"Elválasztók visszaállítása", delete:"Törlés", deleteFull:"Minden kép törlése · egy kép végleges törléséhez húzd ide",
       customDraw:"Rajzol\u00e1s", customDrawOn:"Rajzol\u00e1s bekapcsolva \u2013 h\u00fazz \u00faj elv\u00e1laszt\u00f3t, vagy fogj meg egy megl\u00e9v\u0151t \u00e9s mozgasd. Kattints vagy koppints egy metsz\u00e9sek k\u00f6zti szakaszra: t\u00f6r\u00f6lheted vagy lev\u00e1laszthatod. Shift: 15\u00b0-os illeszt\u00e9s.", customDrawOff:"Rajzol\u00e1s kikapcsolva \u2013 most a k\u00e9peket szerkesztheted.", customUndo:"Vissza", customReset:"\u00dajrakezd\u00e9s",
-      export:"Export", exportFull:"Export / mentés", loadedImages:"Betöltött képek", trayEmptyAdd:"Húzz ide képeket, vagy kattints a hozzáadáshoz.", trayAddTitle:"Képek hozzáadása a Betöltött képek sávhoz", trayFileDropHint:"Engedd el itt a képeket a hozzáadáshoz.", imagesAdded:n=>`${n} kép hozzáadva a Betöltött képekhez.`, stageLabel:"Kollázs szerkesztő",
+      export:"Export", exportFull:"Export / mentés", loadedImages:"Betöltött képek", headerEmpty:"Üres projekt", headerCount:n=>"kép", trayEmptyAdd:"Húzz ide képeket, vagy kattints a hozzáadáshoz.", trayAddTitle:"Képek hozzáadása a Betöltött képek sávhoz", trayFileDropHint:"Engedd el itt a képeket a hozzáadáshoz.", imagesAdded:n=>`${n} kép hozzáadva a Betöltött képekhez.`, stageLabel:"Kollázs szerkesztő",
       initialTip:"Tipp: az elválasztók méretét elrendezésenként külön megjegyzi.",
       selectedImage:"Kijelölt kép", zoom:"Nagyítás", center:"Középre igazít", removeImage:"Kép eltávolítása",
       collage:"Kollázs", gap:"Hézag", radius:"Sarokkerekítés", background:"Háttérszín", width:"Szélesség",
@@ -1033,7 +1475,10 @@
       helpDividers:"<strong>Elválasztók:</strong> húzd a fogantyút. Dupla kattintás vagy koppintás visszaállítja.",
       helpCustom:"<strong>Egyedi elrendezés:</strong> h\u00fazz egyenes elv\u00e1laszt\u00f3kat a v\u00e1sznon. <strong>Meglev\u0151 elv\u00e1laszt\u00f3 mozgat\u00e1sa:</strong> Rajzol\u00e1s m\u00f3dban fogd meg a vonalat \u00e9s h\u00fazd arr\u00e9bb; a d\u0151l\u00e9ssz\u00f6ge megmarad. <strong>Szakasz m\u0171veletek:</strong> ahol elv\u00e1laszt\u00f3k metszik egym\u00e1st, kattints vagy koppints a metsz\u00e9sek k\u00f6zti vonaldarabra. A Szakasz t\u00f6rl\u00e9se csak azt a r\u00e9szt t\u00f6rli, a Szakasz lev\u00e1laszt\u00e1sa pedig k\u00fcl\u00f6n elv\u00e1laszt\u00f3kk\u00e1 bontja az addig \u00f6sszetartoz\u00f3 r\u00e9szeket, \u00edgy ut\u00e1na egym\u00e1st\u00f3l f\u00fcggetlen\u00fcl mozgathat\u00f3k. <strong>Shift:</strong> \u00faj vonaln\u00e1l 15\u00b0-os l\u00e9p\u00e9sekre pattint. A Vissza gomb az utols\u00f3 egyedi m\u00f3dos\u00edt\u00e1st vonja vissza.",
       clearConfirmTitle:"Összes kép törlése?", clearConfirmText:"Biztosan törlöd az összes betöltött képet? Ez a művelet nem vonható vissza.", clearConfirmCancel:"Mégse", clearConfirmAction:"Összes kép törlése",
-      exportTitle:"Kollázs exportálása", exportChoose:"Válaszd ki a kívánt formátumot.", exportPreviewAlt:"Az exportált kollázs előnézete",
+      exportTitle:"Kollázs exportálása", exportChoose:"Válassz formátumot és minőséget. Az előnézet a kiválasztott exportot mutatja.", exportPreviewAlt:"Az exportált kollázs előnézete",
+      exportFormat:"Formátum", exportPngHelp:"Veszteségmentes", exportJpgHelp:"Fotókhoz", exportWebpHelp:"Modern, kisebb fájl", exportWebpUnsupported:"Nem támogatott ezen az eszközön",
+      exportQuality:"Minőség", exportQualityHelp:"JPG és WebP tömörítési minősége.", exportSmaller:"Kisebb fájl", exportBetter:"Jobb minőség", exportRecommended:"Ajánlott", exportMaximum:"Maximum", exportQualityPresets:"Minőségi gyorsbeállítások",
+      exportSave:format=>`Mentés ${format}-ként`, exportPreparing:"Előnézet készítése…", exportPreviewUpdating:"Előnézet frissítése…", exportMeta:(w,h,format,size)=>`${w} × ${h} px · ${format} · ${size}`,
       openImage:"Kép megnyitása", dropImage:"Ide engedd a képet",
       layoutNames:{"custom-draw":"Egyedi",single:"1 kép","two-cols":"2 oszlop","two-rows":"2 sor","diagonal-2":"2 átlós","feature-3":"3 kiemelt","diagonal-3":"3 átlós","diagonal-4":"4 átlós","pinwheel-4":"4 forgó","panorama-4":"4 panoráma","grid-4":"4 rács","offset-4":"4 magazin","diagonal-5":"5 átlós","center-band-5":"5 középsáv","center-focus-5":"5 középső","mosaic-5":"5 mozaik","feature-5":"5 aszimmetrikus","masonry-6":"6 téglafal","grid-6":"6 rács","hero-6":"6 kiemelt","gallery-7":"7 galéria","circle-focus-5":"5 körfókusz"},
       diagonalActive:"Átlós elrendezés aktív – a kör alakú fogantyúval módosíthatod az átlót.",
@@ -1053,23 +1498,24 @@
       dividerResetTitle:"Dupla kattintás: elválasztó alaphelyzetbe", diagonalAdjusted:"Átlós elválasztó módosítva.", pointAdjusted:"A ferde osztások középpontja módosítva.", circleAdjusted:"A középső kör mérete módosítva.", dividerAdjusted:"Elválasztó mérete módosítva.", dividerReset:"Az elválasztó visszaállt az alaphelyzetébe.",
       imageLoadError:"A kép nem tölthető be.", allCleared:"Minden kép törölve.", allDividersReset:"Az aktuális elrendezés elválasztói visszaálltak az alaphelyzetbe.",
       exportBlobError:"Nem sikerült elkészíteni az exportált képet.", exporting:"Exportálás…",
-      exportReady:(w,h)=>`Az export előnézete elkészült: ${w} × ${h} px. A felugró ablakban válassz PNG vagy JPG mentést.`,
+      exportReady:(w,h)=>`Az export előnézete elkészült: ${w} × ${h} px.`,
       exportFailed:"Az export nem sikerült. Próbálj kisebb exportméretet vagy másik böngészőt.", unknownError:"ismeretlen hiba",
-      pngStarted:name=>`PNG mentés indítva: ${name}`, jpgStarted:name=>`Optimalizált JPG mentés indítva: ${name}`,
+      exportStarted:(format,name)=>`${format} mentés indítva: ${name}`,
       popupBlocked:"A böngésző blokkolta az új lapot. Engedélyezd a felugró ablakot, vagy használd a mentés gombot.",
-      fileBase:"kollazs", optimizedSuffix:"optimalizalt"
+      fileBase:"kollazs"
     },
     en:{
       pageTitle:"Collage Studio - Create unique collages",
-      appTitle:"Collage maker",
+      appTitle:"Collage Studio",
       tagline:"Your layout. A unique collage in just a few moves.",
+      languageSwitch:"Switch to Hungarian", themeSwitch:"Change appearance theme", themeEnableDark:"Enable dark theme", themeEnableLight:"Enable light theme",
       helpOpen:"Open quick guide", helpTitleAttr:"Help",
       layoutHeading:"Layout", aspectHeading:"Aspect ratio",
       aspectSquare:"1:1 – square", aspectPortrait:"4:5 – portrait", aspectLandscape:"3:2 – landscape", aspectWide:"16:9 – wide",
       addImages:"Images", addImagesFull:"Add images",
       dividers:"Dividers", dividersFull:"Reset dividers", delete:"Delete", deleteFull:"Delete all images · drag one here to remove it permanently",
       customDraw:"Draw", customDrawOn:"Drawing enabled \u2013 drag a new divider, or grab an existing one and move it. Click or tap a segment between intersections to delete or detach it. Shift: 15\u00b0 snapping.", customDrawOff:"Drawing disabled \u2013 you can edit images now.", customUndo:"Undo", customReset:"Start over",
-      export:"Export", exportFull:"Export / save", loadedImages:"Loaded images", trayEmptyAdd:"Drop images here, or click to add them.", trayAddTitle:"Add images to the Loaded images strip", trayFileDropHint:"Release here to add the images.", imagesAdded:n=>`${n} image${n===1?"":"s"} added to Loaded images.`, stageLabel:"Collage editor",
+      export:"Export", exportFull:"Export / save", loadedImages:"Loaded images", headerEmpty:"Empty project", headerCount:n=>n===1?"image":"images", trayEmptyAdd:"Drop images here, or click to add them.", trayAddTitle:"Add images to the Loaded images strip", trayFileDropHint:"Release here to add the images.", imagesAdded:n=>`${n} image${n===1?"":"s"} added to Loaded images.`, stageLabel:"Collage editor",
       initialTip:"Tip: divider positions are remembered separately for each layout.",
       selectedImage:"Selected image", zoom:"Zoom", center:"Center image", removeImage:"Remove image",
       collage:"Collage", gap:"Gap", radius:"Corner radius", background:"Background color", width:"Width",
@@ -1081,7 +1527,10 @@
       helpDividers:"<strong>Dividers:</strong> drag the handle. Double-click or double-tap to reset it.",
       helpCustom:"<strong>Custom layout:</strong> drag straight dividers across the canvas. <strong>Move an existing divider:</strong> while Draw is enabled, grab a divider and drag it; its angle stays fixed. <strong>Segment actions:</strong> where dividers intersect, click or tap the piece between intersections. Delete segment removes only that piece, while Detach segment splits the previously linked divider pieces so they can be moved independently. <strong>Shift:</strong> snaps new lines to 15\u00b0 increments. Undo restores the last custom change.",
       clearConfirmTitle:"Delete all images?", clearConfirmText:"Are you sure you want to delete all loaded images? This action cannot be undone.", clearConfirmCancel:"Cancel", clearConfirmAction:"Delete all images",
-      exportTitle:"Export collage", exportChoose:"Choose your preferred format.", exportPreviewAlt:"Preview of the exported collage",
+      exportTitle:"Export collage", exportChoose:"Choose a format and quality. The preview shows the selected export.", exportPreviewAlt:"Preview of the exported collage",
+      exportFormat:"Format", exportPngHelp:"Lossless", exportJpgHelp:"Best for photos", exportWebpHelp:"Modern, smaller file", exportWebpUnsupported:"Not supported on this device",
+      exportQuality:"Quality", exportQualityHelp:"Compression quality for JPG and WebP.", exportSmaller:"Smaller file", exportBetter:"Better quality", exportRecommended:"Recommended", exportMaximum:"Maximum", exportQualityPresets:"Quality presets",
+      exportSave:format=>`Save as ${format}`, exportPreparing:"Preparing preview…", exportPreviewUpdating:"Updating preview…", exportMeta:(w,h,format,size)=>`${w} × ${h} px · ${format} · ${size}`,
       openImage:"Open image", dropImage:"Drop image here",
       layoutNames:{"custom-draw":"Custom",single:"1 image","two-cols":"2 columns","two-rows":"2 rows","diagonal-2":"2 diagonal","feature-3":"3 featured","diagonal-3":"3 diagonal","diagonal-4":"4 diagonal","pinwheel-4":"4 pinwheel","panorama-4":"4 panorama","grid-4":"4 grid","offset-4":"4 magazine","diagonal-5":"5 diagonal","center-band-5":"5 center strip","center-focus-5":"5 centered","mosaic-5":"5 mosaic","feature-5":"5 asymmetric","masonry-6":"6 masonry","grid-6":"6 grid","hero-6":"6 featured","gallery-7":"7 gallery","circle-focus-5":"5 circle focus"},
       diagonalActive:"Diagonal layout active – drag the circular handle to adjust the diagonal.",
@@ -1101,14 +1550,14 @@
       dividerResetTitle:"Double-click: reset divider", diagonalAdjusted:"Diagonal divider adjusted.", pointAdjusted:"Diagonal meeting point adjusted.", circleAdjusted:"Center circle resized.", dividerAdjusted:"Divider adjusted.", dividerReset:"Divider reset to its default position.",
       imageLoadError:"The image could not be loaded.", allCleared:"All images removed.", allDividersReset:"The current layout dividers were reset to their default positions.",
       exportBlobError:"Could not create the exported image.", exporting:"Exporting…",
-      exportReady:(w,h)=>`Export preview is ready: ${w} × ${h} px. Choose PNG or JPG in the dialog.`,
+      exportReady:(w,h)=>`Export preview is ready: ${w} × ${h} px.`,
       exportFailed:"Export failed. Try a smaller export size or another browser.", unknownError:"unknown error",
-      pngStarted:name=>`PNG download started: ${name}`, jpgStarted:name=>`Optimized JPG download started: ${name}`,
-      popupBlocked:"The browser blocked the new tab. Allow pop-ups, or use a download button instead.",
-      fileBase:"collage", optimizedSuffix:"optimized"
+      exportStarted:(format,name)=>`${format} download started: ${name}`,
+      popupBlocked:"The browser blocked the new tab. Allow pop-ups, or use the download button instead.",
+      fileBase:"collage"
     }
   };
-  const tr = I18N[uiLang];
+  let tr = I18N[uiLang];
 
   const HELP_ICONS = [
     `<svg class="icon help-item-icon lucide lucide-move" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20"/><path d="m15 19-3 3-3-3"/><path d="m19 9 3 3-3 3"/><path d="M2 12h20"/><path d="m5 9-3 3 3 3"/><path d="m9 5 3-3 3 3"/></svg>`,
@@ -1518,7 +1967,7 @@
     selected:0,
     gap:8,
     radius:0,
-    bg:colorSchemeQuery.matches ? "#000000" : "#ffffff",
+    bg:document.documentElement.dataset.theme === "dark" ? "#000000" : "#ffffff",
     bgManuallySet:false,
     aspect:1,
     customDrawActive:false,
@@ -1551,6 +2000,10 @@
   const mediaTray = document.getElementById("mediaTray");
   const mediaThumbs = document.getElementById("mediaThumbs");
   const mediaTrayCount = document.getElementById("mediaTrayCount");
+  const languageSwitch = document.getElementById("languageSwitch");
+  const themeToggle = document.getElementById("themeToggle");
+  const themeSwitch = document.querySelector(".theme-switch");
+  const themeColorMeta = document.getElementById("themeColorMeta");
   const helpModal = document.getElementById("helpModal");
   const openHelp = document.getElementById("openHelp");
   const closeHelp = document.getElementById("closeHelp");
@@ -1562,20 +2015,85 @@
   const exportModal = document.getElementById("exportModal");
   const exportPreview = document.getElementById("exportPreview");
   const exportMeta = document.getElementById("exportMeta");
+  const exportDescription = document.getElementById("exportDescription");
+  const exportFormatLegend = document.getElementById("exportFormatLegend");
+  const exportFormatRadios = Array.from(document.querySelectorAll('input[name="exportFormat"]'));
+  const exportQualitySection = document.getElementById("exportQualitySection");
+  const exportQualityLabel = document.getElementById("exportQualityLabel");
+  const exportQualityHelp = document.getElementById("exportQualityHelp");
+  const exportQualityRange = document.getElementById("exportQualityRange");
+  const exportQualityValue = document.getElementById("exportQualityValue");
+  const exportQualitySmaller = document.getElementById("exportQualitySmaller");
+  const exportQualityBetter = document.getElementById("exportQualityBetter");
+  const exportQualityPresets = Array.from(document.querySelectorAll(".export-quality-preset"));
+  const exportQualityPresetsWrap = document.getElementById("exportQualityPresets");
   const downloadExport = document.getElementById("downloadExport");
-  const downloadJpg = document.getElementById("downloadJpg");
   const openExport = document.getElementById("openExport");
   const closeExport = document.getElementById("closeExport");
   let currentExportUrl = null;
-  let currentExportFile = null;
-  let currentExportJpgFile = null;
+  let currentExportBlob = null;
+  let currentExportFileName = "";
+  let currentExportCanvas = null;
+  let currentExportWidth = 0;
+  let currentExportHeight = 0;
+  let exportPreviewRequestId = 0;
+  let exportPreviewTimer = null;
+
+  function storePreference(key,value){
+    try { localStorage.setItem(key,value); } catch (_) {}
+  }
+
+  function applyTheme(theme,{persist=false}={}){
+    const nextTheme = theme === "dark" ? "dark" : "light";
+    document.documentElement.dataset.theme = nextTheme;
+    document.documentElement.style.colorScheme = nextTheme;
+    if(themeToggle){
+      themeToggle.checked = nextTheme === "dark";
+      const label = nextTheme === "dark" ? tr.themeEnableLight : tr.themeEnableDark;
+      themeToggle.setAttribute("aria-label",label);
+    }
+    if(themeSwitch) themeSwitch.title = tr.themeSwitch;
+    if(themeColorMeta) themeColorMeta.content = nextTheme === "dark" ? "#11131b" : "#eef2ff";
+    if(!state.bgManuallySet){
+      state.bg = nextTheme === "dark" ? "#000000" : "#ffffff";
+      bgColor.value = state.bg;
+      stage.style.background = state.bg;
+      const ring=stage.querySelector(".circle-gap-ring");
+      if(ring) ring.style.background=state.bg;
+      const customGap=stage.querySelector(".custom-gap-overlay");
+      if(customGap) customGap.style.color=state.bg;
+    }
+    if(persist) storePreference(THEME_STORAGE_KEY,nextTheme);
+  }
+
+  function syncAppearanceControls(){
+    if(languageSwitch){
+      languageSwitch.setAttribute("aria-checked",String(uiLang === "en"));
+      languageSwitch.setAttribute("aria-label",tr.languageSwitch);
+      languageSwitch.title = tr.languageSwitch;
+    }
+    applyTheme(document.documentElement.dataset.theme || "light");
+  }
+
+  function applyLanguage(language,{persist=false}={}){
+    uiLang = language === "en" ? "en" : "hu";
+    tr = I18N[uiLang];
+    document.documentElement.lang = uiLang;
+    document.documentElement.dataset.language = uiLang;
+    if(persist) storePreference(LANGUAGE_STORAGE_KEY,uiLang);
+    applyStaticTranslations();
+    renderLayoutButtons();
+    renderStage();
+  }
 
   function applyStaticTranslations(){
     document.title = tr.pageTitle;
-    document.querySelector(".brand-copy h1").textContent = tr.appTitle;
+    const brandTitle = document.querySelector(".site-brand-name");
+    if(brandTitle) brandTitle.setAttribute("aria-label",tr.appTitle);
     document.querySelector(".sub").textContent = tr.tagline;
     openHelp.setAttribute("aria-label",tr.helpOpen);
     openHelp.title = tr.helpTitleAttr;
+    syncAppearanceControls();
 
     const leftHeadings = document.querySelectorAll(".left h2");
     if(leftHeadings[0]) leftHeadings[0].textContent = tr.layoutHeading;
@@ -1599,7 +2117,6 @@
     setButton(exportBtn,tr.export,tr.exportFull);
     setButton(centerBtn,tr.center);
     setButton(removeBtn,tr.removeImage);
-    setButton(openExport,tr.openImage);
 
     mediaTray.setAttribute("aria-label",tr.loadedImages);
     mediaTray.title = tr.trayAddTitle;
@@ -1638,9 +2155,23 @@
     confirmClearAll.querySelector(".btn-label").textContent = tr.clearConfirmAction;
 
     document.getElementById("exportTitle").textContent = tr.exportTitle;
-    exportMeta.textContent = tr.exportChoose;
+    exportDescription.textContent = tr.exportChoose;
+    exportFormatLegend.textContent = tr.exportFormat;
+    exportQualityLabel.textContent = tr.exportQuality;
+    exportQualityHelp.textContent = tr.exportQualityHelp;
+    exportQualitySmaller.textContent = tr.exportSmaller;
+    exportQualityBetter.textContent = tr.exportBetter;
+    exportQualityPresetsWrap.setAttribute("aria-label",tr.exportQualityPresets);
+    document.querySelector('[data-format-help="png"]').textContent = tr.exportPngHelp;
+    document.querySelector('[data-format-help="jpg"]').textContent = tr.exportJpgHelp;
+    syncWebpExportAvailability();
+    exportQualityPresets[0].textContent = tr.exportSmaller;
+    exportQualityPresets[1].textContent = tr.exportRecommended;
+    exportQualityPresets[2].textContent = tr.exportMaximum;
     closeExport.setAttribute("aria-label",tr.close);
     exportPreview.alt = tr.exportPreviewAlt;
+    setButton(openExport,tr.openImage);
+    syncExportDialogState({refreshPreview:false});
     document.documentElement.style.setProperty("--drop-copy",JSON.stringify(tr.dropImage));
   }
 
@@ -5139,14 +5670,10 @@
   });
 
   colorSchemeQuery.addEventListener?.("change",e => {
-    if(state.bgManuallySet) return;
-    state.bg = e.matches ? "#000000" : "#ffffff";
-    bgColor.value = state.bg;
-    stage.style.background = state.bg;
-    const ring=stage.querySelector(".circle-gap-ring");
-    if(ring) ring.style.background=state.bg;
-    const customGap=stage.querySelector(".custom-gap-overlay");
-    if(customGap) customGap.style.color=state.bg;
+    let hasManualTheme = false;
+    try { hasManualTheme = localStorage.getItem(THEME_STORAGE_KEY) === "light" || localStorage.getItem(THEME_STORAGE_KEY) === "dark"; } catch (_) {}
+    if(hasManualTheme) return;
+    applyTheme(e.matches ? "dark" : "light");
   });
 
   aspect.addEventListener("change",() => {
@@ -5230,20 +5757,142 @@
     setTimeout(() => URL.revokeObjectURL(url),1500);
   }
 
-  function closeExportModal(){
-    exportModal.hidden = true;
+  function supportsCanvasWebpExport(){
+    try{
+      const canvas=document.createElement("canvas");
+      canvas.width=1;canvas.height=1;
+      return canvas.toDataURL("image/webp",.8).startsWith("data:image/webp");
+    }catch(_){ return false; }
   }
 
-  function showExportPreview(pngBlob,jpgBlob,pngFileName,jpgFileName,outW,outH){
-    if(currentExportUrl) URL.revokeObjectURL(currentExportUrl);
-    currentExportUrl = URL.createObjectURL(pngBlob);
-    currentExportFile = new File([pngBlob],pngFileName,{type:"image/png"});
-    currentExportJpgFile = new File([jpgBlob],jpgFileName,{type:"image/jpeg"});
-    exportPreview.src = currentExportUrl;
-    exportMeta.textContent = `${outW} × ${outH} px · PNG ${formatBytes(pngBlob.size)} · JPG ${formatBytes(jpgBlob.size)}`;
-    downloadExport.querySelector(".btn-label").textContent = "PNG";
-    downloadJpg.querySelector(".btn-label").textContent = "JPG";
+  const webpExportSupported = supportsCanvasWebpExport();
+
+  function getSelectedExportFormat(){
+    const selected=exportFormatRadios.find(radio=>radio.checked&&!radio.disabled);
+    return selected?.value || "jpg";
+  }
+
+  function getExportFormatInfo(format=getSelectedExportFormat()){
+    if(format==="png") return {mime:"image/png",ext:"png",label:"PNG",quality:undefined};
+    if(format==="webp") return {mime:"image/webp",ext:"webp",label:"WebP",quality:clamp(Number(exportQualityRange.value)||90,40,100)/100};
+    return {mime:"image/jpeg",ext:"jpg",label:"JPG",quality:clamp(Number(exportQualityRange.value)||90,40,100)/100};
+  }
+
+  function getStoredExportPreferences(){
+    let format="jpg", quality=90;
+    try{
+      const storedFormat=localStorage.getItem(EXPORT_FORMAT_STORAGE_KEY);
+      const storedQuality=Number(localStorage.getItem(EXPORT_QUALITY_STORAGE_KEY));
+      if(["png","jpg","webp"].includes(storedFormat)) format=storedFormat;
+      if(Number.isFinite(storedQuality)&&storedQuality>0) quality=clamp(storedQuality,40,100);
+    }catch(_){}
+    if(format==="webp"&&!webpExportSupported) format="jpg";
+    return {format,quality};
+  }
+
+  function saveExportPreferences(){
+    try{
+      localStorage.setItem(EXPORT_FORMAT_STORAGE_KEY,getSelectedExportFormat());
+      localStorage.setItem(EXPORT_QUALITY_STORAGE_KEY,String(clamp(Number(exportQualityRange.value)||90,40,100)));
+    }catch(_){}
+  }
+
+  function syncWebpExportAvailability(){
+    const webpRadio=exportFormatRadios.find(radio=>radio.value==="webp");
+    if(!webpRadio) return;
+    webpRadio.disabled=!webpExportSupported;
+    const option=webpRadio.closest(".export-format-option");
+    option?.classList.toggle("is-disabled",!webpExportSupported);
+    option?.setAttribute("aria-disabled",String(!webpExportSupported));
+    const help=option?.querySelector('[data-format-help="webp"]');
+    if(help) help.textContent=webpExportSupported?tr.exportWebpHelp:tr.exportWebpUnsupported;
+    if(!webpExportSupported&&webpRadio.checked){
+      const jpgRadio=exportFormatRadios.find(radio=>radio.value==="jpg");
+      if(jpgRadio) jpgRadio.checked=true;
+    }
+  }
+
+  function syncExportQualityPresets(){
+    const quality=clamp(Number(exportQualityRange.value)||90,40,100);
+    exportQualityValue.value=`${quality}%`;
+    exportQualityValue.textContent=`${quality}%`;
+    exportQualityPresets.forEach(button=>button.setAttribute("aria-pressed",String(Number(button.dataset.quality)===quality)));
+  }
+
+  function syncExportDialogState({refreshPreview=true}={}){
+    const format=getSelectedExportFormat();
+    const usesQuality=format!=="png";
+    exportQualitySection.classList.toggle("is-disabled",!usesQuality);
+    exportQualitySection.setAttribute("aria-disabled",String(!usesQuality));
+    exportQualityRange.disabled=!usesQuality;
+    exportQualityPresets.forEach(button=>button.disabled=!usesQuality);
+    syncExportQualityPresets();
+    const info=getExportFormatInfo(format);
+    downloadExport.querySelector(".btn-label").textContent=tr.exportSave(info.label);
+    if(refreshPreview&&currentExportCanvas) scheduleExportPreviewRefresh(0);
+  }
+
+  function scheduleExportPreviewRefresh(delay=180){
+    if(exportPreviewTimer) clearTimeout(exportPreviewTimer);
+    exportMeta.textContent=tr.exportPreviewUpdating;
+    exportPreviewTimer=setTimeout(()=>{
+      exportPreviewTimer=null;
+      refreshExportPreview();
+    },delay);
+  }
+
+  async function refreshExportPreview(){
+    if(!currentExportCanvas) return;
+    const requestId=++exportPreviewRequestId;
+    const format=getSelectedExportFormat();
+    const info=getExportFormatInfo(format);
+    downloadExport.disabled=true;
+    openExport.disabled=true;
+    try{
+      const blob=await canvasToBlob(currentExportCanvas,info.mime,info.quality);
+      if(requestId!==exportPreviewRequestId) return;
+      if(currentExportUrl) URL.revokeObjectURL(currentExportUrl);
+      currentExportUrl=URL.createObjectURL(blob);
+      currentExportBlob=blob;
+      const datePart=new Date().toISOString().slice(0,10);
+      currentExportFileName=`${tr.fileBase}-${datePart}.${info.ext}`;
+      exportPreview.src=currentExportUrl;
+      exportMeta.textContent=tr.exportMeta(currentExportWidth,currentExportHeight,info.label,formatBytes(blob.size));
+      downloadExport.querySelector(".btn-label").textContent=tr.exportSave(info.label);
+    }catch(err){
+      if(requestId!==exportPreviewRequestId) return;
+      console.error(err);
+      exportMeta.textContent=tr.exportFailed;
+    }finally{
+      if(requestId===exportPreviewRequestId){
+        downloadExport.disabled=!currentExportBlob;
+        openExport.disabled=!currentExportUrl;
+      }
+    }
+  }
+
+  function closeExportModal(){
+    exportModal.hidden = true;
+    if(exportPreviewTimer){ clearTimeout(exportPreviewTimer); exportPreviewTimer=null; }
+  }
+
+  function openExportModal(canvas,outW,outH){
+    currentExportCanvas=canvas;
+    currentExportWidth=outW;
+    currentExportHeight=outH;
+    currentExportBlob=null;
+    const preferences=getStoredExportPreferences();
+    syncWebpExportAvailability();
+    const preferred=exportFormatRadios.find(radio=>radio.value===preferences.format&&!radio.disabled);
+    if(preferred) preferred.checked=true;
+    exportQualityRange.value=String(preferences.quality);
+    exportMeta.textContent=tr.exportPreparing;
     exportModal.hidden = false;
+    syncExportDialogState({refreshPreview:false});
+    requestAnimationFrame(()=>{
+      exportFormatRadios.find(radio=>radio.checked)?.focus({preventScroll:true});
+    });
+    refreshExportPreview();
   }
 
   async function exportImage(){
@@ -5326,15 +5975,7 @@
       }
 
       drawCustomGapOverlayOnCanvas(ctx,outW,outH,exportGap,scale);
-
-      const [pngBlob,jpgBlob] = await Promise.all([
-        canvasToBlob(canvas,"image/png"),
-        canvasToBlob(canvas,"image/jpeg",.84)
-      ]);
-      const datePart = new Date().toISOString().slice(0,10);
-      const pngFileName = `${tr.fileBase}-${datePart}.png`;
-      const jpgFileName = `${tr.fileBase}-${datePart}-${tr.optimizedSuffix}.jpg`;
-      showExportPreview(pngBlob,jpgBlob,pngFileName,jpgFileName,outW,outH);
+      openExportModal(canvas,outW,outH);
       status.textContent = tr.exportReady(outW,outH);
     } catch(err){
       console.error(err);
@@ -5346,16 +5987,30 @@
     }
   }
 
-  downloadExport.addEventListener("click",() => {
-    if(!currentExportFile) return;
-    downloadBlob(currentExportFile,currentExportFile.name);
-    status.textContent = tr.pngStarted(currentExportFile.name);
+  exportFormatRadios.forEach(radio=>radio.addEventListener("change",()=>{
+    saveExportPreferences();
+    syncExportDialogState();
+  }));
+
+  exportQualityRange.addEventListener("input",()=>{
+    syncExportQualityPresets();
+    saveExportPreferences();
+    if(currentExportCanvas) scheduleExportPreviewRefresh(220);
   });
 
-  downloadJpg.addEventListener("click",() => {
-    if(!currentExportJpgFile) return;
-    downloadBlob(currentExportJpgFile,currentExportJpgFile.name);
-    status.textContent = tr.jpgStarted(currentExportJpgFile.name);
+  exportQualityPresets.forEach(button=>button.addEventListener("click",()=>{
+    exportQualityRange.value=button.dataset.quality||"90";
+    syncExportQualityPresets();
+    saveExportPreferences();
+    if(currentExportCanvas) scheduleExportPreviewRefresh(0);
+  }));
+
+  downloadExport.addEventListener("click",async()=>{
+    if(!currentExportBlob) await refreshExportPreview();
+    if(!currentExportBlob) return;
+    const info=getExportFormatInfo();
+    downloadBlob(currentExportBlob,currentExportFileName);
+    status.textContent=tr.exportStarted(info.label,currentExportFileName);
   });
 
   openExport.addEventListener("click",() => {
@@ -5399,6 +6054,14 @@
       }
     });
   }
+
+  languageSwitch?.addEventListener("click",() => {
+    applyLanguage(uiLang === "hu" ? "en" : "hu",{persist:true});
+  });
+
+  themeToggle?.addEventListener("change",() => {
+    applyTheme(themeToggle.checked ? "dark" : "light",{persist:true});
+  });
 
   window.addEventListener("resize",() => { updateStageGeometry(); refreshAllImages(); });
 
