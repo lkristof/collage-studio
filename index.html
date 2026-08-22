@@ -1454,7 +1454,7 @@
   const I18N = {
     hu:{
       pageTitle:"Collage Studio - Készíts egyedi kollázst",
-      appTitle:"Collage Studio",
+      appTitle:"Kollázs Stúdió", brandBase:"Kollázs", brandAccent:"Stúdió",
       tagline:"A te elrendezésed. Egyedi kollázs pár mozdulattal.",
       languageSwitch:"Váltás angol nyelvre", themeSwitch:"Megjelenési téma váltása", themeEnableDark:"Sötét téma bekapcsolása", themeEnableLight:"Világos téma bekapcsolása",
       helpOpen:"Használati súgó megnyitása", helpTitleAttr:"Használati súgó",
@@ -1506,7 +1506,7 @@
     },
     en:{
       pageTitle:"Collage Studio - Create unique collages",
-      appTitle:"Collage Studio",
+      appTitle:"Collage Studio", brandBase:"Collage", brandAccent:"Studio",
       tagline:"Your layout. A unique collage in just a few moves.",
       languageSwitch:"Switch to Hungarian", themeSwitch:"Change appearance theme", themeEnableDark:"Enable dark theme", themeEnableLight:"Enable light theme",
       helpOpen:"Open quick guide", helpTitleAttr:"Help",
@@ -2089,7 +2089,13 @@
   function applyStaticTranslations(){
     document.title = tr.pageTitle;
     const brandTitle = document.querySelector(".site-brand-name");
-    if(brandTitle) brandTitle.setAttribute("aria-label",tr.appTitle);
+    if(brandTitle){
+      brandTitle.setAttribute("aria-label",tr.appTitle);
+      const brandBase = brandTitle.querySelector(".site-brand-base");
+      const brandAccent = brandTitle.querySelector(".site-brand-accent");
+      if(brandBase) brandBase.textContent = tr.brandBase;
+      if(brandAccent) brandAccent.textContent = tr.brandAccent;
+    }
     document.querySelector(".sub").textContent = tr.tagline;
     openHelp.setAttribute("aria-label",tr.helpOpen);
     openHelp.title = tr.helpTitleAttr;
