@@ -2,7 +2,7 @@
 
 A modern, browser-based collage editor for creating custom image layouts quickly and intuitively.
 
-Collage Studio runs entirely in the browser and provides a collection of ready-made layouts, adjustable dividers, custom-drawn layouts, image positioning controls, and high-resolution PNG and JPG export — without requiring a backend or external framework.
+Collage Studio runs entirely in the browser and provides a collection of ready-made layouts, adjustable dividers, custom-drawn layouts, image positioning controls, and high-resolution PNG/JPG export plus WebP export when supported by the browser — without requiring a backend or external framework.
 
 ## Features
 
@@ -36,9 +36,11 @@ Collage Studio runs entirely in the browser and provides a collection of ready-m
 
     * Drag images inside their slots
     * Drag images between collage slots
-    * Reorder loaded images
-    * Replace or remove individual images
-    * Drop image files directly onto collage slots
+    * Reorder images in the loaded-images strip
+    * Drag loaded images onto collage slots
+    * Remove an image from the collage while keeping it loaded
+    * Permanently delete individual loaded images by dragging them onto **Delete**
+    * Drop image files directly onto collage slots or the loaded-images strip
 
 * **Image zoom and positioning**
 
@@ -62,8 +64,12 @@ Collage Studio runs entirely in the browser and provides a collection of ready-m
 * **High-resolution export**
 
     * PNG export
-    * Optimized JPG export
-    * Export preview
+    * JPG export with adjustable compression quality
+    * WebP export when supported by the browser
+    * Quality slider and quick presets for JPG and WebP
+    * Export preview with dimensions, format, and generated file size
+    * Open the generated image in a new tab before downloading
+    * Remembers the last selected export format and quality
     * Multiple output widths:
 
         * 1200 px
@@ -78,15 +84,19 @@ Collage Studio runs entirely in the browser and provides a collection of ready-m
     * Mobile gestures
     * Safe-area support
 
-* **Automatic dark mode**
+* **Light and dark themes**
 
-    * Follows the operating system's preferred color scheme
+    * Uses the operating system's preferred color scheme by default
+    * Manual light/dark theme switch
+    * Remembers the selected theme locally
 
 * **Built-in localization**
 
     * English
     * Hungarian
-    * Language is selected automatically from the browser settings
+    * Uses the browser language by default
+    * Manual language switch
+    * Remembers the selected language locally
 
 ## Getting Started
 
@@ -102,17 +112,20 @@ Alternatively, clone the repository and serve it with any static web server.
 
 1. Choose a collage layout.
 2. Select the desired aspect ratio.
-3. Click **Images** to add photos, or drop them directly onto the collage.
-4. Drag an image to reposition it inside its slot.
+3. Click **Images** to add photos, or drop image files onto the collage or loaded-images strip.
+4. Drag a loaded image onto a collage slot, then drag it inside the slot to reposition it.
 5. Use the zoom control, pinch gesture, or Ctrl/⌘ + scroll to resize the selected image.
 6. Drag divider handles to customize the layout.
 7. Adjust the gap, corner radius, and background color.
 8. Choose an export resolution.
-9. Click **Export** and save the collage as PNG or JPG.
+9. Click **Export**, choose PNG, JPG, or WebP (when supported), and adjust quality for JPG/WebP if needed.
+10. Preview the result, then download it or open the generated image in a new tab.
 
-### Swapping images
+### Managing and swapping images
 
 Press and hold an image, then drag it onto another collage slot to swap their positions.
+
+Drag an image from the collage onto the loaded-images strip to remove it from the layout without unloading it. Drag an image onto **Delete** to remove it permanently from the loaded images.
 
 ### Custom Draw Mode
 
@@ -123,6 +136,7 @@ With drawing enabled:
 * Drag across the canvas to create a new divider.
 * Hold `Shift` while drawing to snap the divider to 15° increments.
 * Drag an existing divider to move it while keeping its angle.
+* Drag a divider completely off the canvas to delete it.
 * Click or tap a divider segment between intersections to delete or detach it.
 * Use **Undo** to revert the latest custom layout change.
 
