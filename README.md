@@ -104,7 +104,7 @@ Collage Studio is a client-side application and does not require a build process
 
 You can use the hosted version directly in your browser:
 
-**[Open Collage Studio](https://lkristof.github.io/collage-studio/)**
+**[Open Collage Studio](https://collage-studio.pages.dev/)**
 
 Alternatively, clone the repository and serve it with any static web server.
 
